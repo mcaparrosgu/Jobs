@@ -1,0 +1,254 @@
+{
+  "perfil": {
+    "nombre": "Mar Caparrós Guitart",
+    "titular_general": "Operations & Process Specialist · Remote · AI-Enhanced Workflows",
+    "contacto": {
+      "email": "mcaparrosgu@gmail.com",
+      "telefono": "+34 670293436",
+      "linkedin": "linkedin.com/in/mar-caparrós-guitart",
+      "ubicacion": "España"
+    },
+    "resumen_general": "Especialista en operaciones con 7+ años gestionando coordinación compleja y de alto volumen en entornos exigentes. Background en Publicidad Creativa que aporta claridad comunicativa a los cambios de proceso. Cómoda trabajando de forma independiente, con múltiples prioridades y aprendizaje rápido de herramientas nuevas. Actualmente cursando el Bootcamp de AI Engineering en NEOLAND (360 h), aplicando automatización con n8n, APIs de LLMs y Docker a procesos reales.",
+    "idiomas": [
+      "Español (nativo)",
+      "Catalán (nativo)",
+      "Inglés (C1 avanzado)"
+    ],
+    "disponibilidad": "100% remoto, disponibilidad inmediata"
+  },
+  "experiencia": [
+    {
+      "puesto": "Operations & Scheduling Officer",
+      "empresa": "Althaia Healthcare Institution",
+      "modalidad": "Presencial",
+      "fechas": "Marzo 2019 – Presente",
+      "tareas": [
+        "Gestión simultánea de agendas públicas y privadas en 7 centros, coordinando 300+ profesionales con distintos horarios y protocolos",
+        "Creación desde cero de documentación interna de referencia (guías de programación, hojas de protocolo), compartida con todo el equipo por iniciativa propia",
+        "Auditoría y limpieza de 200+ registros de base de datos desactualizados que distorsionaban el reporting",
+        "Formación de nuevos agentes en sistemas complejos como parte de la responsabilidad compartida del equipo",
+        "Gestión de datos sensibles de pacientes en cumplimiento estricto de GDPR, sin excepciones"
+      ],
+      "enfoques_alternativos": {
+        "admin_soporte": "Unificación de la logística de programación para 300+ calendarios médicos; liderazgo de un proyecto de integridad de datos auditando y desactivando 200+ registros obsoletos",
+        "datos_operaciones": "Centralización y estandarización de la logística de programación en 5-7 centros sanitarios; diseño e implementación de protocolos internos para agilizar flujos administrativos"
+      }
+    },
+    {
+      "puesto": "Digital Strategist & Operations Lead",
+      "empresa": "E2S Creative Agency",
+      "modalidad": "Remoto",
+      "fechas": "Septiembre 2017 – Septiembre 2018",
+      "tareas": [
+        "Gestión de operaciones digitales para hasta 9 cuentas de cliente a la vez, sin supervisión diaria",
+        "Crecimiento del 400% en alcance social de un cliente en un año mediante ejecución consistente y decisiones basadas en datos (Google Analytics y Ads)",
+        "Entrega de auditorías y benchmarking de marca usados por los clientes para decisiones estratégicas reales"
+      ],
+      "enfoques_alternativos": {
+        "comunicacion_digital": "Ejecución de estrategia de contenido completa y entrega para 8-9 cuentas de redes sociales, gestionando correspondencia con clientes y plazos de forma independiente; monitorización de rendimiento de campañas con Google Analytics/Ads"
+      }
+    },
+    {
+      "puesto": "Shift Supervisor",
+      "empresa": "Tezenis – Calzedonia Group",
+      "modalidad": "Presencial",
+      "fechas": "Agosto 2016 – Junio 2017",
+      "tareas": [
+        "Supervisión de operaciones diarias de tienda y equipo de 4 personas (stock, reporting, horarios, resolución de incidencias)"
+      ]
+    }
+  ],
+  "formacion": [
+    {
+      "titulo": "Bootcamp AI Engineering",
+      "institucion": "NEOLAND",
+      "fechas": "Mayo 2026 – Noviembre 2026 (en curso)",
+      "detalle": "360 horas, formato part-time. Python para IA, prompt engineering y APIs de LLMs (OpenAI, Anthropic, Google), automatización con n8n y Make, self-hosting con Docker, RAG y bases vectoriales, agentes con LangChain/LangGraph, backend con FastAPI, LLMOps y AI Act."
+    },
+    {
+      "titulo": "Grado en Comunicación y Publicidad Creativa",
+      "institucion": "UOC — Universitat Oberta de Catalunya",
+      "fechas": "2012–2019",
+      "detalle": "Graduada con Honores · 100% a distancia"
+    },
+    {
+      "titulo": "Diseño Gráfico",
+      "institucion": "Escola Llotja, Barcelona",
+      "fechas": "2010–2012",
+      "detalle": ""
+    },
+    {
+      "titulo": "Grado en Historia (no finalizado)",
+      "institucion": "Universidad de Granada",
+      "fechas": "3 de 5 años cursados",
+      "detalle": "No completado"
+    }
+  ],
+  "proyectos": [
+    {
+      "nombre": "Ex-Libris — App de recomendación lectora con búsqueda semántica",
+      "fechas": "2026",
+      "estado": "Prototipo funcional, no publicado",
+      "etiquetas": [
+        "ia",
+        "rag",
+        "embeddings",
+        "desarrollo web",
+        "producto"
+      ],
+      "descripcion": "Aplicación web que recomienda libros a personas que quieren iniciarse en el hábito de la lectura, usando un motor de recomendación basado en embeddings en lugar de coincidencia por palabras clave.",
+      "detalles_tecnicos": [
+        "Motor de recomendación híbrido con embeddings semánticos (gemini-embedding-2) y búsqueda por similitud coseno",
+        "Base de datos vectorial con pgvector sobre Supabase/PostgreSQL, vectores de 3072 dimensiones e índice HNSW",
+        "Vector de gusto por usuario, recalculado automáticamente a partir de valoraciones, libros terminados y descartes",
+        "Recomendaciones explicables: cada sugerencia indica con qué lectura previa del usuario se relaciona",
+        "Funciones de servidor para el cálculo de vectores y la generación de recomendaciones",
+        "Sistema de progreso, insignias y notificaciones push",
+        "Stack: TanStack Start, React, TypeScript, Tailwind, Supabase"
+      ],
+      "enfoques_alternativos": {
+        "tecnico": "Diseño e implementación de un sistema de recomendación semántica: generación de embeddings, almacenamiento vectorial con pgvector e índice HNSW, búsqueda por similitud coseno y actualización incremental del perfil de gusto del usuario a partir de su feedback.",
+        "producto": "Diseño de una aplicación completa orientada a un problema concreto (iniciarse en la lectura), desde la definición del usuario objetivo hasta el sistema de recomendación y la mecánica de seguimiento del hábito."
+      }
+    },
+    {
+      "nombre": "Sistema automatizado de búsqueda de empleo con n8n e IA",
+      "fechas": "2026 – en curso",
+      "estado": "En funcionamiento, uso propio diario",
+      "etiquetas": [
+        "automatizacion",
+        "n8n",
+        "apis",
+        "ia",
+        "datos",
+        "operaciones"
+      ],
+      "descripcion": "Workflow propio, autohospedado, que agrega ofertas de empleo remoto desde varias APIs, las filtra, deduplica y notifica, y genera documentación de candidatura con IA.",
+      "detalles_tecnicos": [
+        "Workflow de 14 nodos en n8n con ejecución programada dos veces al día",
+        "Integración de múltiples fuentes de datos vía API (Adzuna, Indeed a través de Apify), normalizadas a un formato común",
+        "Deduplicación por hash (empresa + puesto), tanto contra el histórico almacenado como dentro de la propia ejecución",
+        "Persistencia en Google Sheets y notificación por Gmail con informe HTML generado dinámicamente",
+        "Manejo de errores en rama paralela con sistema de alertas independiente ante fallo de cualquier fuente",
+        "Self-hosting con Docker y docker-compose (n8n + PostgreSQL), variables de entorno y acceso remoto vía Tailscale",
+        "Integración con la API de Anthropic para generar documentación de candidatura adaptada a cada oferta"
+      ],
+      "enfoques_alternativos": {
+        "tecnico": "Diseño e implementación end-to-end de un pipeline de datos automatizado: ingesta multi-fuente vía API, normalización, deduplicación por hash, persistencia, notificación e integración con LLM. Desplegado en contenedores con docker-compose.",
+        "operaciones": "Automatización de un proceso manual y repetitivo, eliminando la revisión diaria de varios portales y el riesgo de duplicados, con alertas automáticas cuando una fuente falla."
+      }
+    },
+    {
+      "nombre": "Automatización de resúmenes de vídeo con IA para estudio",
+      "fechas": "2026",
+      "estado": "En funcionamiento, uso propio habitual",
+      "etiquetas": [
+        "automatizacion",
+        "n8n",
+        "ia",
+        "apis",
+        "productividad"
+      ],
+      "descripcion": "Workflow en n8n que convierte varios vídeos formativos de YouTube en resúmenes estructurados en castellano, guardados automáticamente como documentos, para acelerar el estudio de material técnico.",
+      "detalles_tecnicos": [
+        "Procesamiento por lotes: acepta varias URLs en una sola ejecución (probado con 8 vídeos simultáneos)",
+        "Extracción de transcripciones vía API externa (Apify)",
+        "Resumen con LLM mediante cadena de summarization, con prompt propio que impone una estructura fija: idea general, pasos ordenados, definiciones de conceptos técnicos y ejemplos",
+        "Consolidación de todos los resúmenes en un único documento y creación automática en Google Docs",
+        "Uso habitual como herramienta de estudio propia"
+      ],
+      "enfoques_alternativos": {
+        "tecnico": "Pipeline de procesamiento por lotes con separación de URLs, llamadas a API externa, resumen mediante LLM con prompt estructurado y escritura automática del resultado en Google Docs.",
+        "productividad": "Automatización de la síntesis de material formativo audiovisual, reduciendo horas de vídeo a resúmenes estructurados y consultables."
+      }
+    },
+    {
+      "nombre": "Automatización de recordatorios de citas para clínica de fisioterapia animal",
+      "fechas": "2026 – en construcción",
+      "estado": "En construcción, destinado a una profesional real",
+      "etiquetas": [
+        "automatizacion",
+        "n8n",
+        "cliente real",
+        "operaciones",
+        "sanitario"
+      ],
+      "descripcion": "Workflow en n8n para el envío automático de recordatorios de cita por email y SMS a los pacientes de una clínica de fisioterapia animal, en desarrollo para su uso por una profesional del sector.",
+      "detalles_tecnicos": [
+        "Envío automatizado de recordatorios por email y SMS",
+        "Desarrollado a partir de una necesidad real planteada por una profesional en activo",
+        "Proyecto en construcción; prevista la incorporación de WhatsApp como canal adicional"
+      ],
+      "enfoques_alternativos": {
+        "operaciones": "Automatización de la comunicación con pacientes para reducir la gestión manual de recordatorios y el absentismo a citas, a partir de una necesidad real detectada con la profesional usuaria.",
+        "tecnico": "Workflow multicanal (email y SMS) en n8n con integración de servicios de envío, en desarrollo activo."
+      }
+    },
+    {
+      "nombre": "Spotify to Tidal — Transferencia de listas de reproducción",
+      "fechas": "2026",
+      "estado": "Funcional, transferencias reales completadas; no publicado",
+      "etiquetas": [
+        "desarrollo web",
+        "apis",
+        "oauth",
+        "integracion"
+      ],
+      "descripcion": "Aplicación web que transfiere listas de reproducción de Spotify a Tidal, resolviendo la falta de herramientas gratuitas para migrar entre ambos servicios.",
+      "detalles_tecnicos": [
+        "Aplicación en Next.js con rutas de API propias",
+        "Autenticación OAuth 2.1 completa contra Tidal: inicio de sesión, callback, comprobación de estado y cierre de sesión",
+        "Lectura de las listas a partir del fichero de exportación de datos que Spotify facilita al usuario, evitando depender de acceso privilegiado a su API",
+        "Búsqueda y emparejamiento de las canciones en el catálogo de Tidal y creación de la lista en la cuenta destino",
+        "Transferencias reales completadas con éxito"
+      ],
+      "enfoques_alternativos": {
+        "tecnico": "Integración entre dos servicios musicales mediante OAuth 2.1 y APIs REST, con emparejamiento de catálogos y creación de recursos en la cuenta destino.",
+        "producto": "Resolución de una necesidad concreta sin solución gratuita disponible, eligiendo una vía de acceso a los datos (exportación del usuario) que evita restricciones de API."
+      }
+    }
+  ],
+  "habilidades": [
+    "n8n (workflows, APIs, manejo de errores, self-hosting)",
+    "Make",
+    "Docker y docker-compose",
+    "Python (nivel básico)",
+    "Desarrollo asistido por IA (Claude Code, opencode, Lovable)",
+    "APIs de LLMs (Anthropic, OpenAI, Google)",
+    "Prompt engineering",
+    "Embeddings y búsqueda semántica (pgvector, similitud coseno)",
+    "APIs REST e integración de servicios",
+    "OAuth 2.0 / 2.1",
+    "React",
+    "Next.js",
+    "TypeScript",
+    "Supabase / PostgreSQL",
+    "Tailwind CSS",
+    "Google Workspace (experta)",
+    "Notion",
+    "Slack",
+    "CRM systems",
+    "Google Analytics & Ads",
+    "MS Office",
+    "Adobe Creative Suite",
+    "Cumplimiento GDPR",
+    "Auditoría de datos",
+    "Documentación de procesos",
+    "Optimización de procesos",
+    "Comunicación escrita y verbal"
+  ],
+  "notas_para_la_ia": [
+    "No inventar cifras, logros ni tareas que no estén en este perfil.",
+    "Usar 'enfoques_alternativos' cuando la oferta se oriente claramente a ese ángulo (ej. admin/soporte remoto, comunicación digital, datos/operaciones); si no hay un enfoque específico, usar la redacción general de 'tareas'.",
+    "SELECCIÓN DE PROYECTOS: no incluyas todos los proyectos. Elige entre 2 y 3, los más relevantes para la oferta concreta, usando el campo 'etiquetas' de cada uno para decidir. Un CV con 5 proyectos se lee como una lista; con 2 o 3 bien elegidos se lee como un argumento. Ordénalos poniendo primero el más relevante para esa oferta, no siempre el mismo.",
+    "ESTADO DE LOS PROYECTOS: respeta literalmente el campo 'estado' de cada proyecto. Si un proyecto no está publicado, nunca lo presentes como producto en producción, con usuarios reales o con tráfico. Si está en construcción, indícalo. 'Prototipo funcional' y 'aplicación en producción' no son lo mismo y confundirlos es una invención.",
+    "Los números de esta experiencia (7 centros, 300+ profesionales, 9 cuentas, 400% de crecimiento, 200+ registros, 7+ años, 14 nodos, 360 horas) son los oficiales y no deben variar entre versiones de CV.",
+    "El Grado en Historia no se completó (3 de 5 años). Incluirlo solo si aporta valor para la oferta concreta, y siempre indicando claramente que no fue finalizado — nunca presentarlo como titulación completa.",
+    "El Bootcamp de AI Engineering está EN CURSO, no finalizado. Indicarlo siempre como formación en curso con fecha prevista de finalización en noviembre de 2026. Nunca presentarlo como título ya obtenido.",
+    "ORDEN FIJO de las secciones del CV, sin excepciones y sea cual sea la oferta: 1) titular y resumen, 2) experiencia profesional, 3) proyectos, 4) formación, 5) habilidades e idiomas. No reordenar nunca. La adaptación a cada oferta se hace cambiando el CONTENIDO (qué tareas se destacan, qué enfoque_alternativo se usa, cómo se redacta el resumen), nunca el orden de las secciones.",
+    "El bootcamp debe aparecer mencionado en una sola línea dentro del resumen inicial, además de su entrada completa en 'formacion'. Así es visible desde el principio sin desplazar a la experiencia profesional.",
+    "Sobre programación: el nivel de Python es básico y no debe presentarse nunca como intermedio o avanzado. Lo que sí es sólido es el desarrollo asistido por IA (Claude Code, opencode y herramientas similares), que es la metodología con la que se construyó el proyecto de n8n. Si la oferta pide programación, describir esta capacidad de forma honesta y concreta, sin exagerar el nivel de Python ni ocultarlo.",
+    "El temario del bootcamp lista tecnologías del programa completo; solo pueden presentarse como experiencia aplicada las que aparecen en 'proyectos' o 'habilidades'. El resto se menciona únicamente como contenido formativo en curso.",
+    "Las tecnologías de desarrollo web (React, Next.js, TypeScript, Supabase, Tailwind) proceden de proyectos propios construidos con asistencia de IA, no de experiencia profesional como desarrolladora. Se pueden mencionar como tecnologías usadas en proyectos personales, pero no presentarlas como años de experiencia profesional en desarrollo."
+  ]
+}
