@@ -299,6 +299,17 @@ Apify (bloqueada por un fallo del portal de terceros). Las tres confirmaciones
 sobre ejecución real y el vigilante que le faltaba a
 [Jobs · archivado](jobs-archivado.md) se cerraron el 17 ago 2026.
 
+**Actualización 29 ago 2026:** la tarea (1) nunca se completó — al ir a revisar
+el disparador se vio que **no había ningún proyecto Apps Script en la hoja**. Se
+creó ese día y se lanzó `crearDisparador()` (pendiente de confirmar que el
+disparador horario corre solo). Además se añadió a `Jobs · ingesta` un
+guardarraíl que avisa por email si el hueco de filas vacías reaparece (nodos
+`Guardarraíl huecos` + `Aviso huecos`, ver
+[jobs-ingesta.md](jobs-ingesta.md) sección D). **Se volvió a tropezar con
+«publicar no es guardar»**: el `update_workflow` del guardarraíl dejó
+`versionId` ≠ `activeVersionId` hasta llamar a `publish_workflow`. Seguimiento en
+[tareas-pendientes.md](tareas-pendientes.md).
+
 Notas técnicas sobre el propio proceso de corrección, que han costado tiempo
 más de una vez:
 

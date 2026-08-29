@@ -156,7 +156,7 @@ Si hay que hacer cambios manuales a fondo, mejor fuera de las ventanas
 09:00/17:00, o revisar las ejecuciones de `Jobs · archivado` y `Jobs · ingesta`
 después para entender cualquier cambio de recuento.
 
-# 29 ago 2026: el Apps Script no estaba corriendo
+# 29 ago 2026: el Apps Script no existía
 
 Entre el 25 y el 29 ago 2026, `Ofertas_activas` acumuló ~260 filas vacías
 (filas 20–279) entre los datos hasta el 24 ago y las ofertas del 27–29 ago, que
@@ -166,9 +166,14 @@ escritas, pero al abrir la hoja parecía que la ingesta se había parado el día
 24. Es el mismo descuadre que este documento describe como evitable —**y era
 evitable**: el reformateo manual del 27 ago dejó filas con el contenido borrado
 (no las filas), y el Apps Script horario, que tenía que reordenar y purgarlas en
-la hora siguiente, **no se ejecutó**. Señales de que estaba caído: orden viejo
-en las filas de arriba, `generar_cv_ia` otra vez como texto `FALSE`, hueco
-nunca limpiado durante días.
+la hora siguiente, no lo hizo. Señales: orden viejo en las filas de arriba,
+`generar_cv_ia` otra vez como texto `FALSE`, hueco nunca limpiado durante días.
+
+**Al ir a revisar el disparador el 29 ago se descubrió que no había ningún
+proyecto Apps Script en la hoja** (Extensiones → Apps Script estaba vacío). No es
+que el disparador hubiera caducado o fallado por cuota: el script que este
+documento describe **nunca llegó a instalarse ahí**. Lo que el 27 ago se dio por
+"automatizado con un Apps Script dentro de la hoja" no quedó guardado en la hoja.
 
 Arreglado a mano vía API el 29 ago (fuera de n8n): borradas las filas vacías,
 las dos pestañas reordenadas por `fecha_guardado` desc, casilla reaplicada al
@@ -178,10 +183,16 @@ con datos (27 ago y parte del 28), recuperadas de las ejecuciones n8n 653,
 reformateo manual del 27. Como blindaje en n8n se puso `useAppend: true` en
 `Append row in sheet` (ver [jobs-ingesta.md](jobs-ingesta.md)).
 
-**Pendiente:** revisar en la hoja el disparador horario del Apps Script
-(Extensiones → Apps Script → Activadores) — comprobar que sigue activo y no ha
-fallado por permisos/cuota. Sin ese script vivo, cualquier hueco que deje un
-borrado de contenido o un archivado se acumula en vez de limpiarse solo.
+**Hecho el 29 ago (pendiente de revisión):** creado el proyecto Apps Script
+desde cero en la hoja con el script de este documento y ejecutado
+`crearDisparador()`. Verificado vía API que tras esa primera pasada la hoja queda
+ordenada, sin huecos, con casilla real y alto 21 px. **Falta confirmar** en
+Extensiones → Apps Script → Activadores que el disparador horario queda armado y
+que una pasada `mantenimiento` automática sale `Completado` sola — sin ese script
+vivo, cualquier hueco que deje un borrado de contenido o un archivado se acumula
+en vez de limpiarse solo. Como segunda red, `Jobs · ingesta` ahora avisa por
+email si el hueco reaparece (ver [jobs-ingesta.md](jobs-ingesta.md), sección
+«D. Guardarraíl de huecos en `Ofertas_activas`»).
 
 # Relacionados
 

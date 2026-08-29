@@ -6,13 +6,26 @@ tags: [n8n, empleo, tareas]
 timestamp: 2026-08-29T09:00:00Z
 ---
 
-# Abiertas
+# Hechas (pendientes de revisión)
 
 ## 1. Revisar el disparador horario del Apps Script de `n8n_jobs`
 
 **Prioridad: alta.** Es la causa raíz del incidente del 29 ago 2026 (ver
 [jobs-hoja-formato.md](jobs-hoja-formato.md#29-ago-2026-el-apps-script-no-estaba-corriendo)
 y [jobs-ingesta.md](jobs-ingesta.md#fallos-conocidos)).
+
+**Estado (29 ago 2026):** hecha, pendiente de revisión. Al abrir la hoja **no
+existía ningún proyecto Apps Script** — no era que el disparador hubiera fallado,
+es que el script nunca estuvo instalado ahí. Se creó el proyecto desde cero, se
+pegó el script documentado en `jobs-hoja-formato.md` y se ejecutó
+`crearDisparador()`. Verificado vía API sobre la hoja: `Ofertas_activas` con 39
+filas ordenadas por `fecha_guardado` desc, sin huecos, hoja recortada a 40 filas
+exactas, casilla real (`dataValidation BOOLEAN`) y booleano `false` en
+`generar_cv_ia`, alto 21 px; `Archivo` ordenado y con `generar_cv_ia` vacía y sin
+casilla. **Falta confirmar** en Extensiones → Apps Script → Activadores que el
+disparador horario está armado sin error, y en Ejecuciones que una pasada
+`mantenimiento` automática sale `Completado` sola (revisión prevista ~18:00 del
+29 ago, tras la ingesta de las 17:00).
 
 El script `mantenimiento` (Extensiones → Apps Script dentro de la hoja) debería
 correr cada hora: reordena las dos pestañas por `fecha_guardado` desc, fuerza
@@ -46,7 +59,29 @@ Idea: en `Jobs · ingesta`, tras `Get row(s) in sheet`, comparar el
 margen pequeño (hay filas vacías intercaladas), mandar un aviso por la rama de
 error / email en vez de seguir como si nada. No bloquea la ingesta, solo avisa.
 
-**Cierre:** una ejecución de prueba con huecos simulados dispara el aviso.
+**Estado (29 ago 2026):** hecha, pendiente de revisión. Implementado vía n8n MCP
+en `Jobs · ingesta` (ID `CXCD8BZUQEQKex2a`) como **rama aislada de 2 nodos**
+colgando de `Get row(s) in sheet`, sin tocar el `append`, el email de nuevas
+ofertas ni la rama de error compartida (`Unir aviso error`):
+- **`Guardarraíl huecos`** (Code): `huecos = max(row_number) − filasConDatos − 1`.
+  Si `huecos > 5` emite 1 item; si no, devuelve `[]`.
+- **`Aviso huecos`** (Gmail, credencial `Gmail account`, a `mcaparrosgu@gmail.com`,
+  `retryOnFail` 3×3 s): solo se ejecuta si el guardarraíl emitió item.
+Wiring: `Get row(s) in sheet` → `Guardarraíl huecos` → `Aviso huecos` (la salida
+existente a `Leer archivo` se conserva). Verificado en la respuesta del MCP que
+las conexiones y los dos nodos quedaron bien, y **publicado** con
+`publish_workflow` (`versionId` == `activeVersionId` = `8978c4dc…`) — sin esa
+llamada el cambio quedaba guardado pero no en producción.
+
+**Falta revisar:** (1) que el nodo `Aviso huecos` tiene la credencial `Gmail
+account` seleccionada en el desplegable; (2) *Execute step* en `Guardarraíl
+huecos` con la hoja sana → sin items y `huecos: 0`; (3) bajar `UMBRAL` a `-1`,
+ejecutar y confirmar que llega el correo, y **volver a dejarlo en 5**.
+
+**Cierre:** una ejecución de prueba con huecos simulados (o `UMBRAL = -1`)
+dispara el aviso.
+
+# Abiertas
 
 ## 3. Decidir qué hacer con las ofertas del 25 y 26 ago 2026
 

@@ -23,12 +23,13 @@ nueva (`pendiente`) y su archivado.
   cambio de ID)
 - **Estado:** activo desde el 6 ago 2026 tras el split (`active: true`, 1
   trigger)
-- **Nodos:** 44 (46 hasta el 14 ago 2026 por la tarde, cuando entro
+- **Nodos:** 46 (46 hasta el 14 ago 2026 por la tarde, cuando entro
   `HTTP Request Detalle RemotoJob`; 47 desde el 15 ago con la reconexión de
   `HTTP Request All Jobs Scraper`; 42 desde el 16 ago 2026 al separar los 5
   nodos de archivado a [Jobs · archivado](jobs-archivado.md); 44 desde el 18
-  ago 2026 al entrar `HTTP Request Jooble` + `Normalizador Jooble`, ver Fallos
-  conocidos)
+  ago 2026 al entrar `HTTP Request Jooble` + `Normalizador Jooble`; 46 desde el
+  29 ago 2026 con el guardarraíl de huecos `Guardarraíl huecos` + `Aviso
+  huecos`, ver Fallos conocidos y sección C)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`
   - pestana `Ofertas_activas` (`gid=0`) — candidaturas vivas
   - pestana `Archivo` (`gid=1758745884`) — historico
@@ -125,6 +126,9 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    criterio y la lista de titulos descartados, que es como se calibra sin
    guardar nada en la hoja.
 4. **`Get row(s) in sheet`** + **`Leer archivo`** — leen las dos pestanas.
+   `Get row(s) in sheet` tiene desde el 29 ago 2026 una segunda salida hacia
+   **`Guardarraíl huecos`** (rama aislada, ver sección D); la salida a
+   `Leer archivo` no cambia.
 5. **`Filtro duplicados`** — lee de `Filtro cualificación`, calcula `id_unico`
    con un hash 32-bit de `empresa+titulo_puesto` normalizado, y descarta lo
    que ya este en cualquiera de las dos pestanas o repetido dentro de la
@@ -170,6 +174,31 @@ Desde el 14 ago 2026 las fuentes llevan ademas `retryOnFail` (3 intentos,
 mismo patron. Los reintentos se agotan **antes** de que el nodo salga por su
 rama de error, asi que el correo de aviso solo salta tras tres intentos
 fallidos: un corte de red pasajero ya no genera un aviso.
+
+## D. Guardarraíl de huecos en `Ofertas_activas` (29 ago 2026)
+
+Añadido tras el incidente del hueco de ~260 filas vacías (ver
+[jobs-hoja-formato.md](jobs-hoja-formato.md#29-ago-2026-el-apps-script-no-exist%C3%ADa)).
+El incidente fue **silencioso**: la ingesta salió `success` y pingueó
+Healthchecks los días 25–29 aunque las ofertas caían en la fila 280+. El
+dead-man's switch no cubre "escribió, pero en el sitio equivocado".
+
+Rama **aislada** de dos nodos que cuelga de `Get row(s) in sheet`, en paralelo a
+`Leer archivo`. No toca el `append`, ni el `If`/email de nuevas ofertas, ni la
+rama de error compartida de la sección C:
+
+- **`Guardarraíl huecos`** (Code) — lee `$('Get row(s) in sheet').all()` y calcula
+  `huecos = max(row_number) − filasConDatos − 1` (con la hoja contigua da 0). Si
+  `huecos > 5` (constante `UMBRAL`) emite 1 item con el HTML del aviso; si no,
+  `return []`. Sin `row_number` no mide y no avisa (evita falsos positivos).
+- **`Aviso huecos`** (Gmail `send`, credencial `Gmail account`, a
+  `mcaparrosgu@gmail.com`, `retryOnFail` 3×3 s) — al recibir 0 items no se
+  ejecuta. Solo manda correo cuando hay hueco.
+
+No bloquea la ingesta: es puramente informativo. Implementado vía n8n MCP;
+pendiente de verificar con una pasada de prueba (bajar `UMBRAL` a `-1`, ejecutar,
+confirmar que llega el correo, revertir). Ver
+[tareas-pendientes.md](tareas-pendientes.md) tarea 2.
 
 # Dependencias
 
@@ -530,11 +559,12 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
     los días 25–29 salieron todas `success` y con filas escritas, pero al abrir
     la hoja parecía que la ingesta se había parado el día 24. Encaja con el
     reformateo manual del 27 ago (borrar contenido en vez de filas) **más el
-    Apps Script de mantenimiento sin ejecutarse**: no reordenó ni purgó nada en
-    la hora siguiente (orden viejo arriba, `generar_cv_ia` otra vez como texto
-    `FALSE`, hueco intacto). Es la pista que faltaba: el hueco lo deja el
-    borrado de contenido y **el Apps Script es quien tiene que limpiarlo**; si
-    está caído, se acumula. Arreglado a mano vía API el 29 ago: borradas las
+    Apps Script de mantenimiento que nunca se llegó a instalar en la hoja**: no
+    reordenó ni purgó nada porque no existía (orden viejo arriba, `generar_cv_ia`
+    otra vez como texto `FALSE`, hueco intacto). Es la pista que faltaba: el
+    hueco lo deja el borrado de contenido y **el Apps Script es quien tiene que
+    limpiarlo**; si no está, se acumula. Arreglado a mano vía API el 29 ago:
+    borradas las
     filas vacías, hoja reordenada por `fecha_guardado` desc, casilla reaplicada
     al rango de datos, 39 ofertas contiguas. En el borrado se eliminaron de más
     11 filas con datos (27 ago y parte del 28), recuperadas íntegras de las
@@ -542,9 +572,13 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
     pérdida. Las ofertas del **25 y 26 ago sí se perdieron** en el reformateo
     manual del 27, no están en ninguna pestaña. Como blindaje se puso
     `useAppend: true` en `Append row in sheet` (ver Flujo A.6): un hueco futuro
-    ya no destierra las filas nuevas al final físico de la hoja. **Tarea
-    pendiente de Mar:** revisar el disparador horario del Apps Script
-    (Extensiones → Apps Script → Activadores).
+    ya no destierra las filas nuevas al final físico de la hoja. **Hecho el 29
+    ago (pendiente de revisión):** (1) creado el proyecto Apps Script en la hoja
+    con el script de mantenimiento y lanzado `crearDisparador()` —falta confirmar
+    que el disparador horario corre solo; (2) añadido el guardarraíl `Guardarraíl
+    huecos` + `Aviso huecos` a este workflow (ver sección D) para que un hueco
+    futuro avise por email. Seguimiento en
+    [tareas-pendientes.md](tareas-pendientes.md) (tareas 1 y 2).
 - **La linea que quita acentos no debe llevar caracteres invisibles.** Estaba
   escrita como `/[̀-ͯ]/g`, con los propios caracteres combining U+0300 y U+036F
   dentro del rango: invisibles en cualquier editor y faciles de perder en una
