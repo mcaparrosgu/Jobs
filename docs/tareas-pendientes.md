@@ -22,10 +22,19 @@ pegó el script documentado en `jobs-hoja-formato.md` y se ejecutó
 filas ordenadas por `fecha_guardado` desc, sin huecos, hoja recortada a 40 filas
 exactas, casilla real (`dataValidation BOOLEAN`) y booleano `false` en
 `generar_cv_ia`, alto 21 px; `Archivo` ordenado y con `generar_cv_ia` vacía y sin
-casilla. **Falta confirmar** en Extensiones → Apps Script → Activadores que el
-disparador horario está armado sin error, y en Ejecuciones que una pasada
-`mantenimiento` automática sale `Completado` sola (revisión prevista ~18:00 del
-29 ago, tras la ingesta de las 17:00).
+casilla.
+
+**Actualización 29 ago 2026 (tarde):** Mar confirma que el Apps Script **se está
+disparando**. Además se amplió el script (tarea 6, cerrada) para cubrir
+desplegable de `estado` con chip de color y banda. Queda por revisar sólo lo de
+abajo (que una pasada horaria automática salga `Completado` sin error).
+
+**Supervisar a partir del lunes 31 ago 2026.** El 29 ago es sábado y no se
+esperan más ofertas hasta el lunes, así que la comprobación con datos reales
+(ingesta de las 09:00/17:00 del lunes → pasada `mantenimiento` posterior →
+`Ofertas_activas` ordenada, sin huecos, con casilla, desplegable+chip y banda
+hasta la última fila) se hace el **31 ago**. Mirar en Apps Script → Ejecuciones
+que las pasadas automáticas de ese día salen `Completado`.
 
 El script `mantenimiento` (Extensiones → Apps Script dentro de la hoja) debería
 correr cada hora: reordena las dos pestañas por `fecha_guardado` desc, fuerza
@@ -46,40 +55,6 @@ Qué comprobar:
 
 **Cierre:** una ejecución horaria `success` visible en el log de Apps Script y
 la hoja ordenada/sin huecos tras ella.
-
-## 2. Guardarraíl que avise si `Ofertas_activas` vuelve a tener huecos
-
-**Prioridad: media.** El incidente fue **silencioso**: `Jobs · ingesta`
-terminó `success` y pingueó Healthchecks los días 25–29 aunque las ofertas
-caían en la fila 280+. El dead-man's switch no cubre "escribió, pero en el sitio
-equivocado".
-
-Idea: en `Jobs · ingesta`, tras `Get row(s) in sheet`, comparar el
-`row_number` máximo con el número de filas devueltas. Si difieren en más de un
-margen pequeño (hay filas vacías intercaladas), mandar un aviso por la rama de
-error / email en vez de seguir como si nada. No bloquea la ingesta, solo avisa.
-
-**Estado (29 ago 2026):** hecha, pendiente de revisión. Implementado vía n8n MCP
-en `Jobs · ingesta` (ID `CXCD8BZUQEQKex2a`) como **rama aislada de 2 nodos**
-colgando de `Get row(s) in sheet`, sin tocar el `append`, el email de nuevas
-ofertas ni la rama de error compartida (`Unir aviso error`):
-- **`Guardarraíl huecos`** (Code): `huecos = max(row_number) − filasConDatos − 1`.
-  Si `huecos > 5` emite 1 item; si no, devuelve `[]`.
-- **`Aviso huecos`** (Gmail, credencial `Gmail account`, a `mcaparrosgu@gmail.com`,
-  `retryOnFail` 3×3 s): solo se ejecuta si el guardarraíl emitió item.
-Wiring: `Get row(s) in sheet` → `Guardarraíl huecos` → `Aviso huecos` (la salida
-existente a `Leer archivo` se conserva). Verificado en la respuesta del MCP que
-las conexiones y los dos nodos quedaron bien, y **publicado** con
-`publish_workflow` (`versionId` == `activeVersionId` = `8978c4dc…`) — sin esa
-llamada el cambio quedaba guardado pero no en producción.
-
-**Falta revisar:** (1) que el nodo `Aviso huecos` tiene la credencial `Gmail
-account` seleccionada en el desplegable; (2) *Execute step* en `Guardarraíl
-huecos` con la hoja sana → sin items y `huecos: 0`; (3) bajar `UMBRAL` a `-1`,
-ejecutar y confirmar que llega el correo, y **volver a dejarlo en 5**.
-
-**Cierre:** una ejecución de prueba con huecos simulados (o `UMBRAL = -1`)
-dispara el aviso.
 
 # Abiertas
 
@@ -106,6 +81,93 @@ todo.
 contiguas y visibles.
 
 # Cerradas
+
+## 2. Guardarraíl que avise si `Ofertas_activas` vuelve a tener huecos
+
+**Prioridad: media. Cerrada el 29 ago 2026.** El incidente fue **silencioso**:
+`Jobs · ingesta` terminó `success` y pingueó Healthchecks los días 25–29 aunque
+las ofertas caían en la fila 280+. El dead-man's switch no cubre "escribió, pero
+en el sitio equivocado".
+
+Idea: en `Jobs · ingesta`, tras `Get row(s) in sheet`, comparar el
+`row_number` máximo con el número de filas devueltas. Si difieren en más de un
+margen pequeño (hay filas vacías intercaladas), mandar un aviso por la rama de
+error / email en vez de seguir como si nada. No bloquea la ingesta, solo avisa.
+
+**Implementación (29 ago 2026), vía n8n MCP** en `Jobs · ingesta` (ID
+`CXCD8BZUQEQKex2a`) como **rama aislada de 2 nodos** colgando de `Get row(s) in
+sheet`, sin tocar el `append`, el email de nuevas ofertas ni la rama de error
+compartida (`Unir aviso error`):
+- **`Guardarraíl huecos`** (Code): `huecos = max(row_number) − filasConDatos − 1`.
+  Si `huecos > 5` (`UMBRAL`) emite 1 item; si no, devuelve `[]`.
+- **`Aviso huecos`** (Gmail, credencial `Gmail account`, a `mcaparrosgu@gmail.com`,
+  `retryOnFail` 3×3 s): solo se ejecuta si el guardarraíl emitió item.
+Wiring: `Get row(s) in sheet` → `Guardarraíl huecos` → `Aviso huecos` (la salida
+existente a `Leer archivo` se conserva).
+
+**Verificación (29 ago 2026, tarde):**
+
+1. **Credencial en `Aviso huecos`** — el MCP no deja *leer* el campo
+   `credentials` (lo oculta en todos los nodos). Se **forzó** por escritura:
+   `update_workflow` → `setNodeCredential` con `Gmail account` (`gmailOAuth2`, id
+   `44KKYSs6vIH5K7lX`). El envío real del punto 3 confirma que quedó bien.
+
+2. **Sin falsa alarma con hoja sana** — **verificado por cálculo** con datos
+   reales de la ejecución #664: `Get row(s) in sheet` devuelve filas contiguas
+   (`row_number` 2…N sin huecos), `huecos = maxRow − filasConDatos − 1 = 0`, y
+   `0 ≤ 5` → el Code devuelve `[]`. No dispara.
+
+3. **`UMBRAL = -1` → email real → restaurar** — ejecución manual **#671**
+   (29 ago 14:02–14:03Z, `success`) con `UMBRAL = -1` publicado:
+   - `Guardarraíl huecos` emitió 1 item → `huecos: 0`, `filasConDatos: 39`,
+     `ultimaFila: 40` + `html_alerta_huecos` (`0 ≤ -1` es falso → dispara).
+   - `Aviso huecos` `success` → Gmail `id 1a04dd52fb3cee3b`, `labelIds: [SENT,
+     INBOX, UNREAD]`. Confirmado desde la bandeja (`search_threads`): correo en
+     `mcaparrosgu@gmail.com`, asunto «🕳️ Ofertas_activas tiene huecos de filas
+     vacías», HTML renderizado.
+   - Efectos colaterales de la pasada completa (esperados): `Append row in
+     sheet` añadió 3 ofertas nuevas y `Notificación nuevas ofertas` mandó su
+     email; el Apps Script `mantenimiento` las reordena dentro de la hora.
+   - Restaurado `UMBRAL = 5` con `updateNodeParameters` (jsCode verificado byte
+     a byte). **Producción: `UMBRAL = 5`, `versionId == activeVersionId` =
+     `6d1d7110…`, `active`, wiring intacto.**
+
+   **Incidente (resuelto):** el primer intento de bajar `UMBRAL` con
+   `setNodeParameter` (path `/parameters/jsCode`) **corrompió un dígito** —
+   guardó `const UMBRAL = 1;` en vez del valor enviado. Se detectó releyendo el
+   `jsCode` publicado y se corrigió con `updateNodeParameters`. **Regla: no usar
+   `setNodeParameter` con strings multilínea en este MCP; usar
+   `updateNodeParameters` (reescritura completa) y verificar releyendo.**
+
+**Cierre:** cumplido — los 3 puntos verificados; la ejecución #671 disparó el
+aviso y el correo llegó a la bandeja.
+
+## 6. Ampliar el Apps Script para que reponga desplegable de `estado` (con color de chip) y banda
+
+**Prioridad: media. Cerrada el 29 ago 2026.** Tras la ingesta, `Ofertas_activas`
+tenía `E2:E22` sin el desplegable de `estado` y los colores alternos cortados en
+la fila 19. El Apps Script `mantenimiento` no cubría ni el desplegable ni la
+banda, y dar rango de columna entera a la validación no sirve (la API lo acota a
+la cuadrícula; la hoja se mantiene sin filas de reserva por el diseño
+anti-huecos).
+
+**Hecho:**
+- Mar coloreó los 9 chips a mano (Datos → Validación de datos; la API no expone
+  el color del chip). Paleta en `jobs-hoja-formato.md`.
+- Se amplió `procesarHoja_` (bloque de código en `jobs-hoja-formato.md`) con,
+  sólo para `Ofertas_activas`:
+  - **paso 4** — propaga el desplegable a `E2:E<ultimaFila>` con
+    `Range.copyTo(..., PASTE_DATA_VALIDATION)` desde la primera fila con
+    validación de lista. Reconstruir con `newDataValidation()` borraría el
+    color; el `copyTo` lo conserva.
+  - **paso 5** — `Banding.setRange()` para que la banda termine en `ultimaFila`.
+
+**Verificado:** fila de prueba añadida al final → una pasada `mantenimiento` le
+puso el desplegable **con el óvalo de color** y la banda la alcanzó.
+`mantenimiento` no borra la fila de prueba (deliberado); se quitó a mano.
+
+**Cierre:** cumplido — el script mantiene desplegable+chip y banda tras cada
+ingesta sin intervención.
 
 ## 5. Confirmar que `Borrar ofertas ofertas_activas` (Jobs · archivado) borra todas las filas, no solo la primera
 

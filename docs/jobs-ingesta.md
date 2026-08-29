@@ -195,9 +195,11 @@ rama de error compartida de la sección C:
   `mcaparrosgu@gmail.com`, `retryOnFail` 3×3 s) — al recibir 0 items no se
   ejecuta. Solo manda correo cuando hay hueco.
 
-No bloquea la ingesta: es puramente informativo. Implementado vía n8n MCP;
-pendiente de verificar con una pasada de prueba (bajar `UMBRAL` a `-1`, ejecutar,
-confirmar que llega el correo, revertir). Ver
+No bloquea la ingesta: es puramente informativo. Implementado vía n8n MCP.
+**Verificado el 29 ago 2026** con la ejecución manual #671 (`UMBRAL = -1`
+temporal): `Guardarraíl huecos` emitió el item de aviso y `Aviso huecos` envió
+el correo (Gmail `id 1a04dd52fb3cee3b`, recibido en `mcaparrosgu@gmail.com`);
+`UMBRAL` restaurado a 5 y republicado. Ver
 [tareas-pendientes.md](tareas-pendientes.md) tarea 2.
 
 # Dependencias

@@ -49,6 +49,25 @@ un poco desordenada:
 4. En `Archivo`, `generar_cv_ia` **no** lleva casilla: son ofertas ya
    descartadas y el campo no sirve. Pero `Jobs · archivado` sigue copiando el
    `false` (mapeo por cabecera), así que hay que vaciarlo.
+5. **Desplegable de `estado` (columna E).** Validación `ONE_OF_LIST` estricta,
+   orden de ciclo de vida: `pendiente`, `crear_cv_ia`, `cv_ia_creado`,
+   `cv_enviado`, `respuesta_recibida`, `entrevista`, `oferta_recibida`,
+   `rechazada`, `descartada`. La ingesta escribe `pendiente` como texto plano
+   sin la validación, así que las filas nuevas se quedan sin el desplegable.
+6. **Color por estado = chip nativo del desplegable.** Cada valor se muestra
+   dentro de un óvalo de color (letra oscura para contraste), no como fondo de
+   celda. El color del chip **no se puede poner por API** (Sheets no lo expone);
+   se configura a mano en Datos → Validación de datos → editar regla de
+   `estado` → selector de color por valor. Paleta sugerida abajo. Al perderse la
+   validación (punto 5) se pierde también el chip.
+7. **Colores alternos (banda).** Los pinta un *banded range*
+   (`bandedRangeId 56060992`, cols A–P), no rellenos por celda. No se estira
+   solo: si su `endRowIndex` se queda corto, las filas nuevas salen en blanco.
+
+El Apps Script de más abajo cubre los puntos 1–5 y 7 (casilla, orden, alto,
+`Archivo`, desplegable de `estado`, banda). El punto **6 (color del chip) se
+pone una sola vez a mano** — la API no lo expone — y luego el script lo conserva
+porque **copia** la validación de una fila buena en vez de reconstruirla.
 
 Estado dejado el 27 ago 2026: casilla reaplicada en `Ofertas_activas` (solo
 filas con datos), las dos pestañas ordenadas por `fecha_guardado` descendente,
@@ -79,28 +98,39 @@ horario. No toca n8n. Cada hora, en `Ofertas_activas` y `Archivo`:
 - `Ofertas_activas`: reaplica la casilla a `generar_cv_ia` en las filas con
   datos; `Archivo`: quita la casilla y vacía la columna;
 - limpia casillas/valores sueltos en las filas vacías de debajo, para no
-  descuadrar el `append`.
+  descuadrar el `append`;
+- `Ofertas_activas`: propaga el desplegable de `estado` a todas las filas de
+  datos **copiándolo** de una fila que ya lo tenga (así conserva el color del
+  chip) y estira la banda de colores hasta la última fila.
+
+**No borra filas** — eso es deliberado (auto-borrar sería arriesgado). Las
+filas sobrantes se quitan a mano si hiciera falta.
 
 Instalación y verificación: [tareas-manuales.md](../../docs/tareas-manuales.md),
 sección «Para cerrar Jobs».
 
+Verificado el 29 ago 2026: con una fila de prueba añadida al final, una pasada
+`mantenimiento` le puso el desplegable **con el óvalo de color** (el
+`copyTo` / `PASTE_DATA_VALIDATION` sí arrastra el color del chip).
+
 ```javascript
-const ALTO_FILA   = 21;
+const ALTO_FILA    = 21;
 const COL_FECHA    = 'fecha_guardado';
 const COL_CASILLA  = 'generar_cv_ia';
+const COL_ESTADO   = 'estado';
 const HOJAS = [
-  { nombre: 'Ofertas_activas', casilla: true  },
-  { nombre: 'Archivo',         casilla: false },
+  { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true  },
+  { nombre: 'Archivo',         casilla: false, estado: false, banda: false },
 ];
 
 function mantenimiento() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   HOJAS.forEach(function (cfg) {
-    procesarHoja_(ss.getSheetByName(cfg.nombre), cfg.casilla);
+    procesarHoja_(ss.getSheetByName(cfg.nombre), cfg);
   });
 }
 
-function procesarHoja_(hoja, conCasilla) {
+function procesarHoja_(hoja, cfg) {
   if (!hoja) return;
   const ultimaFila = hoja.getLastRow();
   const ultimaCol  = hoja.getLastColumn();
@@ -109,32 +139,76 @@ function procesarHoja_(hoja, conCasilla) {
   const cabeceras  = hoja.getRange(1, 1, 1, ultimaCol).getValues()[0];
   const idxFecha   = cabeceras.indexOf(COL_FECHA);
   const idxCasilla = cabeceras.indexOf(COL_CASILLA);
+  const idxEstado  = cabeceras.indexOf(COL_ESTADO);
   const nFilasDato = ultimaFila - 1;
 
+  // 1. Orden por fecha_guardado desc (fila 1 intacta).
   if (idxFecha !== -1) {
     hoja.getRange(2, 1, nFilasDato, ultimaCol)
         .sort({ column: idxFecha + 1, ascending: false });
   }
 
+  // 2. Alto de fila uniforme.
   hoja.setRowHeightsForced(1, hoja.getMaxRows(), ALTO_FILA);
 
+  // 3. Casilla generar_cv_ia.
   if (idxCasilla !== -1) {
-    const rangoDatos = hoja.getRange(2, idxCasilla + 1, nFilasDato, 1);
-    if (conCasilla) {
-      const regla = SpreadsheetApp.newDataValidation()
-        .requireCheckbox().setAllowInvalid(false).build();
-      rangoDatos.setDataValidation(regla);
+    const rango = hoja.getRange(2, idxCasilla + 1, nFilasDato, 1);
+    if (cfg.casilla) {
+      rango.setDataValidation(
+        SpreadsheetApp.newDataValidation().requireCheckbox()
+          .setAllowInvalid(false).build());
     } else {
-      rangoDatos.clearDataValidations();
-      rangoDatos.clearContent();
+      rango.clearDataValidations();
+      rango.clearContent();
     }
-    const filasSobrantes = hoja.getMaxRows() - ultimaFila;
-    if (filasSobrantes > 0) {
-      const resto = hoja.getRange(ultimaFila + 1, idxCasilla + 1, filasSobrantes, 1);
+    const sobra = hoja.getMaxRows() - ultimaFila;
+    if (sobra > 0) {
+      const resto = hoja.getRange(ultimaFila + 1, idxCasilla + 1, sobra, 1);
       resto.clearDataValidations();
       resto.clearContent();
     }
   }
+
+  // 4. Desplegable de estado en todas las filas de datos.
+  //    Se COPIA de una fila que ya lo tenga -> conserva el color del chip.
+  //    Reconstruir la regla con newDataValidation() lo perderia.
+  if (cfg.estado && idxEstado !== -1) {
+    const colE = idxEstado + 1;
+    const fuente = filaConValidacionLista_(hoja, colE, nFilasDato);
+    if (fuente) {
+      hoja.getRange(fuente, colE).copyTo(
+        hoja.getRange(2, colE, nFilasDato, 1),
+        SpreadsheetApp.CopyPasteType.PASTE_DATA_VALIDATION, false);
+    }
+    const sobra = hoja.getMaxRows() - ultimaFila;
+    if (sobra > 0) {
+      hoja.getRange(ultimaFila + 1, colE, sobra, 1).clearDataValidations();
+    }
+  }
+
+  // 5. Banda de colores alternos: que llegue justo a la ultima fila de datos.
+  if (cfg.banda) {
+    hoja.getBandings().forEach(function (b) {
+      const r = b.getRange();
+      b.setRange(hoja.getRange(r.getRow(), r.getColumn(),
+                               ultimaFila - r.getRow() + 1, r.getNumColumns()));
+    });
+  }
+}
+
+// Primera fila (>=2) de la columna `col` cuya validacion es "lista de
+// elementos"; null si ninguna.
+function filaConValidacionLista_(hoja, col, nFilas) {
+  const dvs = hoja.getRange(2, col, nFilas, 1).getDataValidations();
+  for (let i = 0; i < dvs.length; i++) {
+    const dv = dvs[i][0];
+    if (dv && dv.getCriteriaType() ===
+        SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST) {
+      return 2 + i;
+    }
+  }
+  return null;
 }
 
 function crearDisparador() {
@@ -193,6 +267,83 @@ vivo, cualquier hueco que deje un borrado de contenido o un archivado se acumula
 en vez de limpiarse solo. Como segunda red, `Jobs · ingesta` ahora avisa por
 email si el hueco reaparece (ver [jobs-ingesta.md](jobs-ingesta.md), sección
 «D. Guardarraíl de huecos en `Ofertas_activas`»).
+
+# 29 ago 2026: desplegable de `estado` y banda de colores rotos en las filas nuevas
+
+Tras la ingesta, `Ofertas_activas` tenía 39 filas de datos (2–40) ya ordenadas
+por `fecha_guardado` desc, pero:
+
+- **`E2:E22` sin el desplegable de `estado`.** La validación `ONE_OF_LIST` sólo
+  seguía en `E23:E40`. Son las 21 ofertas nuevas (27–29 ago) que entraron por el
+  `append` sin validación y subieron arriba al ordenar; las viejas, con
+  validación, bajaron a la 23+.
+- **Colores alternos cortados en la fila 19.** El *banded range*
+  `bandedRangeId 56060992` tenía `endRowIndex 19`, así que de la fila 20 en
+  adelante todo salía en blanco.
+
+Arreglado vía Google Sheets API (`batchUpdate`), sin tocar valores ni la fila 1:
+
+- `updateBanding` sobre `bandedRangeId 56060992` → `range` a
+  `startRowIndex 0 / endRowIndex 40`, cols A–P, mismos colores (cabecera teal
+  `#26A69A`, banda 1 blanca, banda 2 verde pálido `#DDF2F0`).
+- `setDataValidation` sobre `E2:E40` con la regla `ONE_OF_LIST` estricta
+  (`showCustomUi`), valores: `cv_enviado`, `cv_ia_creado`, `pendiente`,
+  `descartada`, `crear_cv_ia`, `respuesta_recibida`, `entrevista`, `rechazada`,
+  `oferta_recibida`. Reaplicarla a `E23:E40` es idempotente.
+
+Verificado por API: banda hasta la fila 40 y `E19:E24` con `dataValidation`,
+patrón de color intacto (fila 22 verde, 23 blanca, 24 verde).
+
+**Segunda pasada, mismo día — colores por estado (intento fallido y corrección).**
+Primero se recrearon como **9 reglas de formato condicional** `TEXT_EQ` con
+fondo de celda + texto oscuro. Mar aclaró que el color de estado **nunca fue
+fondo de celda**: es el **chip nativo del desplegable** (la palabra dentro de un
+óvalo de color, con la letra en un tono más oscuro para contraste). Las 9 reglas
+de formato condicional se **borraron** (`deleteConditionalFormatRule`).
+
+El color del chip **no se puede poner por API** — el `DataValidationRule` de la
+API de Sheets no tiene campo de color y `spreadsheets.get` no lo devuelve. Se
+configura a mano: Datos → Validación de datos → editar la regla de `estado` →
+selector de color junto a cada valor. Paleta sugerida (semáforo), pendiente de
+que Mar la valide:
+
+| estado | color del chip |
+|---|---|
+| `pendiente` | gris claro |
+| `crear_cv_ia` | amarillo |
+| `cv_ia_creado` | naranja claro |
+| `cv_enviado` | azul |
+| `respuesta_recibida` | morado |
+| `entrevista` | verde claro |
+| `oferta_recibida` | verde intenso |
+| `rechazada` | rojo |
+| `descartada` | gris oscuro |
+
+Se intentó también dar a la validación el rango de **columna entera** (`E2:E`,
+sin `endRowIndex`) para que las filas nuevas heredasen sola. **La API lo
+normaliza a `endRowIndex 40`** (tamaño de la cuadrícula), así que no cubre las
+filas que añada un `append` posterior. Con la hoja recortada a las filas exactas
+(diseño anti-huecos), no hay filas de reserva que pre-formatear.
+
+**Causa de fondo:** n8n (`Append row in sheet`) sólo escribe valores, nunca
+formato, y no hay herencia de formato en la API de Sheets.
+
+**Resuelto el 29 ago 2026 por la tarde.** Mar coloreó los 9 chips a mano (Datos
+→ Validación de datos) y se amplió el Apps Script `mantenimiento` (ver bloque de
+código arriba) con dos pasos nuevos para `Ofertas_activas`:
+- **paso 4** — propaga el desplegable de `estado` a `E2:E<ultimaFila>`
+  **copiándolo** (`Range.copyTo` con `PASTE_DATA_VALIDATION`) de la primera fila
+  que ya tenga validación de lista. Reconstruir la regla con
+  `newDataValidation()` borraría el color del chip; el `copyTo` **sí lo
+  conserva** (verificado con una fila de prueba: la pasada `mantenimiento` le
+  puso el desplegable con el óvalo de color).
+- **paso 5** — `Banding.setRange()` para que la banda termine en `ultimaFila`.
+
+`mantenimiento` **no borra filas de prueba ni sobrantes** — es deliberado. Se
+quitan a mano.
+
+**Disparador:** Mar confirma que el disparador horario está ejecutándose (ver
+[tareas-pendientes.md](tareas-pendientes.md), tarea 1).
 
 # Relacionados
 
