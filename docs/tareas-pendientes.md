@@ -58,17 +58,6 @@ la hoja ordenada/sin huecos tras ella.
 
 # Abiertas
 
-## 3. Decidir qué hacer con las ofertas del 25 y 26 ago 2026
-
-**Prioridad: baja.** Se perdieron en el reformateo manual del 27 ago; no están
-en `Ofertas_activas` ni en `Archivo`. Son recuperables desde el output de
-`Append row in sheet` de las ejecuciones n8n del 25 ago (#645) y 26 ago (#647)
-—mismo método que se usó el 29 ago para las 11 del 27–28—, pero puede que ya no
-interesen por antigüedad.
-
-**Cierre:** recuperarlas y reinsertarlas, o decidir explícitamente que se
-descartan.
-
 ## 4. Verificar la primera ejecución programada con `useAppend: true`
 
 **Prioridad: media.** El cambio se aplicó el 29 ago pero aún no se ha visto una
@@ -77,10 +66,37 @@ siguiente) que `Append row in sheet` escribe justo tras el bloque de datos
 (fila 41+) y que, tras el Apps Script, las ofertas nuevas quedan arriba del
 todo.
 
+**Estado (29 ago 2026, tarde): verificada a medias.** Revisadas las ejecuciones
+de `Jobs · ingesta` (ID `CXCD8BZUQEQKex2a`) posteriores al cambio:
+- **#672** — `trigger` programada, 29 ago 15:00:07Z (17:00 CEST), `success`.
+  Primera pasada automática tras `useAppend: true`. Pero `Filtro duplicados`
+  encontró **0 ofertas nuevas** (las 3 del día ya las metió la manual #671 a
+  las 14:02Z), así que `Append row in sheet` y `Notificación nuevas ofertas`
+  **no llegaron a ejecutarse**. Sí se confirma: `Get row(s) in sheet` leyó las
+  filas 2–21 contiguas sin huecos y `Guardarráil huecos` emitió `[]`
+  (`huecos = 0`).
+- **#671** — manual, 14:02Z, `success`: añadió 3 ofertas con `useAppend: true`
+  y mandó el email de notificación. Pero fue modo `manual` y el nodo `Append`
+  no devuelve `updatedRange`, así que no confirma el número de fila.
+
+Falta lo esencial: una pasada **programada con ofertas realmente nuevas** que
+ejercite el `append`. No habrá hasta la ingesta del **lunes 31 ago**; se
+comprueba junto con la tarea 1.
+
 **Cierre:** una ejecución `trigger` posterior al 29 ago con las filas nuevas
 contiguas y visibles.
 
 # Cerradas
+
+## 3. Decidir qué hacer con las ofertas del 25 y 26 ago 2026
+
+**Prioridad: baja. Cerrada el 29 ago 2026 — descartadas.** Se perdieron en el
+reformateo manual del 27 ago; no están en `Ofertas_activas` ni en `Archivo`.
+Eran recuperables desde el output de `Append row in sheet` de las ejecuciones
+n8n del 25 ago (#645) y 26 ago (#647), pero Mar decide **no recuperarlas**: por
+antigüedad ya no interesan.
+
+**Cierre:** decisión explícita de descartarlas.
 
 ## 2. Guardarraíl que avise si `Ofertas_activas` vuelve a tener huecos
 
