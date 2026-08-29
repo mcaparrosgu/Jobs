@@ -66,8 +66,12 @@ con la que alinearse.
    — imprescindible para no desordenar los índices al borrar de abajo hacia
    arriba.
 6. **`Borrar ofertas ofertas_activas`** (`googleSheets`, `delete`,
-   `startIndex: {{ $json.row_number }}`) las elimina una a una de
-   `Ofertas_activas`.
+   `startIndex: {{ $json.row_number }}`) las elimina de `Ofertas_activas`. Genera
+   una petición `deleteDimension` por item de entrada y las envía **todas juntas
+   en un solo `batchUpdate`** a la API de Sheets; la salida es siempre un único
+   item resumen `{ success: true }` con `pairedItem` a todos los items de
+   entrada, no una fila por borrado. El orden descendente del paso 5 es lo que
+   evita el desplazamiento de índices dentro del lote.
 7. **`Ping Healthchecks`** (`httpRequest`, desde el 17 ago 2026) — mismo
    patrón que [Jobs · ingesta](jobs-ingesta.md): `retryOnFail` 3 intentos/3s,
    `onError: continueRegularOutput` para que un fallo del ping no oculte que
@@ -92,6 +96,15 @@ comportamiento respecto a `Jobs · ingesta` antes del split, solo un
 - `startIndex: {{ $json.row_number }}` **verificado sin off-by-one** con la
   fila de cabecera el 16 ago 2026, antes del split — ver el detalle en
   [jobs-revision.md](jobs-revision.md), punto 7.
+- ~~Duda de si `Borrar ofertas ofertas_activas` solo borra la primera fila de
+  las N que recibe (su salida es siempre 1 item `{ success: true }`)~~
+  **Descartado y verificado el 29 ago 2026.** Borra las N: el nodo `delete` de
+  Google Sheets acumula una petición `deleteDimension` por item y las manda en
+  un solo `batchUpdate`; el item de salida es solo el resumen. Comprobado con
+  las ejecuciones #646 (15 filas), #659 (8 filas) y #652 (la siguiente a #646,
+  que no reencontró ninguna de esas 15), y con la hoja `n8n_jobs` a esa fecha
+  —todas esas filas en `Archivo`, ninguna en `Ofertas_activas`. Detalle en
+  [tareas-pendientes.md](tareas-pendientes.md), punto 5.
 - ~~Sin vigilante — es el único de los cuatro workflows de Jobs que no avisa si
   falla~~ **Corregido y verificado el 17 ago 2026.** Añadido `Ping
   Healthchecks` al final del flujo, mismo patrón que [Jobs ·

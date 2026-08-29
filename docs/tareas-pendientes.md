@@ -105,18 +105,42 @@ todo.
 **Cierre:** una ejecución `trigger` posterior al 29 ago con las filas nuevas
 contiguas y visibles.
 
+# Cerradas
+
 ## 5. Confirmar que `Borrar ofertas ofertas_activas` (Jobs · archivado) borra todas las filas, no solo la primera
 
 **Prioridad: media.** Durante la investigación del 29 ago se vio que ese nodo
 recibe N items (filas a archivar, ordenadas desc por `row_number`) pero su
-salida es siempre `[{}]` (1 item). Hay que confirmar que efectivamente elimina
-las N filas y no solo la del primer item; si solo borra una por ejecución,
-`Ofertas_activas` acumula ofertas viejas que ya se copiaron a `Archivo`
+salida es siempre `[{}]` (1 item). Había que confirmar que efectivamente elimina
+las N filas y no solo la del primer item; si solo borrara una por ejecución,
+`Ofertas_activas` acumularía ofertas viejas ya copiadas a `Archivo`
 (duplicados lógicos entre pestañas y crecimiento lento de la hoja).
 
-**Cierre:** una ejecución de `Jobs · archivado` con varias filas a archivar,
-verificada fila a fila en la hoja (todas fuera de `Ofertas_activas`, todas en
-`Archivo`).
+**Estado (29 ago 2026): confirmada, sin acción pendiente.** El nodo borra
+**todas** las filas que recibe. El item único `{ success: true }` de la salida
+es solo el resumen de la operación: el nodo Google Sheets (`operation: delete`,
+v4.7) acumula una petición `deleteDimension` por item de entrada y las manda
+juntas en un solo `batchUpdate` a la API de Sheets. El `pairedItem` de esa
+salida enlaza con **todos** los items de entrada y el `executionTime` escala con
+el número de filas. El orden descendente por `row_number` que impone
+`Ordenar eliminación` es justo lo que evita que los índices se desplacen dentro
+del lote (se borra de abajo hacia arriba).
+
+Verificado con datos de ejecución reales de `Jobs · archivado`
+(ID `t4jxqH2wJyDF3EYt`):
+- **#646** (26 ago 07:00): 15 filas a la entrada → salida 1 item con
+  `pairedItem` 0–14; `executionTime` ~12,5 s.
+- **#659** (27 ago 17:17): 8 filas → salida 1 item con `pairedItem` 0–7;
+  `executionTime` ~3,8 s.
+- **#652** (27 ago 07:00), la pasada siguiente a #646: `Decisión archivar` solo
+  encontró 6 filas nuevas (del 20 ago); **ninguna** de las 15 del 19 ago que
+  archivó #646 reapareció, pese a que ya superaban los 7 días y habrían vuelto a
+  entrar si no se hubieran borrado.
+- Hoja `n8n_jobs` a 29 ago: los 8 `id_unico` de #659 y los 15 de #646 están
+  todos en `Archivo` y **ninguno** sigue en `Ofertas_activas`.
+
+**Cierre:** cumplido — varias ejecuciones con varias filas a archivar, todas
+fuera de `Ofertas_activas` y todas en `Archivo`.
 
 # Relacionados
 
