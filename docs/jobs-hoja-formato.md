@@ -3,7 +3,7 @@ type: Nota
 title: Formato y mantenimiento de la hoja n8n_jobs
 description: Cómo se mantiene en forma la hoja n8n_jobs (casilla en generar_cv_ia, orden por fecha, alto de fila) pese a que Jobs · ingesta y Jobs · archivado la reescriben dos veces al día. Incluye el Apps Script que lo automatiza y la trampa de la casilla sin límite.
 tags: [n8n, empleo, google-sheets, mantenimiento]
-timestamp: 2026-08-27T18:00:00Z
+timestamp: 2026-08-29T09:00:00Z
 ---
 
 # Qué es esto
@@ -40,7 +40,8 @@ un poco desordenada:
    como el texto `FALSE`. La ingesta no aplica esa validación, y `Jobs ·
    archivado` al borrar filas puede dejar la columna sin ella. Ya pasó el
    **16 ago 2026** (`FALSE` en texto en la fila 32 y en 491–595, arreglado a
-   mano) y **volvió a pasar el 27 ago 2026**.
+   mano), **volvió a pasar el 27 ago 2026** y **otra vez el 29 ago 2026** (esta
+   última con hueco de ~260 filas vacías incluido — ver más abajo).
 2. **Orden.** Las ofertas nuevas entran al final físico de la hoja, sin
    ordenar. Mar quiere `fecha_guardado` de más reciente a más antigua.
 3. **Alto de fila.** Los resúmenes largos con ajuste de texto disparan la
@@ -155,10 +156,39 @@ Si hay que hacer cambios manuales a fondo, mejor fuera de las ventanas
 09:00/17:00, o revisar las ejecuciones de `Jobs · archivado` y `Jobs · ingesta`
 después para entender cualquier cambio de recuento.
 
+# 29 ago 2026: el Apps Script no estaba corriendo
+
+Entre el 25 y el 29 ago 2026, `Ofertas_activas` acumuló ~260 filas vacías
+(filas 20–279) entre los datos hasta el 24 ago y las ofertas del 27–29 ago, que
+`Append row in sheet` había escrito a partir de la fila 280. Todas las
+ejecuciones de `Jobs · ingesta` de esos días salieron `success` con filas
+escritas, pero al abrir la hoja parecía que la ingesta se había parado el día
+24. Es el mismo descuadre que este documento describe como evitable —**y era
+evitable**: el reformateo manual del 27 ago dejó filas con el contenido borrado
+(no las filas), y el Apps Script horario, que tenía que reordenar y purgarlas en
+la hora siguiente, **no se ejecutó**. Señales de que estaba caído: orden viejo
+en las filas de arriba, `generar_cv_ia` otra vez como texto `FALSE`, hueco
+nunca limpiado durante días.
+
+Arreglado a mano vía API el 29 ago (fuera de n8n): borradas las filas vacías,
+las dos pestañas reordenadas por `fecha_guardado` desc, casilla reaplicada al
+rango de datos de `Ofertas_activas`. En el borrado se quitaron de más 11 filas
+con datos (27 ago y parte del 28), recuperadas de las ejecuciones n8n 653,
+658 y 662, y reinsertadas. Las del 25 y 26 ago sí se perdieron en el
+reformateo manual del 27. Como blindaje en n8n se puso `useAppend: true` en
+`Append row in sheet` (ver [jobs-ingesta.md](jobs-ingesta.md)).
+
+**Pendiente:** revisar en la hoja el disparador horario del Apps Script
+(Extensiones → Apps Script → Activadores) — comprobar que sigue activo y no ha
+fallado por permisos/cuota. Sin ese script vivo, cualquier hueco que deje un
+borrado de contenido o un archivado se acumula en vez de limpiarse solo.
+
 # Relacionados
 
 - [Jobs · ingesta](jobs-ingesta.md) — escribe `Ofertas_activas` por cabecera
 - [Jobs · archivado](jobs-archivado.md) — mueve filas entre pestañas
 - [tareas-manuales.md](../../docs/tareas-manuales.md) — instalar y verificar el
   script
+- [tareas-pendientes.md](tareas-pendientes.md) — revisar el disparador del Apps
+  Script (tarea 1) y demás tareas abiertas
 - [index.md](../../docs/index.md)

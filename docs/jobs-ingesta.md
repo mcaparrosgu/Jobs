@@ -4,7 +4,7 @@ title: Jobs · ingesta
 description: Recolecta ofertas de teletrabajo en 12 fuentes, las filtra y deduplica en Google Sheets, y archiva las candidaturas antiguas.
 resource: https://<N8N_HOST>/workflow/CXCD8BZUQEQKex2a
 tags: [n8n, empleo, adzuna, apify, google-sheets]
-timestamp: 2026-08-27T18:00:00Z
+timestamp: 2026-08-29T09:00:00Z
 ---
 
 # Proposito
@@ -130,7 +130,11 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    que ya este en cualquiera de las dos pestanas o repetido dentro de la
    propia tanda. Anade `fecha_guardado`, `estado: pendiente`,
    `generar_cv_ia: false`.
-6. **`Append row in sheet`** → `Ofertas_activas`.
+6. **`Append row in sheet`** → `Ofertas_activas`. Desde el 29 ago 2026 con
+   `useAppend: true` (append nativo de la API de Sheets, no el modo *update* por
+   defecto): anexa tras el bloque de datos contiguo desde A1, así que un hueco
+   de filas vacías ya no manda las ofertas nuevas al final físico de la hoja.
+   Ver Fallos conocidos.
 7. **`If`** (¿hubo filas nuevas?) → **`Formato email`** → **`Notificación
    nuevas ofertas`** (Gmail, tabla HTML) → **`Ping Healthchecks`**
    (ping a `$env.HEALTHCHECKS_PING_URL`). Si no hubo ofertas, va directo al
@@ -181,7 +185,7 @@ fallidos: un corte de red pasajero ya no genera un aviso.
 
 # Fallos conocidos
 
-Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 16 ago 2026:
+Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
 
 - ~~El filtro de cualificacion no tenia efecto~~ **Corregido**, pero el arreglo
   se escribio como `$('Filtro cualificacion')` **sin tilde** y tuvo el workflow
@@ -520,6 +524,27 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 16 ago 2026:
     [jobs-hoja-formato.md](jobs-hoja-formato.md). Ahí también está por qué la
     casilla **no** puede ir en la columna entera (pondría `FALSE` en las filas
     vacías y descuadraría el `append`).
+  - **29 ago 2026: el hueco volvió.** Reaparecieron ~260 filas vacías (20–279)
+    entre los datos hasta el 24 ago (filas 2–19) y las ofertas del 27–29 ago,
+    que el `append` había escrito a partir de la fila 280. Las ejecuciones de
+    los días 25–29 salieron todas `success` y con filas escritas, pero al abrir
+    la hoja parecía que la ingesta se había parado el día 24. Encaja con el
+    reformateo manual del 27 ago (borrar contenido en vez de filas) **más el
+    Apps Script de mantenimiento sin ejecutarse**: no reordenó ni purgó nada en
+    la hora siguiente (orden viejo arriba, `generar_cv_ia` otra vez como texto
+    `FALSE`, hueco intacto). Es la pista que faltaba: el hueco lo deja el
+    borrado de contenido y **el Apps Script es quien tiene que limpiarlo**; si
+    está caído, se acumula. Arreglado a mano vía API el 29 ago: borradas las
+    filas vacías, hoja reordenada por `fecha_guardado` desc, casilla reaplicada
+    al rango de datos, 39 ofertas contiguas. En el borrado se eliminaron de más
+    11 filas con datos (27 ago y parte del 28), recuperadas íntegras de las
+    ejecuciones #653/#658/#662 (`Append row in sheet`) y reinsertadas — sin
+    pérdida. Las ofertas del **25 y 26 ago sí se perdieron** en el reformateo
+    manual del 27, no están en ninguna pestaña. Como blindaje se puso
+    `useAppend: true` en `Append row in sheet` (ver Flujo A.6): un hueco futuro
+    ya no destierra las filas nuevas al final físico de la hoja. **Tarea
+    pendiente de Mar:** revisar el disparador horario del Apps Script
+    (Extensiones → Apps Script → Activadores).
 - **La linea que quita acentos no debe llevar caracteres invisibles.** Estaba
   escrita como `/[̀-ͯ]/g`, con los propios caracteres combining U+0300 y U+036F
   dentro del rango: invisibles en cualquier editor y faciles de perder en una
@@ -575,4 +600,6 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 16 ago 2026:
 - [Formato y mantenimiento de la hoja n8n_jobs](jobs-hoja-formato.md) —
   `Append row in sheet` mapea por cabecera; el formato (casilla, orden, alto)
   lo repone un Apps Script aparte
+- [Tareas pendientes · Jobs](tareas-pendientes.md) — seguimiento del incidente
+  del 29 ago 2026 (Apps Script, guardarraíl de huecos, etc.)
 - [index.md](../../docs/index.md)
