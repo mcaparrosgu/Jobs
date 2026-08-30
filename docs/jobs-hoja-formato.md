@@ -113,6 +113,28 @@ Verificado el 29 ago 2026: con una fila de prueba añadida al final, una pasada
 `mantenimiento` le puso el desplegable **con el óvalo de color** (el
 `copyTo` / `PASTE_DATA_VALIDATION` sí arrastra el color del chip).
 
+**Verificado end-to-end el 30 ago 2026:** ingesta manual con 3 ofertas nuevas
+(`fecha_guardado 2026-08-30`) → el `append` las dejó contiguas al final →
+la pasada horaria de `mantenimiento` las reordenó arriba. Mar confirma en
+Apps Script → Activadores que el disparador horario corre sin error y en
+Ejecuciones que salen `Completado`. Tarea 1 de
+[tareas-pendientes.md](../../docs/tareas-pendientes.md) cerrada.
+
+## Copia bajo control de versiones (clasp)
+
+Desde el 30 ago 2026 el proyecto está espejado en el repo con
+[`clasp`](https://github.com/google/clasp): carpeta **`apps-script/`**
+(`Código.js` = este script; `appsscript.json` = timezone `Europe/Madrid`, V8).
+`scriptId` `1Dyyxt6a4bU9xkGDyAiaCAEe2EfiMqem9Ro9tD0oQHMjoRqNO9hUJf83y`.
+
+- Sigue siendo un script **container-bound** a la hoja; clasp es solo un espejo
+  para editarlo desde el repo. `clasp push` sube, `clasp pull` baja.
+- **clasp fijado a la 2.4.2**: la rama 3.x rompe `clasp login` (`Error 400:
+  invalid_request … response_type`). No hacer `npm i -g @google/clasp` sin
+  fijar versión.
+- `.clasprc.json` (tokens OAuth) y `apps-script/.clasp.json` (ruta absoluta de
+  la máquina) están en `.gitignore`.
+
 ```javascript
 const ALTO_FILA    = 21;
 const COL_FECHA    = 'fecha_guardado';
@@ -257,15 +279,16 @@ con datos (27 ago y parte del 28), recuperadas de las ejecuciones n8n 653,
 reformateo manual del 27. Como blindaje en n8n se puso `useAppend: true` en
 `Append row in sheet` (ver [jobs-ingesta.md](jobs-ingesta.md)).
 
-**Hecho el 29 ago (pendiente de revisión):** creado el proyecto Apps Script
-desde cero en la hoja con el script de este documento y ejecutado
-`crearDisparador()`. Verificado vía API que tras esa primera pasada la hoja queda
-ordenada, sin huecos, con casilla real y alto 21 px. **Falta confirmar** en
-Extensiones → Apps Script → Activadores que el disparador horario queda armado y
-que una pasada `mantenimiento` automática sale `Completado` sola — sin ese script
-vivo, cualquier hueco que deje un borrado de contenido o un archivado se acumula
-en vez de limpiarse solo. Como segunda red, `Jobs · ingesta` ahora avisa por
-email si el hueco reaparece (ver [jobs-ingesta.md](jobs-ingesta.md), sección
+**Hecho el 29 ago:** creado el proyecto Apps Script desde cero en la hoja con el
+script de este documento y ejecutado `crearDisparador()`. Verificado vía API que
+tras esa primera pasada la hoja queda ordenada, sin huecos, con casilla real y
+alto 21 px.
+
+**Cerrado el 30 ago 2026:** con datos reales (ingesta manual → 3 ofertas nuevas
+→ `append` contiguo → pasada horaria posterior) el disparador `mantenimiento`
+reordenó la hoja solo; Mar confirma en Activadores que corre cada hora sin error
+y en Ejecuciones que sale `Completado`. Como segunda red, `Jobs · ingesta` avisa
+por email si el hueco reaparece (ver [jobs-ingesta.md](jobs-ingesta.md), sección
 «D. Guardarraíl de huecos en `Ofertas_activas`»).
 
 # 29 ago 2026: desplegable de `estado` y banda de colores rotos en las filas nuevas

@@ -19,8 +19,15 @@ Separado del workflow original **Jobs** el 6 ago 2026 (ver
 sin afectar a la ingesta ni al seguimiento.
 
 - **ID:** `morsS0M2folmXWhS`
-- **Estado:** activo desde el 6 ago 2026
-- **Nodos:** 21
+- **Estado:** activo desde el 6 ago 2026. **Paso de humanización con OpenAI
+  publicado el 29 ago 2026** (`activeVersionId = a03951d1-70ee-47ab-a01b-2b31e63eec91`);
+  ver [Flujo](#flujo) punto 5.bis. **Verificado end-to-end el 30 ago 2026** con
+  las ejecuciones `trigger` #710 (Echodyne) y #711 (UpCounting): `Humanizar
+  (OpenAI)` `success` en una llamada, `Aplicar humanizacion` con
+  `_humanizado: true`, datos/empresas/fechas conservados, HTML intacto y flujo
+  completo hasta `Ping Healthchecks`. Ver [tareas-pendientes.md](tareas-pendientes.md)
+  tarea 7 (cerrada), con el matiz de calidad irregular en la carta.
+- **Nodos:** 26 (la cifra de 21 estaba desactualizada; +3 del paso de humanización del 29 ago 2026)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`,
   pestana `Ofertas_activas` (`gid=0`)
 
@@ -70,6 +77,36 @@ Se dispara sobre las filas que Mar marca a mano con `generar_cv_ia = true`.
 5. **`Separar CV y carta`** — parte la respuesta por los marcadores
    `===IDIOMA===` / `===CV===` / `===CARTA===`, valida longitudes minimas y
    compone los nombres de fichero `CV - AA-MM-DD - <id> - <puesto> - <empresa>`.
+5.bis **Paso de humanización con OpenAI** (publicado el 29 ago 2026, verificado
+   end-to-end el 30 ago 2026 — ejecuciones #710/#711, ver
+   [tareas-pendientes.md](tareas-pendientes.md) tarea 7). Reescribe la prosa para
+   quitarle el estilo genérico de IA y, al no pasarla
+   por Claude, sacarla de la marca de agua de texto que Claude incrusta en todo
+   lo que genera (ver
+   [support.claude.com](https://support.claude.com/es/articles/16266773-como-claude-marca-el-contenido-generado-por-ia)).
+   Tres nodos entre `Separar CV y carta` y `Crear doc cv`:
+   - **`Preparar humanizacion`** (Code) — extrae del HTML del CV el `resumen` y
+     las 3 primeras `p.descripcion` (la 4.ª, la lista de habilidades, NO se
+     toca) más el cuerpo de la carta, y arma el cuerpo de la llamada
+     (`gpt-4.1-mini`, `temperature 0.7`, `response_format: json_object`). El
+     system prompt prohíbe inventar datos, obliga a conservar idioma, cifras,
+     empresas y fechas, y a mantener la longitud (±20 %); veta arranques manidos,
+     tríos rítmicos, superlativos vacíos y conectores pomposos.
+   - **`Humanizar (OpenAI)`** (HTTP Request) — `POST
+     api.openai.com/v1/chat/completions`, `Authorization: Bearer
+     {{ $env.OPENAI_API_KEY }}`, `timeout 60000` ms, `retryOnFail` (3×3 s),
+     `onError: continueRegularOutput`.
+   - **`Aplicar humanizacion`** (Code) — valida campo a campo (no vacío, longitud
+     entre 0,5× y 2× del original, y que el texto original aparezca en el HTML) y
+     hace `String.replace` puntual dentro del HTML del CV, sin tocar etiquetas ni
+     clases; sustituye el cuerpo de la carta. Ante **cualquier** fallo (sin
+     respuesta, JSON inválido, longitud disparatada, `OPENAI_API_KEY` ausente)
+     devuelve el texto original de Claude y marca `_humanizado: false` +
+     `_humanizar_nota`. Su salida tiene la misma forma que `Separar CV y carta`.
+   `Adaptar cv plantilla` y `Adaptar carta plantilla` leen de
+   `Aplicar humanizacion` (antes, de `Separar CV y carta`); `nombre_carta` e
+   `idioma` se siguen leyendo de `Separar CV y carta` (campos passthrough
+   idénticos).
 6. **`Crear doc cv`** / **`Crear doc carta`** — copian plantillas de Docs
    (`11IUpAhDJHIP…` y `1GvPkVpd-eK4…`), **`Adaptar * plantilla`** monta las
    peticiones y **`Escribir * en docs`** las aplica via
@@ -97,9 +134,15 @@ oportunidad.
   (propia, solo para el disparador), Google Drive OAuth2, Google Docs OAuth2,
   Gmail OAuth2.
 - **Variables de entorno** (via `$env`, requieren passthrough en
-  `docker-compose.yml`): `ANTHROPIC_API_KEY`, `HEALTHCHECKS_PING_URL_GENERACION_CV`.
+  `docker-compose.yml`): `ANTHROPIC_API_KEY`, `HEALTHCHECKS_PING_URL_GENERACION_CV`
+  y **`OPENAI_API_KEY`** (paso de humanización). `OPENAI_API_KEY` **añadida el 29
+  ago 2026** a `C:\AI Engineering\n8n\Docker n8n\docker-compose.yml` (línea 52,
+  bloque `environment` del servicio n8n) y al `.env` de esa carpeta; contenedor
+  `dockern8n-n8n-1` recreado con `docker compose up -d` y variable verificada
+  dentro del contenedor.
 - **Servicios externos de pago:** API de Anthropic (hasta 8.000 tokens de
-  salida por CV, dos ejecuciones diarias).
+  salida por CV, dos ejecuciones diarias) y **API de OpenAI** (`gpt-4.1-mini`,
+  una llamada corta por CV en el paso de humanización).
 
 # Fallos conocidos
 
@@ -111,6 +154,24 @@ oportunidad.
   `Separar CV y carta` lanza un error explicito en vez de generar documentos a
   medias — no hay reintento automatico para ese caso (es un fallo de
   contenido, no de red).
+- **Paso de humanización:** si `OPENAI_API_KEY` faltara o la llamada fallara,
+  `Humanizar (OpenAI)` agota los 3 reintentos (~9 s de latencia extra por CV) y
+  `Aplicar humanizacion` cae al texto original de Claude — el CV se genera igual,
+  pero SÍ lleva la marca de agua de Claude y el estilo sin pulir. El campo
+  `_humanizar_nota` de esa ejecución dice qué pasó. (Desde el 29 ago 2026 la
+  clave está en el entorno; ver Dependencias.)
+- **Credencial `Google Drive account` caducada (29 ago 2026):** la ejecución de
+  prueba #674 falló en `Download file` con *«The credential "Google Drive
+  account" needs to be reconnected»* (`googleDriveOAuth2Api`, id
+  `ed8cmyLm1oZVZKB9`). El refresh token de Google expiró/se revocó (patrón
+  habitual en apps OAuth de Google en modo *Testing*: ~7 días). Bloquea TODO el
+  workflow en el paso 2. Se arregla reconectando la credencial en la UI de n8n
+  (Settings → Credentials → *Google Drive account* → Reconnect); requiere login
+  de Google, no se puede automatizar. Conviene revisar de paso `Google Docs` y
+  `Gmail`. Última generación correcta antes del fallo: ejecución #661, 27 ago.
+  **Reconectada el 30 ago 2026** (Mar, junto con `Google Docs` y `Gmail`);
+  ejecuciones #710/#711 correctas después. Volverá a caducar en ~7 días (app
+  OAuth de Google en modo *Testing*); hay que reconectarla a mano cada vez.
 
 # Relacionados
 

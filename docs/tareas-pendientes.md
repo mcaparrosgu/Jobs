@@ -6,87 +6,118 @@ tags: [n8n, empleo, tareas]
 timestamp: 2026-08-29T09:00:00Z
 ---
 
-# Hechas (pendientes de revisión)
-
-## 1. Revisar el disparador horario del Apps Script de `n8n_jobs`
-
-**Prioridad: alta.** Es la causa raíz del incidente del 29 ago 2026 (ver
-[jobs-hoja-formato.md](jobs-hoja-formato.md#29-ago-2026-el-apps-script-no-estaba-corriendo)
-y [jobs-ingesta.md](jobs-ingesta.md#fallos-conocidos)).
-
-**Estado (29 ago 2026):** hecha, pendiente de revisión. Al abrir la hoja **no
-existía ningún proyecto Apps Script** — no era que el disparador hubiera fallado,
-es que el script nunca estuvo instalado ahí. Se creó el proyecto desde cero, se
-pegó el script documentado en `jobs-hoja-formato.md` y se ejecutó
-`crearDisparador()`. Verificado vía API sobre la hoja: `Ofertas_activas` con 39
-filas ordenadas por `fecha_guardado` desc, sin huecos, hoja recortada a 40 filas
-exactas, casilla real (`dataValidation BOOLEAN`) y booleano `false` en
-`generar_cv_ia`, alto 21 px; `Archivo` ordenado y con `generar_cv_ia` vacía y sin
-casilla.
-
-**Actualización 29 ago 2026 (tarde):** Mar confirma que el Apps Script **se está
-disparando**. Además se amplió el script (tarea 6, cerrada) para cubrir
-desplegable de `estado` con chip de color y banda. Queda por revisar sólo lo de
-abajo (que una pasada horaria automática salga `Completado` sin error).
-
-**Supervisar a partir del lunes 31 ago 2026.** El 29 ago es sábado y no se
-esperan más ofertas hasta el lunes, así que la comprobación con datos reales
-(ingesta de las 09:00/17:00 del lunes → pasada `mantenimiento` posterior →
-`Ofertas_activas` ordenada, sin huecos, con casilla, desplegable+chip y banda
-hasta la última fila) se hace el **31 ago**. Mirar en Apps Script → Ejecuciones
-que las pasadas automáticas de ese día salen `Completado`.
-
-El script `mantenimiento` (Extensiones → Apps Script dentro de la hoja) debería
-correr cada hora: reordena las dos pestañas por `fecha_guardado` desc, fuerza
-alto de fila 21 px, reaplica/quita la casilla de `generar_cv_ia` y purga
-casillas/valores sueltos en filas vacías. Entre el 25 y el 29 ago **no se
-ejecutó** y por eso un hueco de ~260 filas vacías dejó las ofertas nuevas
-enterradas al fondo sin que nada avisara.
-
-Qué comprobar:
-- Extensiones → Apps Script → **Activadores (Triggers)**: que existe el
-  disparador time-based de `mantenimiento` cada 1 h y no está en estado de
-  error.
-- **Ejecuciones** del proyecto Apps Script: buscar fallos recientes
-  (autorización caducada, cuota diaria agotada, timeout).
-- Si el disparador desapareció o falla: volver a lanzarlo con `crearDisparador()`
-  (está en el propio script) y confirmar que la siguiente pasada horaria
-  reordena y limpia.
-
-**Cierre:** una ejecución horaria `success` visible en el log de Apps Script y
-la hoja ordenada/sin huecos tras ella.
-
 # Abiertas
+
+*(ninguna abierta a 30 ago 2026)*
+
+# Cerradas
+
+## 7. Publicar y verificar el paso de humanización con OpenAI (Jobs · generación CV)
+
+**Prioridad: media. Cerrada el 30 ago 2026 — verificada end-to-end.** El 29 ago
+2026 se añadió a `Jobs · generación CV` (ID `morsS0M2folmXWhS`) un paso de
+reescritura de la prosa del CV y la carta con OpenAI (`gpt-4.1-mini`), para
+quitar el estilo genérico de IA y sacar el texto de la marca de agua que Claude
+incrusta en lo que genera. Detalle en
+[jobs-generacion-cv.md](jobs-generacion-cv.md), Flujo punto 5.bis.
+
+**Camino hasta el cierre:**
+- **29 ago ✅** `OPENAI_API_KEY` en `docker-compose.yml` + `.env` de
+  `C:\AI Engineering\n8n\Docker n8n\`, contenedor recreado con `docker compose
+  up -d`. Draft publicado (`activeVersionId a03951d1-…`).
+- **29 ago ⛔** primera prueba (#674) murió en `Download file` por la credencial
+  `Google Drive account` caducada — no llegó al paso nuevo.
+- **30 ago ✅** Mar reconectó `Google Drive account` (y revisó `Google Docs` /
+  `Gmail`). Re-disparado el trigger.
+
+**Verificación (30 ago 2026)** — dos ejecuciones `trigger` `success` que
+ejercitan el paso nuevo:
+- **#710** — «Sales Operations Specialist» / Echodyne (`6971fd98`). *(Se marcó
+  sin querer: al togglear `G8` para re-disparar, la pasada horaria de
+  `mantenimiento` reordenó la hoja entre el `FALSE` y el `TRUE`, así que `G8`
+  cayó sobre otra fila. Sin daño: `tipo enlace`, no manda email; solo generó un
+  Doc de más.)*
+- **#711** — «Operations & AI Manager [100% Remote]» / UpCounting (`d87f2c8c`),
+  la oferta de prueba prevista (su flag de ayer se procesó al arreglar la
+  credencial).
+
+En ambas:
+- `Humanizar (OpenAI)` → `success` en ~6,6 s, **una** llamada (sin tanda de 3
+  reintentos → clave OK). `gpt-4.1-mini-2025-04-14`, ~1,4 k tokens.
+- `Aplicar humanizacion` → `_humanizado: true`,
+  `_humanizar_nota: "aplicados: resumen, descripcion_1, descripcion_2,
+  descripcion_3, carta"`.
+- **Sin invención de datos:** empresas, fechas, cifras y herramientas
+  conservadas; solo cambia la redacción y numerales tipo «7+ años» → «over 7
+  years». La 4.ª `p.descripcion` (lista de habilidades) queda intacta y las
+  etiquetas/clases HTML no se tocan.
+- `Adaptar cv/carta plantilla` consumen el texto humanizado sin el error de
+  «campo no encontrado»; el flujo llega hasta `Ping Healthchecks` y
+  `Actualizar estado` deja `estado: cv_ia_creado`, `generar_cv_ia: false`.
+
+**Pendiente menor (no bloquea):** la humanización de la **carta** es de calidad
+irregular — a veces aplana frases distintivas de Claude a aperturas más sosas
+(«I am interested in the … role»). Y en #710 introdujo una errata («Adapt at»
+por «Adept at»). Son ajustes de prompt para más adelante; el mecanismo funciona
+y ante cualquier fallo cae al texto de Claude (`_humanizado: false`).
+
+**Cierre:** cumplido — #710 y #711 con `_humanizado: true`, documentos correctos
+y sin regresiones de formato.
 
 ## 4. Verificar la primera ejecución programada con `useAppend: true`
 
-**Prioridad: media.** El cambio se aplicó el 29 ago pero aún no se ha visto una
-pasada automática completa. Comprobar en la ejecución de las 17:00 (o la
-siguiente) que `Append row in sheet` escribe justo tras el bloque de datos
-(fila 41+) y que, tras el Apps Script, las ofertas nuevas quedan arriba del
-todo.
+**Prioridad: media. Cerrada el 30 ago 2026 — verificada (con un matiz menor).**
+El cambio se aplicó el 29 ago para que `Append row in sheet` escribiera justo
+tras el bloque de datos en vez de sobre un hueco de filas vacías.
 
-**Estado (29 ago 2026, tarde): verificada a medias.** Revisadas las ejecuciones
-de `Jobs · ingesta` (ID `CXCD8BZUQEQKex2a`) posteriores al cambio:
-- **#672** — `trigger` programada, 29 ago 15:00:07Z (17:00 CEST), `success`.
-  Primera pasada automática tras `useAppend: true`. Pero `Filtro duplicados`
-  encontró **0 ofertas nuevas** (las 3 del día ya las metió la manual #671 a
-  las 14:02Z), así que `Append row in sheet` y `Notificación nuevas ofertas`
-  **no llegaron a ejecutarse**. Sí se confirma: `Get row(s) in sheet` leyó las
-  filas 2–21 contiguas sin huecos y `Guardarráil huecos` emitió `[]`
-  (`huecos = 0`).
-- **#671** — manual, 14:02Z, `success`: añadió 3 ofertas con `useAppend: true`
-  y mandó el email de notificación. Pero fue modo `manual` y el nodo `Append`
-  no devuelve `updatedRange`, así que no confirma el número de fila.
+**Verificación (30 ago 2026):** Mar activó la ingesta a mano y entraron **3
+ofertas realmente nuevas**. Ejecución **#675** de `Jobs · ingesta` (ID
+`CXCD8BZUQEQKex2a`, 30 ago 09:24Z, `success`):
+- `Filtro duplicados` → 3 items: *Delivery/Project Manager | GT*, *Revenue
+  Strategy & Operations – EMEA* (Elevenlabs), *Informatica Admin* (NTT DATA),
+  todas `fecha_guardado 2026-08-30`.
+- `Append row in sheet` → 3 items de salida; `Notificación nuevas ofertas` mandó
+  el email (Gmail id `1a051fd530ca6cd9`).
+- En la hoja quedaron en las **filas 22–24, contiguas**, justo debajo de la
+  fila 21 (último dato previo), **sin ningún hueco**. La pasada horaria de
+  `mantenimiento` posterior las reordenó arriba (tarea 1).
+- `Guardarráil huecos` emitió `[]` en las dos pasadas del día (#675: 21−20−1=0;
+  #708: 24−23−1=0). Sin falsa alarma.
 
-Falta lo esencial: una pasada **programada con ofertas realmente nuevas** que
-ejercite el `append`. No habrá hasta la ingesta del **lunes 31 ago**; se
-comprueba junto con la tarea 1.
+**Matiz:** #675 fue `mode: manual` (Mar lo lanzó a mano), no `trigger`. El
+comportamiento del `append` es idéntico en ambos modos; lo único que cambia es
+que en `manual` el nodo no devuelve `updatedRange`, pero la posición de las
+filas se confirmó directamente leyendo la hoja. Se da por buena sin esperar a
+una `trigger`.
 
-**Cierre:** una ejecución `trigger` posterior al 29 ago con las filas nuevas
-contiguas y visibles.
+**Cierre:** cumplido — pasada con 3 ofertas nuevas, filas contiguas tras el
+bloque de datos y visibles arriba tras `mantenimiento`.
 
-# Cerradas
+## 1. Revisar el disparador horario del Apps Script de `n8n_jobs`
+
+**Prioridad: alta. Cerrada el 30 ago 2026.** Era la causa raíz del incidente del
+29 ago 2026 (huecos de filas vacías; ver
+[jobs-hoja-formato.md](jobs-hoja-formato.md#29-ago-2026-el-apps-script-no-estaba-corriendo)).
+Al abrir la hoja **no existía ningún proyecto Apps Script** — el script nunca
+estuvo instalado ahí. Se creó el proyecto desde cero, se pegó el script
+documentado en `jobs-hoja-formato.md` y se ejecutó `crearDisparador()`.
+
+**Verificación end-to-end con datos reales (30 ago 2026):** Mar activó la ingesta
+a mano y entraron 3 ofertas nuevas (GT, Elevenlabs, NTT DATA, `fecha_guardado
+2026-08-30`). El `append` las dejó en las filas 22–24, contiguas y al fondo
+(orden aún sin aplicar). En la siguiente pasada horaria de `mantenimiento` el
+script **reordenó** `Ofertas_activas` por `fecha_guardado` desc (las 3 subieron
+arriba) y Mar confirma en Apps Script → **Activadores** que el disparador
+time-based corre **cada hora sin error** y en **Ejecuciones** que salen
+`Completado`. Estado de la hoja verificado vía API antes de la reordenación: 23
+filas contiguas sin huecos, todas a 21 px, casilla `BOOLEAN` en `generar_cv_ia`
+y desplegable `ONE_OF_LIST` en `estado` en todas (incluidas las nuevas), banda
+hasta la última fila (`bandedRanges` 0–24), hoja recortada a 24 filas exactas
+(`rowCount: 24`).
+
+**Cierre:** cumplido — disparador horario `Completado` en el log de Apps Script y
+hoja ordenada/sin huecos tras la pasada, con datos reales de la ingesta del 30
+ago.
 
 ## 3. Decidir qué hacer con las ofertas del 25 y 26 ago 2026
 

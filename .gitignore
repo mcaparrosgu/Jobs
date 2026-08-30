@@ -1,2 +1,6 @@
 # Monetización: nunca se sube a git
 docs/monetizacion.md
+
+# clasp (Apps Script): credenciales OAuth y config con ruta absoluta de la máquina
+.clasprc.json
+apps-script/.clasp.json
