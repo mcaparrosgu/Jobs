@@ -20,13 +20,18 @@ sin afectar a la ingesta ni al seguimiento.
 
 - **ID:** `morsS0M2folmXWhS`
 - **Estado:** activo desde el 6 ago 2026. **Paso de humanización con OpenAI
-  publicado el 29 ago 2026** (`activeVersionId = a03951d1-70ee-47ab-a01b-2b31e63eec91`);
-  ver [Flujo](#flujo) punto 5.bis. **Verificado end-to-end el 30 ago 2026** con
-  las ejecuciones `trigger` #710 (Echodyne) y #711 (UpCounting): `Humanizar
-  (OpenAI)` `success` en una llamada, `Aplicar humanizacion` con
-  `_humanizado: true`, datos/empresas/fechas conservados, HTML intacto y flujo
-  completo hasta `Ping Healthchecks`. Ver [tareas-pendientes.md](tareas-pendientes.md)
-  tarea 7 (cerrada), con el matiz de calidad irregular en la carta.
+  publicado el 29 ago 2026**; ver [Flujo](#flujo) punto 5.bis. **Verificado
+  end-to-end el 30 ago 2026** con las ejecuciones `trigger` #710 (Echodyne) y
+  #711 (UpCounting): `Humanizar (OpenAI)` `success` en una llamada, `Aplicar
+  humanizacion` con `_humanizado: true`, datos/empresas/fechas conservados, HTML
+  intacto y flujo completo hasta `Ping Healthchecks`. Ver
+  [tareas-pendientes.md](tareas-pendientes.md) tarea 7 (cerrada).
+  **Ajuste del prompt de la carta el 30 ago 2026** (`activeVersionId =
+  5b8618f5-4893-44d6-8e11-4b6fd0731b92`): el system prompt de `Preparar
+  humanizacion` pasa a «retoque ligero, no reescritura», con regla anti-errata
+  (conservar la grafía exacta) y bloque específico para la carta que protege el
+  enfoque de la primera frase; `temperature` 0.7 → 0.4. Pendiente de verificación
+  end-to-end — [tareas-pendientes.md](tareas-pendientes.md) tarea 8 (abierta).
 - **Nodos:** 26 (la cifra de 21 estaba desactualizada; +3 del paso de humanización del 29 ago 2026)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`,
   pestana `Ofertas_activas` (`gid=0`)

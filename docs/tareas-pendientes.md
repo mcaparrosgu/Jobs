@@ -8,7 +8,39 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
-*(ninguna abierta a 30 ago 2026)*
+## 8. Verificar el ajuste del prompt de humanización de la carta
+
+**Prioridad: baja. Abierta el 30 ago 2026.** Sale del «pendiente menor» de la
+tarea 7: la humanización de la **carta** con `gpt-4.1-mini` daba calidad
+irregular — aplanaba la primera frase a aperturas genéricas («I am interested in
+the … role») y en #710 metió una errata («Adapt at» por «Adept at»).
+
+**Cambio aplicado (30 ago 2026), vía n8n MCP** en el Code node
+`Preparar humanizacion` de `Jobs · generación CV` (ID `morsS0M2folmXWhS`),
+publicado (`activeVersionId = 5b8618f5-4893-44d6-8e11-4b6fd0731b92`):
+- El system prompt pasa de «reescribes prosa» a **«RETOQUE LIGERO, no una
+  reescritura: cambia lo mínimo imprescindible… si una frase ya suena natural y
+  concreta, DÉJALA tal cual»**.
+- Nueva regla anti-errata: **no cambiar la grafía de nombres propios ni términos
+  técnicos, conservar la grafía exacta de cada palabra («Adept», no «Adapt»),
+  ante la duda dejar la palabra igual**.
+- Bloque nuevo **«Para el texto "carta"»**: mantener el enfoque de la primera
+  frase (si ya es concreta/personal, casi igual) y **NUNCA** sustituirla por una
+  apertura genérica («I am interested in the X role», «I would like to apply for
+  the position of», «Me interesa el puesto de X»); conservar frases distintivas
+  y detalles específicos de la oferta.
+- Longitud objetivo 80–120 % → **85–115 %**; `temperature` 0.7 → **0.4**.
+
+El `jsCode` de la extracción (regex sobre el HTML del CV) y la lógica de
+`Aplicar humanizacion` (validación campo a campo, fallback a texto de Claude) no
+se tocaron. Verificado byte a byte que el nodo publicado coincide con lo
+previsto.
+
+**Criterio de cierre:** una ejecución `trigger` real (Mar marca `generar_cv_ia`
+en una oferta con aplicación por email) donde `Aplicar humanizacion` deje
+`_humanizado: true` y, revisando el Doc de la carta: la primera frase conserva el
+enfoque del original de Claude (no una apertura genérica), sin erratas nuevas y
+sin regresiones de formato.
 
 # Cerradas
 
