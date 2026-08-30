@@ -8,6 +8,82 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
+## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
+
+**Prioridad: alta. Abierta el 30 ago 2026.** Es M5 de
+[jobs-evaluacion.md](jobs-evaluacion.md). La app OAuth de Google está en modo
+*Testing*, lo que caduca el refresh token a los 7 días — causa raíz de que
+`Google Sheets account` (16 ago) y `Google Drive account` (29 ago, ejecución
+#674) se hayan desconectado ya. Acción de Mar en Google Cloud Console (pasos
+detallados dados en conversación: Google Auth Platform → Público → Publicar
+aplicación), sin cambios en n8n.
+
+**Seguimiento pendiente por Claude:** una vez Mar confirme que lo ha publicado,
+vigilar que pasen **más de 7 días** sin que ninguna credencial de Google pida
+reconexión.
+
+**Criterio de cierre:** 7+ días sin ningún aviso de «needs to be reconnected» en
+Sheets, Drive, Docs o Gmail tras la publicación.
+
+## 9. Deduplicar también por URL en `Filtro duplicados`
+
+**Prioridad: alta. Abierta el 30 ago 2026 — aprobada por Mar.** Es M2 de
+[jobs-evaluacion.md](jobs-evaluacion.md). Bug confirmado en producción:
+*«Especialista en Operaciones de HubSpot y CRM»* está dos veces en
+`Ofertas_activas` (27 y 28 ago) con el mismo `enlace_o_email` de remotojob.com e
+`id_unico` distinto (`48d6e5bf` / `8179f924`), porque `empresa` era
+`No especificado` en una y `Prismic` en la otra. Cambio **aditivo** en
+`Filtro duplicados`: nuevo `id_url` (mismo hash de 32 bits sobre la URL
+normalizada), descarta si coincide `id_unico` **o** `id_url`. No toca el hash
+`id_unico` existente.
+
+**Criterio de cierre:** reinyectar a mano las dos filas de HubSpot/CRM — la
+segunda debe descartarse por `id_url` sin que se pierda ninguna oferta legítima.
+
+## 10. Pestaña `Metricas` del embudo de ingesta
+
+**Prioridad: media. Abierta el 30 ago 2026 — aprobada por Mar.** Es M3 de
+[jobs-evaluacion.md](jobs-evaluacion.md). Hoy el recuento de descartes por
+criterio solo vive en el log de cada ejecución y se pierde. Pestaña nueva
+`Metricas` (fecha_hora, fuente, crudas, tras_teletrabajo, tras_salario,
+tras_cualificacion, nuevas, descartes por criterio), alimentada por una rama
+aislada colgando de `Filtro duplicados` — mismo patrón que
+`Guardarraíl huecos` → `Aviso huecos`, sin tocar el `append` principal.
+
+**Criterio de cierre:** una pasada real deja una fila por fuente en `Metricas`
+con los recuentos cuadrando con el log de esa misma ejecución.
+
+## 11. Truncar `resumen` a ~800 caracteres en los normalizadores
+
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar.** Es M8 de
+[jobs-evaluacion.md](jobs-evaluacion.md). Algunas ofertas guardan la descripción
+completa sin recortar (~10 KB en la fila de GitLab), lo que dispara el alto de
+fila que el Apps Script corrige cada hora. Truncar a ~800 caracteres en cada
+normalizador, antes del `Merge`; el enlace completo se conserva en su columna. No
+afecta a la generación de CV, que ya recorta el texto de la oferta a 6.000
+caracteres en `Prompt para CV`.
+
+**Criterio de cierre:** una pasada real con ofertas largas deja `resumen` recortado
+(~800 caracteres) y el enlace intacto; el Apps Script deja de tener que corregir
+alturas de fila disparadas.
+
+## 12. Archivar `cv_enviado` sin respuesta a los 30 días
+
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar (solo esta mitad de
+M7).** Es la mitad de M7 de [jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado`
+con **≥ 30 días** y sin respuesta → `estado: sin_respuesta` (valor nuevo del
+desplegable, hay que añadirlo a la validación y colorear el chip a mano) → lo
+recoge el archivado normal. Requiere una columna `fecha_envio` nueva, que
+escribiría [Jobs · generación CV](jobs-generacion-cv.md) en el mismo nodo que ya
+marca `estado: cv_enviado`.
+
+**No incluye** el email de seguimiento a los 7-10 días de M7 — ver
+[Sugerencias pendientes](#sugerencias-pendientes).
+
+**Criterio de cierre:** una fila de prueba con `cv_enviado` y `fecha_envio` de
+hace 31 días pasa a `sin_respuesta` en una pasada real y el archivado se la lleva
+a `Archivo`.
+
 ## 8. Verificar el ajuste del prompt de humanización de la carta
 
 **Prioridad: baja. Abierta el 30 ago 2026.** Sale del «pendiente menor» de la
@@ -283,8 +359,29 @@ Verificado con datos de ejecución reales de `Jobs · archivado`
 **Cierre:** cumplido — varias ejecuciones con varias filas a archivar, todas
 fuera de `Ofertas_activas` y todas en `Archivo`.
 
+# Sugerencias pendientes
+
+Ideas ya evaluadas y con diseño en [jobs-evaluacion.md](jobs-evaluacion.md), pero
+que Mar quiere pedir más adelante, no ahora. No son tareas abiertas — se listan
+aquí para no perderlas.
+
+- **Borrador de mensaje de seguimiento a los 7-10 días** (la otra mitad de M7).
+  Cuando una candidatura lleva 7-10 días en `cv_enviado` sin `estado_propuesto`,
+  mandar a Mar un email con un borrador de mensaje de seguimiento a la empresa.
+  Aprobada solo la mitad de archivado a 30 días (tarea 12); esta parte se pide
+  explícitamente más adelante.
+- **M6 — sacar n8n del portátil a un servidor.** Interesa cuando llegue el
+  momento de monetizar/comercializar Jobs, no antes: mientras sea uso personal,
+  perder una pasada por el portátil apagado no tiene coste real.
+- **M1 — puntuación de encaje con IA** (proveedor ya fijado: `claude-haiku-4-5`,
+  ver jobs-evaluacion.md). Explicada y con la duda de la decisión resuelta
+  (no descarta nada por sí sola), pero aún sin aprobar para implementar.
+- **M4 — podar Wellfound y FlexJobs.** Depende de los datos de la tarea 10
+  (`Metricas`): decidir con dos semanas de datos reales, no antes.
+
 # Relacionados
 
 - [jobs-ingesta.md](jobs-ingesta.md)
 - [jobs-hoja-formato.md](jobs-hoja-formato.md)
 - [jobs-archivado.md](jobs-archivado.md)
+- [jobs-evaluacion.md](jobs-evaluacion.md)
