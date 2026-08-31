@@ -353,9 +353,16 @@ Requiere una columna **`fecha_envio`** que hoy no existe: la escribiría
 
 ## M8 — Menores
 
-- **Truncar `resumen`** a ~800 caracteres en cada normalizador, antes del `Merge`
-  (resuelve H9). Menos peso en la hoja y menos trabajo para el Apps Script. El
-  prompt del CV lo recorta igualmente a 6.000 caracteres.
+- **Truncar `resumen`** a ~800 caracteres (resuelve H9). Menos peso en la hoja y
+  menos trabajo para el Apps Script. El prompt del CV lo recorta igualmente a
+  6.000 caracteres. **Implementado y publicado el 31 ago 2026** (tarea 11 /
+  [tareas-pendientes.md](tareas-pendientes.md)) — `versionId
+  f8ac4e6b-…`. Se hace **dentro de `Filtro duplicados`**, al construir la oferta
+  de salida, **no en los normalizadores como decía este doc**: truncar antes del
+  `Merge` cambiaría decisiones de `Filtro teletrabajo` y del criterio de idioma
+  de `Filtro cualificación` cuando la palabra clave cae más allá del carácter
+  800. Un solo nodo tocado y filtrado intacto. En vigilancia hasta ver el
+  recorte en una pasada real con ofertas largas.
 - **No tocar el umbral del `Filtro salario`**: con H5 hoy es inocuo. Solo dejar
   constancia de que no está filtrando, para no perder tiempo ajustándolo.
 

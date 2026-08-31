@@ -154,6 +154,16 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    [tareas-pendientes.md](tareas-pendientes.md), tarea 9). El regex de
    diacríticos de `normalizar()` se construye con `String.fromCharCode` para
    no dejar caracteres combining invisibles en el fuente (mismo match exacto).
+   **Desde el 31 ago 2026** (tarea 11 / M8): al construir la oferta de salida
+   trunca `resumen` a ~800 caracteres (`truncarResumen()` / `LIMITE_RESUMEN`,
+   corte al último espacio si está cerca del límite + `...`), para que las
+   descripciones sin recortar (~10 KB) dejen de disparar el alto de fila que el
+   Apps Script corrige cada hora. Se hace **aquí y no en los normalizadores** a
+   propósito: así los filtros de arriba (`Filtro teletrabajo`, criterio de
+   idioma de `Filtro cualificación`) siguen viendo el `resumen` completo y no
+   cambian ninguna decisión. Cambio 100 % aditivo: `id_unico`, `id_url` y
+   pasa/descarta intactos. El enlace completo va en su columna y la generación
+   de CV recorta a 6.000 aparte.
 6. **`Append row in sheet`** → `Ofertas_activas`. Desde el 29 ago 2026 con
    `useAppend: true` (append nativo de la API de Sheets, no el modo *update* por
    defecto): anexa tras el bloque de datos contiguo desde A1, así que un hueco

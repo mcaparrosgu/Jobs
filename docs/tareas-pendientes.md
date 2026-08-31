@@ -98,15 +98,41 @@ log de `Filtro cualificación` de esa ejecución → entonces se cierra.
 **Criterio de cierre:** una pasada real deja una fila por fuente en `Metricas`
 con los recuentos cuadrando con el log de esa misma ejecución.
 
-## 11. Truncar `resumen` a ~800 caracteres en los normalizadores
+## 11. Truncar `resumen` a ~800 caracteres
 
-**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar.** Es M8 de
-[jobs-evaluacion.md](jobs-evaluacion.md). Algunas ofertas guardan la descripción
-completa sin recortar (~10 KB en la fila de GitLab), lo que dispara el alto de
-fila que el Apps Script corrige cada hora. Truncar a ~800 caracteres en cada
-normalizador, antes del `Merge`; el enlace completo se conserva en su columna. No
-afecta a la generación de CV, que ya recorta el texto de la oferta a 6.000
-caracteres en `Prompt para CV`.
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar. Implementada y
+publicada el 31 ago 2026; en vigilancia hasta confirmar el recorte en una pasada
+real con ofertas largas.** Es M8 de [jobs-evaluacion.md](jobs-evaluacion.md).
+Algunas ofertas guardan la descripción completa sin recortar (~10 KB en la fila
+de GitLab), lo que dispara el alto de fila que el Apps Script corrige cada hora.
+El enlace completo se conserva en su columna. No afecta a la generación de CV,
+que ya recorta el texto de la oferta a 6.000 caracteres en `Prompt para CV`.
+
+**Dónde se trunca (decisión del 31 ago 2026):** el doc original decía «en cada
+normalizador, antes del `Merge`», pero ahí el recorte cambiaría decisiones de
+`Filtro teletrabajo` (mira `titulo+resumen` para «hybrid»/«onsite» y para las
+palabras de remoto) y del criterio de idioma de `Filtro cualificación`, si la
+palabra clave cae más allá del carácter 800. Se hace **dentro de
+`Filtro duplicados`**, al construir cada oferta de salida — después de todos los
+filtros, que siguen viendo el `resumen` completo. Un solo nodo tocado en vez de
+13 y comportamiento de filtrado intacto.
+
+**Implementación (31 ago 2026), vía n8n MCP** en `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`), detalle en [jobs-ingesta.md](jobs-ingesta.md) sección A
+punto 5:
+- `Filtro duplicados` (Code) reescrito con `updateNodeParameters` (releído byte a
+  byte, sha256 `285e5933a2d86986`). Cambio **100 % aditivo**: nueva función
+  `truncarResumen()` + `LIMITE_RESUMEN = 800`, aplicada como
+  `resumen: truncarResumen(oferta.resumen)` en el objeto de salida. `id_unico`,
+  `id_url` y la decisión pasa/descarta **sin tocar**.
+- Recorta al último espacio si está a menos de 120 car. del límite (no parte
+  palabras) y marca el corte con `...`. Texto `≤ 800` o no-string → pasa igual.
+- Publicado, `versionId == activeVersionId ==
+  f8ac4e6b-ef03-4fbe-9836-259a010e81b7`. 48 nodos, wiring intacto (entra de
+  `Leer archivo`, sale a `Append row in sheet` + `Registrar métricas`).
+
+**Pendiente:** una pasada real con ≥1 oferta de `resumen` largo (>800 car.) que
+deje la celda recortada (~800 + `...`) y el enlace intacto.
 
 **Criterio de cierre:** una pasada real con ofertas largas deja `resumen` recortado
 (~800 caracteres) y el enlace intacto; el Apps Script deja de tener que corregir

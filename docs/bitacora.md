@@ -39,3 +39,39 @@ decisión cambió, se anota una entrada nueva que lo diga.
   limitación de «pasada 100 % duplicados → sin fila en `Metricas`» acabará
   molestando para comparar semanas entre sí; se revisa con dos semanas de datos
   reales, junto con la decisión sobre M4.
+
+## 2026-08-31 · Hito: truncar `resumen` a ~800 caracteres (tarea 11 / M8)
+
+- QUÉ SE DECIDIÓ — El `resumen` de cada oferta se recorta a ~800 caracteres
+  antes de escribirlo en la hoja, para que las descripciones enteras (~10 KB en
+  la fila de GitLab) dejen de disparar el alto de fila que el Apps Script de
+  `mantenimiento` tiene que forzar a 21 px cada hora. El recorte se hace
+  **dentro del nodo `Filtro duplicados`** de [Jobs · ingesta](jobs-ingesta.md),
+  al construir la oferta de salida: función `truncarResumen()` con
+  `LIMITE_RESUMEN = 800`, corte al último espacio si está cerca del límite (no
+  parte palabras) y marca `...`. Cambio 100 % aditivo: las claves de dedup
+  (`id_unico`, `id_url`) y la decisión pasa/descarta no se tocan.
+- ALTERNATIVAS DESCARTADAS — (a) Lo que decía el doc M8: truncar en cada uno de
+  los 13 normalizadores, antes del `Merge`. (b) Un nodo Code nuevo entre
+  `Filtro duplicados` y `Append row in sheet`.
+- POR QUÉ ESTA — Truncar antes del `Merge` (opción a) mete el recorte por
+  delante de `Filtro teletrabajo` (que mira `titulo+resumen` para detectar
+  "hybrid"/"onsite" y para rescatar por palabras de remoto) y del criterio de
+  idioma de `Filtro cualificación`: si la palabra clave cae más allá del
+  carácter 800, esos filtros cambian de decisión y se cuela una oferta híbrida
+  o se tira una remota buena. Haciéndolo en `Filtro duplicados` —que ya reescribe
+  cada item de forma aditiva y va después de todos los filtros— el filtrado
+  queda intacto y se toca un solo nodo en vez de 13. La opción (b) es igual de
+  segura pero añade un nodo y hay que meterlo en el abanico que también alimenta
+  `Registrar métricas`.
+- QUÉ SE ROMPIÓ — Nada. `updateNodeParameters` + relectura byte a byte (sha256
+  `285e5933a2d86986`), publicado como `versionId
+  f8ac4e6b-ef03-4fbe-9836-259a010e81b7`, wiring intacto, 48 nodos. Comportamiento
+  de `truncarResumen()` probado en local (texto corto pasa igual, `null`/
+  `undefined` no rompen, texto largo corta ~800 + `...`, exactamente 800 no se
+  toca).
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Si 800 caracteres es el número correcto: se
+  eligió porque el doc M8 lo decía y porque el prompt del CV recorta a 6.000
+  aparte, pero no se ha medido cuánto texto útil se pierde de media. Se revisa
+  cuando una pasada real con ofertas largas deje ver el recorte en la hoja
+  (criterio de cierre de la tarea 11).
