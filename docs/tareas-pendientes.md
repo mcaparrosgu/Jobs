@@ -98,40 +98,6 @@ log de `Filtro cualificación` de esa ejecución → entonces se cierra.
 **Criterio de cierre:** una pasada real deja una fila por fuente en `Metricas`
 con los recuentos cuadrando con el log de esa misma ejecución.
 
-## 8. Verificar el ajuste del prompt de humanización de la carta
-
-**Prioridad: baja. Abierta el 30 ago 2026.** Sale del «pendiente menor» de la
-tarea 7: la humanización de la **carta** con `gpt-4.1-mini` daba calidad
-irregular — aplanaba la primera frase a aperturas genéricas («I am interested in
-the … role») y en #710 metió una errata («Adapt at» por «Adept at»).
-
-**Cambio aplicado (30 ago 2026), vía n8n MCP** en el Code node
-`Preparar humanizacion` de `Jobs · generación CV` (ID `morsS0M2folmXWhS`),
-publicado (`activeVersionId = 5b8618f5-4893-44d6-8e11-4b6fd0731b92`):
-- El system prompt pasa de «reescribes prosa» a **«RETOQUE LIGERO, no una
-  reescritura: cambia lo mínimo imprescindible… si una frase ya suena natural y
-  concreta, DÉJALA tal cual»**.
-- Nueva regla anti-errata: **no cambiar la grafía de nombres propios ni términos
-  técnicos, conservar la grafía exacta de cada palabra («Adept», no «Adapt»),
-  ante la duda dejar la palabra igual**.
-- Bloque nuevo **«Para el texto "carta"»**: mantener el enfoque de la primera
-  frase (si ya es concreta/personal, casi igual) y **NUNCA** sustituirla por una
-  apertura genérica («I am interested in the X role», «I would like to apply for
-  the position of», «Me interesa el puesto de X»); conservar frases distintivas
-  y detalles específicos de la oferta.
-- Longitud objetivo 80–120 % → **85–115 %**; `temperature` 0.7 → **0.4**.
-
-El `jsCode` de la extracción (regex sobre el HTML del CV) y la lógica de
-`Aplicar humanizacion` (validación campo a campo, fallback a texto de Claude) no
-se tocaron. Verificado byte a byte que el nodo publicado coincide con lo
-previsto.
-
-**Criterio de cierre:** una ejecución `trigger` real (Mar marca `generar_cv_ia`
-en una oferta con aplicación por email) donde `Aplicar humanizacion` deje
-`_humanizado: true` y, revisando el Doc de la carta: la primera frase conserva el
-enfoque del original de Claude (no una apertura genérica), sin erratas nuevas y
-sin regresiones de formato.
-
 ## 11. Truncar `resumen` a ~800 caracteres en los normalizadores
 
 **Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar.** Es M8 de
@@ -228,6 +194,56 @@ Mar borró a mano la fila `No especificado`/`48d6e5bf` y se rellenó
 **Cierre:** cumplido — #718 descarta la oferta duplicada por `id_url` sin perder
 ofertas legítimas; `id_unico` intacto. Docs `jobs-ingesta.md` y
 `jobs-hoja-formato.md` actualizados.
+
+## 8. Verificar el ajuste del prompt de humanización de la carta
+
+**Prioridad: baja. Abierta el 30 ago 2026. Cerrada el 31 ago 2026 — verificada
+con la ejecución `trigger` #715.** Salía del «pendiente menor» de la tarea 7: la
+humanización de la **carta** con `gpt-4.1-mini` daba calidad irregular —
+aplanaba la primera frase a aperturas genéricas («I am interested in the … role»)
+y en #710 metió una errata («Adapt at» por «Adept at»).
+
+**Cambio aplicado (30 ago 2026), vía n8n MCP** en el Code node
+`Preparar humanizacion` de `Jobs · generación CV` (ID `morsS0M2folmXWhS`),
+publicado (`activeVersionId = 5b8618f5-4893-44d6-8e11-4b6fd0731b92`):
+- El system prompt pasa de «reescribes prosa» a **«RETOQUE LIGERO, no una
+  reescritura: cambia lo mínimo imprescindible… si una frase ya suena natural y
+  concreta, DÉJALA tal cual»**.
+- Nueva regla anti-errata: **conservar la grafía exacta de cada palabra
+  («Adept», no «Adapt»), ante la duda dejar la palabra igual**.
+- Bloque nuevo **«Para el texto "carta"»**: mantener el enfoque de la primera
+  frase y **NUNCA** sustituirla por una apertura genérica.
+- Longitud objetivo 80–120 % → **85–115 %**; `temperature` 0.7 → **0.4**.
+
+**Verificación (31 ago 2026)** — ejecución `trigger` **#715** (30 ago 17:00Z,
+`success`, disparada por `Cambio en generar_cv_ia`), oferta `f287d8fd` «AI Data
+Annotator» / Argos Multilingual:
+- `Aplicar humanizacion` → `_humanizado: true`,
+  `_humanizar_nota: "aplicados: resumen, descripcion_1, descripcion_2,
+  descripcion_3, carta"`. El `openai_body` confirma el prompt nuevo en uso
+  (`temperature 0.4`, system prompt «RETOQUE LIGERO», bloque de la carta).
+- **Primera frase:** Claude *«I am writing to apply for the AI Data Annotator
+  position at Argos Multilingual.»* → humanizada *«I am applying for the AI Data
+  Annotator position at Argos Multilingual.»* — recorte del cliché «writing to»,
+  no una apertura genérica prohibida; enfoque (puesto + empresa) conservado.
+- **Sin erratas nuevas**; cifras, empresas, fechas, `n8n`/`Docker`/`GDPR`/`C1`
+  intactos; HTML del CV y la 4.ª `p.descripcion` (skills) sin tocar.
+- **Doc de la carta** (`1uWdC9Z9E_mLGxUHjywYEajCoG9C7NOVrhhwJywHnp4k`) leído: 4
+  párrafos + saludo + firma, espaciado correcto, longitud ~94 % del original.
+- **Único resto (no bloquea):** OpenAI introdujo un guion largo sin espacios
+  («…when needed—skills…») — tic de redacción de IA, no una errata ni una
+  regresión de formato. Si reaparece de forma sistemática, añadir una regla al
+  system prompt.
+
+**Matiz asumido al cerrar:** #715 es una oferta de aplicación por **enlace**, no
+por email, y la primera frase de Claude ya era genérica de salida, así que el
+fallo original (aplanar una primera frase *distintiva*) no se estresó a fondo.
+Mar da la tarea por cerrada: trigger real + `_humanizado: true` + carta limpia +
+fallback al texto de Claude ante cualquier fallo.
+
+**Cierre:** cumplido — #715 (trigger real) con el prompt nuevo deja
+`_humanizado: true`, primera frase con el enfoque conservado, sin erratas y con
+el Doc sin regresiones.
 
 ## 7. Publicar y verificar el paso de humanización con OpenAI (Jobs · generación CV)
 

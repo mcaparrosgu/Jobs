@@ -30,8 +30,13 @@ sin afectar a la ingesta ni al seguimiento.
   5b8618f5-4893-44d6-8e11-4b6fd0731b92`): el system prompt de `Preparar
   humanizacion` pasa a «retoque ligero, no reescritura», con regla anti-errata
   (conservar la grafía exacta) y bloque específico para la carta que protege el
-  enfoque de la primera frase; `temperature` 0.7 → 0.4. Pendiente de verificación
-  end-to-end — [tareas-pendientes.md](tareas-pendientes.md) tarea 8 (abierta).
+  enfoque de la primera frase; `temperature` 0.7 → 0.4. **Verificado end-to-end
+  el 31 ago 2026** con la ejecución `trigger` #715 (AI Data Annotator / Argos
+  Multilingual): `_humanizado: true`, la primera frase conserva el enfoque (recorte
+  del cliché «I am writing to», no una apertura genérica), sin erratas nuevas y
+  con el Doc de la carta sin regresiones de formato. Único resto: OpenAI puede
+  introducir algún guion largo sin espacios (tic de IA, no errata). Ver
+  [tareas-pendientes.md](tareas-pendientes.md) tarea 8 (cerrada).
 - **Nodos:** 26 (la cifra de 21 estaba desactualizada; +3 del paso de humanización del 29 ago 2026)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`,
   pestana `Ofertas_activas` (`gid=0`)
@@ -93,10 +98,15 @@ Se dispara sobre las filas que Mar marca a mano con `generar_cv_ia = true`.
    - **`Preparar humanizacion`** (Code) — extrae del HTML del CV el `resumen` y
      las 3 primeras `p.descripcion` (la 4.ª, la lista de habilidades, NO se
      toca) más el cuerpo de la carta, y arma el cuerpo de la llamada
-     (`gpt-4.1-mini`, `temperature 0.7`, `response_format: json_object`). El
-     system prompt prohíbe inventar datos, obliga a conservar idioma, cifras,
-     empresas y fechas, y a mantener la longitud (±20 %); veta arranques manidos,
-     tríos rítmicos, superlativos vacíos y conectores pomposos.
+     (`gpt-4.1-mini`, `temperature 0.4`, `response_format: json_object`). El
+     system prompt (ajustado el 30 ago 2026, ver tarea 8) exige un **retoque
+     ligero, no una reescritura** — si una frase ya suena natural, se deja tal
+     cual; prohíbe inventar datos, obliga a conservar idioma, cifras, empresas y
+     fechas y a mantener la longitud (85–115 %); veta arranques manidos, tríos
+     rítmicos, superlativos vacíos y conectores pomposos; tiene una regla
+     anti-errata (conservar la grafía exacta de cada palabra, «Adept», no
+     «Adapt») y un bloque específico para la carta que protege el enfoque de la
+     primera frase (nunca sustituirla por una apertura genérica).
    - **`Humanizar (OpenAI)`** (HTTP Request) — `POST
      api.openai.com/v1/chat/completions`, `Authorization: Bearer
      {{ $env.OPENAI_API_KEY }}`, `timeout 60000` ms, `retryOnFail` (3×3 s),
