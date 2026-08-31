@@ -60,7 +60,8 @@ con la que alinearse.
      `estado_propuesto` vacío y `fecha_envio` de **≥ 30 días** → se archiva con
      `estado: sin_respuesta` (se empuja una **copia** `{ ...oferta, estado:
      'sin_respuesta' }`, sin mutar el item original). Las filas sin `fecha_envio`
-     —las anteriores a la tarea 12— se ignoran. `sin_respuesta` nunca pasa por
+     —las anteriores a la tarea 12— se ignoran (decisión de Mar: no se rellenan a
+     mano, `cv_enviado` ya basta). `sin_respuesta` nunca pasa por
      `Ofertas_activas`: entra directo en `Archivo` como texto plano (allí el
      `estado` no lleva desplegable). La columna `fecha_envio` la escribe
      [Jobs · generación CV](jobs-generacion-cv.md) al marcar `cv_enviado`.

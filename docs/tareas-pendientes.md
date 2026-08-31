@@ -177,6 +177,12 @@ del Apps Script), así que queda como texto plano.
 **No incluye** el email de seguimiento a los 7-10 días de M7 — ver
 [Sugerencias pendientes](#sugerencias-pendientes).
 
+**Filas antiguas:** los `cv_enviado` anteriores a la tarea 12 no tienen
+`fecha_envio` y la Regla 3 los ignora. **Decisión de Mar (31 ago 2026): no se
+rellena `fecha_envio` a mano** — no es un dato útil retroactivo y esas
+candidaturas ya están marcadas como `cv_enviado`; se avanzan o archivan a mano si
+hace falta. La regla solo aplica de aquí en adelante.
+
 **Pendiente de verificación en pasadas reales:**
 1. Un `cv_enviado` marcado por `Jobs · generación CV` (rama `email`) deja
    `fecha_envio` en formato `yyyy-MM-dd` en `Ofertas_activas`.
