@@ -307,6 +307,13 @@ irrelevante para uso personal.
 **Lo tiene que hacer Mar en la consola de Google**; no hay nada que programar. El
 primer paso es mirar en qué estado (*Testing* / *In production*) está hoy la app.
 
+**Estado (31 ago 2026):** la app ya está **«En producción»** (Mar la publicó días
+antes; el fallo de `Google Drive account` en #709 el 30 ago fue un token residual
+de *Testing*). El 31 ago Mar reconectó las 5 credenciales de Google como línea
+base. Convertido en la tarea 13 de [tareas-pendientes.md](tareas-pendientes.md),
+en vigilancia hasta el 7 sep 2026 sin «needs to be reconnected» para darlo por
+cerrado.
+
 ## M6 — Sacar n8n del portátil
 
 n8n **no recupera disparos perdidos**: si el equipo está apagado o suspendido a

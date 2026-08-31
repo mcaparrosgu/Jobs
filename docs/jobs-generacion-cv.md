@@ -175,8 +175,13 @@ oportunidad.
   de Google, no se puede automatizar. Conviene revisar de paso `Google Docs` y
   `Gmail`. Última generación correcta antes del fallo: ejecución #661, 27 ago.
   **Reconectada el 30 ago 2026** (Mar, junto con `Google Docs` y `Gmail`);
-  ejecuciones #710/#711 correctas después. Volverá a caducar en ~7 días (app
-  OAuth de Google en modo *Testing*); hay que reconectarla a mano cada vez.
+  ejecuciones #710/#711 correctas después. Volvió a caducar en #709 (30 ago) por
+  un token residual de la época *Testing*.
+  **Arreglo de fondo (31 ago 2026):** la app OAuth de Google ya está «En
+  producción» en Google Cloud Console (quita la caducidad de 7 días); Mar
+  reconectó las 5 credenciales de Google como línea base limpia. En vigilancia
+  hasta el 7 sep 2026 — ver tarea 13 de
+  [tareas-pendientes.md](tareas-pendientes.md).
 
 # Relacionados
 

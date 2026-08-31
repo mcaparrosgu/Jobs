@@ -281,7 +281,11 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
   que toca Sheets (`Analizar archivar`, en paralelo desde el `Schedule
   Trigger`) habria fallado de inmediato. Sin causa raiz confirmada de por que
   caduco (token OAuth revocado, expirado, o cambio de permisos/contraseña en
-  la cuenta de Google) — vigilar si vuelve a pasar.
+  la cuenta de Google) — vigilar si vuelve a pasar. **Causa raíz confirmada
+  después:** la app OAuth de Google estaba en modo *Testing* (caduca el refresh
+  token a los 7 días). Arreglo de fondo en la tarea 13 de
+  [tareas-pendientes.md](tareas-pendientes.md): app pasada a «En producción» y
+  las 5 credenciales de Google reconectadas el 31 ago 2026.
 - **El nodo `Ordenar eliminación` tenia datos de prueba pineados** desde el
   intento del 15 ago (fila 593, oferta de Aveni) que nunca se limpiaron y
   habrian falseado cualquier ejecucion de prueba posterior del nodo. Detectado
