@@ -10,20 +10,34 @@ timestamp: 2026-08-29T09:00:00Z
 
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 
-**Prioridad: alta. Abierta el 30 ago 2026.** Es M5 de
-[jobs-evaluacion.md](jobs-evaluacion.md). La app OAuth de Google está en modo
-*Testing*, lo que caduca el refresh token a los 7 días — causa raíz de que
-`Google Sheets account` (16 ago) y `Google Drive account` (29 ago, ejecución
-#674) se hayan desconectado ya. Acción de Mar en Google Cloud Console (pasos
-detallados dados en conversación: Google Auth Platform → Público → Publicar
-aplicación), sin cambios en n8n.
+**Prioridad: alta. Abierta el 30 ago 2026. En vigilancia desde el 31 ago 2026.**
+Es M5 de [jobs-evaluacion.md](jobs-evaluacion.md). En modo *Testing* Google expira
+el refresh token a los 7 días — causa raíz de que `Google Sheets account` (16
+ago) y `Google Drive account` (29 ago #674, y otra vez #709 el 30 ago) se hayan
+desconectado. El arreglo es publicar la app OAuth (Google Cloud Console → Google
+Auth Platform → Público → «Publicar aplicación»), sin cambios en n8n.
 
-**Seguimiento pendiente por Claude:** una vez Mar confirme que lo ha publicado,
-vigilar que pasen **más de 7 días** sin que ninguna credencial de Google pida
-reconexión.
+**Estado (31 ago 2026):**
+- Mar confirma que la app OAuth **ya estaba «En producción»** desde hacía días
+  (la publicó antes de que se abriera esta tarea). El fallo de `Google Drive
+  account` en #709 (30 ago 10:15Z) fue un token residual de la época *Testing*
+  que caducó; al reconectar Drive ese día ya se emitió un token de producción.
+- Para arrancar una ventana de vigilancia limpia con fecha conocida, **el 31 ago
+  2026 Mar reconectó las 5 credenciales de Google** en n8n (Drive, Docs, Sheets,
+  Sheets Trigger, Gmail), todas con «Account connected». A partir de ahora todos
+  los tokens son de producción y emitidos el mismo día.
+- Comprobado vía n8n MCP (31 ago): ninguna ejecución `error`/`crashed` en ningún
+  workflow después de #709 (30 ago). Línea base sin incidencias.
 
-**Criterio de cierre:** 7+ días sin ningún aviso de «needs to be reconnected» en
-Sheets, Drive, Docs o Gmail tras la publicación.
+**Seguimiento pendiente por Claude:** revisar las ejecuciones con error cada pocos
+días y confirmar que se llega al **7 sep 2026** (7+ días desde la reconexión base)
+sin que ninguna de las 5 credenciales dispare «needs to be reconnected». Si alguna
+cae antes, la publicación no bastó (revocación manual, otra app OAuth, scopes) y
+hay que reabrir el diagnóstico.
+
+**Criterio de cierre:** 7+ días (hasta el 7 sep 2026) sin ningún aviso de «needs
+to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail tras la
+reconexión base del 31 ago.
 
 ## 10. Pestaña `Metricas` del embudo de ingesta
 
