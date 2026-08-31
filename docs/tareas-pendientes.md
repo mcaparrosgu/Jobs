@@ -103,6 +103,20 @@ marca `estado: cv_enviado`.
 hace 31 días pasa a `sin_respuesta` en una pasada real y el archivado se la lleva
 a `Archivo`.
 
+## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
+
+**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
+proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
+que cambien la arquitectura), redactar el case study estructurado del proyecto
+para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
+del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
+… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
+
+**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
+problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
+guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
+Google) y los resultados reales del pipeline.
+
 # Cerradas
 
 ## 9. Deduplicar también por URL en `Filtro duplicados`
