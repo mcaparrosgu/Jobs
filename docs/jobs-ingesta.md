@@ -23,16 +23,19 @@ nueva (`pendiente`) y su archivado.
   cambio de ID)
 - **Estado:** activo desde el 6 ago 2026 tras el split (`active: true`, 1
   trigger)
-- **Nodos:** 46 (46 hasta el 14 ago 2026 por la tarde, cuando entro
+- **Nodos:** 48 (46 hasta el 14 ago 2026 por la tarde, cuando entro
   `HTTP Request Detalle RemotoJob`; 47 desde el 15 ago con la reconexión de
   `HTTP Request All Jobs Scraper`; 42 desde el 16 ago 2026 al separar los 5
   nodos de archivado a [Jobs · archivado](jobs-archivado.md); 44 desde el 18
   ago 2026 al entrar `HTTP Request Jooble` + `Normalizador Jooble`; 46 desde el
   29 ago 2026 con el guardarraíl de huecos `Guardarraíl huecos` + `Aviso
-  huecos`, ver Fallos conocidos y sección C)
+  huecos`, ver Fallos conocidos y sección C; 48 desde el 31 ago 2026 con la
+  rama de métricas `Registrar métricas` + `Append métricas`, ver sección E)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`
   - pestana `Ofertas_activas` (`gid=0`) — candidaturas vivas
   - pestana `Archivo` (`gid=1758745884`) — historico
+  - pestana `Metricas` (`gid=1516813991`) — embudo por pasada y fuente (tarea
+    10 / M3), la escribe la rama de la sección E
 
 # Disparador
 
@@ -122,9 +125,16 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
       procesos, coordinacion, administracion), se descarta.
 
    Despues marca `destacada: ⭐`, buscando las señales fuertes **solo en el
-   titulo**. Y deja en el log de la ejecucion el recuento de descartes por
-   criterio y la lista de titulos descartados, que es como se calibra sin
-   guardar nada en la hoja.
+   titulo**. Deja en el log de la ejecucion el recuento de descartes por
+   criterio (`idioma` / `contrato` / `nivel` / `perfil` / `encaje`) y la lista
+   de titulos descartados. **Desde el 31 ago 2026** (tarea 10 / M3): el
+   criterio 5 se etiqueta `encaje:` (antes iba mezclado dentro de `perfil:`), y
+   el nodo publica ese mismo recuento **desglosado por fuente** en
+   `$getWorkflowStaticData('global').metricasCualificacion` (con sello
+   `executionId`), que es lo unico que necesita `Registrar métricas` de la
+   seccion E — `$('Filtro cualificación').all()` solo expone los items de
+   salida, no las variables internas. Cambio 100 % aditivo: la decision
+   pasa/descarta no se toca.
 4. **`Get row(s) in sheet`** + **`Leer archivo`** — leen las dos pestanas.
    `Get row(s) in sheet` tiene desde el 29 ago 2026 una segunda salida hacia
    **`Guardarraíl huecos`** (rama aislada, ver sección D); la salida a
@@ -148,7 +158,10 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    `useAppend: true` (append nativo de la API de Sheets, no el modo *update* por
    defecto): anexa tras el bloque de datos contiguo desde A1, así que un hueco
    de filas vacías ya no manda las ofertas nuevas al final físico de la hoja.
-   Ver Fallos conocidos.
+   Ver Fallos conocidos. Desde el 31 ago 2026 la salida de `Filtro duplicados`
+   abre en abanico también a **`Registrar métricas`** (rama aislada de métricas,
+   sección E); `Append row in sheet` sigue siendo el primer consumidor y su
+   comportamiento no cambia.
 7. **`If`** (¿hubo filas nuevas?) → **`Formato email`** → **`Notificación
    nuevas ofertas`** (Gmail, tabla HTML) → **`Ping Healthchecks`**
    (ping a `$env.HEALTHCHECKS_PING_URL`). Si no hubo ofertas, va directo al
@@ -211,6 +224,60 @@ temporal): `Guardarraíl huecos` emitió el item de aviso y `Aviso huecos` envi�
 el correo (Gmail `id 1a04dd52fb3cee3b`, recibido en `mcaparrosgu@gmail.com`);
 `UMBRAL` restaurado a 5 y republicado. Ver
 [tareas-pendientes.md](tareas-pendientes.md) tarea 2.
+
+## E. Métricas del embudo → pestaña `Metricas` (31 ago 2026, tarea 10 / M3)
+
+Antes, el único registro de «qué fuente aporta ofertas que sobreviven a los
+filtros» y «qué criterio de `Filtro cualificación` descarta más» vivía en el
+`console.log` de cada ejecución y se perdía. Sin ese dato, M4 (podar Apify) y M1
+(scoring de encaje) se deciden a ojo. Detalle del diseño en
+[jobs-evaluacion.md](jobs-evaluacion.md), M3.
+
+Rama **aislada** de dos nodos que abre en abanico desde la salida de
+`Filtro duplicados`, en paralelo a `Append row in sheet`. **No toca** el `append`
+principal, el `If`/email de nuevas ofertas ni la rama de error compartida de la
+sección C:
+
+- **`Registrar métricas`** (Code) — cuenta items por `plataforma` en cada etapa
+  leyendo por referencia con nombre literal: `$('Merge').all()` (`crudas`),
+  `$('Filtro teletrabajo').all()`, `$('Filtro salario').all()`,
+  `$('Filtro cualificación').all()`, `$('Filtro duplicados').all()` (`nuevas`).
+  El desglose de descartes por criterio lo saca de
+  `$getWorkflowStaticData('global').metricasCualificacion` (lo publica
+  `Filtro cualificación`, ver Flujo A.3), y solo se fía si el `executionId`
+  coincide con el suyo. Emite **un item por fuente** con las 12 columnas de
+  `Metricas`; incluye un chequeo de consistencia a `console.log`
+  (`Σ descartes == Σ tras_salario − Σ tras_cualificacion`). `onError:
+  continueRegularOutput`.
+- **`Append métricas`** (Google Sheets `append`, `useAppend: true`, credencial
+  `Google Sheets account`, `sheetName` por nombre `Metricas`, `retryOnFail`
+  3×3 s, `onError: continueRegularOutput`) — mapeo por cabecera
+  (`autoMapInputData`), una fila por fuente y pasada.
+
+Columnas de `Metricas` (`gid=1516813991`): `fecha_hora`, `fuente`, `crudas`,
+`tras_teletrabajo`, `tras_salario`, `tras_cualificacion`, `nuevas`,
+`descartes_idioma`, `descartes_contrato`, `descartes_nivel`, `descartes_perfil`,
+`descartes_encaje`. El Apps Script `mantenimiento` **no la toca** (su allowlist
+`HOJAS` solo tiene `Ofertas_activas` y `Archivo`) — ver
+[jobs-hoja-formato.md](jobs-hoja-formato.md).
+
+**Limitación asumida (diseño de M3):** en una pasada con **0 ofertas nuevas**
+(100 % duplicados) `Filtro duplicados` no emite y la rama de métricas **no se
+ejecuta** — igual que `Append row in sheet`, el `If` y el ping. Es poco
+frecuente en operación programada y de bajo valor para M4/M1 (la forma del
+embudo y el desglose de descartes se registran en toda pasada con ≥1 oferta
+nueva).
+
+Implementado vía n8n MCP. **Verificación (31 ago 2026):** `Registrar métricas`
+verificado end-to-end en la ejecución manual **#720** (7 fuentes, embudo
+monótono por fuente, `Σ descartes = 232 = Σ tras_salario (249) −
+Σ tras_cualificacion (17)`, `descartes_encaje` separado de `descartes_perfil`).
+En #720 `Append métricas` falló por referenciar la pestaña por `gid` en modo
+*list* (`Sheet with ID gid=… not found`) — el `onError` lo absorbió sin tocar el
+pipeline; corregido a `sheetName` por nombre. #721 fue una pasada 100 %
+duplicados (rama no ejecutada). **Pendiente:** confirmar la escritura de
+`Append métricas` en `Metricas` en la primera pasada con ofertas nuevas. Ver
+[tareas-pendientes.md](tareas-pendientes.md) tarea 10.
 
 # Dependencias
 

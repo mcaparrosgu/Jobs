@@ -50,13 +50,50 @@ reconexión base del 31 ago.
 
 ## 10. Pestaña `Metricas` del embudo de ingesta
 
-**Prioridad: media. Abierta el 30 ago 2026 — aprobada por Mar.** Es M3 de
+**Prioridad: media. Abierta el 30 ago 2026 — aprobada por Mar. Implementada y
+publicada el 31 ago 2026; en vigilancia hasta confirmar la escritura en la
+pasada del 1 sep 2026 09:00.** Es M3 de
 [jobs-evaluacion.md](jobs-evaluacion.md). Hoy el recuento de descartes por
 criterio solo vive en el log de cada ejecución y se pierde. Pestaña nueva
 `Metricas` (fecha_hora, fuente, crudas, tras_teletrabajo, tras_salario,
 tras_cualificacion, nuevas, descartes por criterio), alimentada por una rama
 aislada colgando de `Filtro duplicados` — mismo patrón que
 `Guardarraíl huecos` → `Aviso huecos`, sin tocar el `append` principal.
+
+**Implementación (31 ago 2026), vía n8n MCP** en `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`), detalle en [jobs-ingesta.md](jobs-ingesta.md) sección E y
+[jobs-hoja-formato.md](jobs-hoja-formato.md):
+- Pestaña `Metricas` (`gid=1516813991`) creada con 12 cabeceras `snake_case`:
+  `fecha_hora`, `fuente`, `crudas`, `tras_teletrabajo`, `tras_salario`,
+  `tras_cualificacion`, `nuevas`, `descartes_idioma`, `descartes_contrato`,
+  `descartes_nivel`, `descartes_perfil`, `descartes_encaje`. Fuera del allowlist
+  `HOJAS` del Apps Script (no la mantiene).
+- **`Filtro cualificación`** (`updateNodeParameters`, releído byte a byte,
+  sha256 `7171a4cc5de9d1f8`): cambio 100 % aditivo — el criterio 5 pasa de
+  `perfil:` a `encaje:` y publica el desglose de descartes por fuente en
+  `$getWorkflowStaticData('global').metricasCualificacion` (sello `executionId`).
+  La decisión pasa/descarta no cambia.
+- **`Registrar métricas`** (Code, `onError: continueRegularOutput`) +
+  **`Append métricas`** (Google Sheets `append`/`useAppend`, credencial
+  `Google Sheets account`, `sheetName` por nombre, `retryOnFail` 3×3 s,
+  `onError: continueRegularOutput`), en abanico desde `Filtro duplicados` en
+  paralelo a `Append row in sheet`. Publicado, `versionId == activeVersionId ==
+  c32d13eb-f22c-4294-ae3b-2ca0ace5cffb`. 48 nodos.
+
+**Verificación parcial (31 ago 2026):**
+- **#720** (`success`): `Registrar métricas` emitió 7 filas (una por fuente),
+  embudo monótono por fuente y autochequeo `Σ descartes = 232 = Σ tras_salario
+  (249) − Σ tras_cualificacion (17)`; `descartes_encaje` (47) separado de
+  `descartes_perfil` (81). `Append métricas` **falló** con `Sheet with ID
+  gid=1516813991 not found` (referencia por `gid` en modo *list*) — el `onError`
+  lo absorbió sin tocar el pipeline. Corregido: `sheetName` por nombre.
+- **#721** (`success`): pasada 100 % duplicados → `Filtro duplicados` emitió 0 y
+  la rama de métricas no se ejecutó (junto con `Append row in sheet`, el `If` y
+  el ping). Es la limitación asumida del diseño.
+
+**Pendiente:** una pasada con **≥1 oferta nueva** (la automática del 1 sep 2026
+09:00) que deje una fila por fuente en `Metricas` y cuadre con el `recuento` del
+log de `Filtro cualificación` de esa ejecución → entonces se cierra.
 
 **Criterio de cierre:** una pasada real deja una fila por fuente en `Metricas`
 con los recuentos cuadrando con el log de esa misma ejecución.

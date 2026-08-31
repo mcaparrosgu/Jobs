@@ -16,6 +16,11 @@ ocupe del formato:
 - [Jobs · archivado](jobs-archivado.md) — `Añadir filas a Archivo` → `Archivo`,
   y `Borrar ofertas ofertas_activas` borra filas de `Ofertas_activas`
 
+Desde el 31 ago 2026 hay una **tercera pestaña, `Metricas`** (`gid=1516813991`),
+que la escribe la rama de métricas de [Jobs · ingesta](jobs-ingesta.md) (sección
+E). Es un registro append-only y **queda fuera del Apps Script `mantenimiento`**
+a propósito (ver sección propia más abajo).
+
 Los dos nodos de escritura usan `operation: append` con
 `mappingMode: autoMapInputData`: n8n **mapea cada campo contra la cabecera de
 la fila 1 por nombre**, no por posición. Consecuencias:
@@ -375,9 +380,32 @@ quitan a mano.
 **Disparador:** Mar confirma que el disparador horario está ejecutándose (ver
 [tareas-pendientes.md](tareas-pendientes.md), tarea 1).
 
+# La pestaña `Metricas` (31 ago 2026, tarea 10 / M3)
+
+Pestaña nueva `Metricas` (`gid=1516813991`), creada el 31 ago 2026. Registro
+**append-only** del embudo de la ingesta: una fila por pasada y fuente. La
+escribe la rama aislada `Registrar métricas` → `Append métricas` de
+[Jobs · ingesta](jobs-ingesta.md) (sección E), colgando de `Filtro duplicados`,
+con `append` + `mappingMode: autoMapInputData` (mapeo por cabecera, igual que
+las otras dos pestañas) y `sheetName` **por nombre** (no por `gid`: en modo
+*list* n8n no resolvió la pestaña recién creada).
+
+Fila 1 (12 columnas, `snake_case`): `fecha_hora`, `fuente`, `crudas`,
+`tras_teletrabajo`, `tras_salario`, `tras_cualificacion`, `nuevas`,
+`descartes_idioma`, `descartes_contrato`, `descartes_nivel`, `descartes_perfil`,
+`descartes_encaje`. `crudas`…`descartes_*` son números; `fecha_hora` es
+`yyyy-MM-dd HH:mm` en `Europe/Madrid`.
+
+**Fuera del Apps Script a propósito.** `mantenimiento` solo itera su allowlist
+`const HOJAS = [Ofertas_activas, Archivo]` (`apps-script/Código.js`), así que
+`Metricas` no se ordena, ni se le fuerza el alto de fila, ni se le tocan
+validaciones. No hace falta excluirla explícitamente; si algún día se quisiera
+mantener, habría que añadirla a ese array.
+
 # Relacionados
 
-- [Jobs · ingesta](jobs-ingesta.md) — escribe `Ofertas_activas` por cabecera
+- [Jobs · ingesta](jobs-ingesta.md) — escribe `Ofertas_activas` por cabecera y
+  `Metricas` (rama de métricas, sección E)
 - [Jobs · archivado](jobs-archivado.md) — mueve filas entre pestañas
 - [tareas-manuales.md](../../docs/tareas-manuales.md) — instalar y verificar el
   script
