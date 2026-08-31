@@ -29,6 +29,13 @@ la fila 1 por nombre**, no por posición. Consecuencias:
 - Verificado el 27 ago 2026 metiendo 2 filas de prueba que imitaban el
   `append` de la ingesta: cada valor cayó en su columna y `generar_cv_ia`
   recibió la casilla sola. Filas de prueba borradas después.
+- **Columna `id_url`** (añadida el 31 ago 2026, tarea 9 / M2): `Ofertas_activas!Q1`
+  y `Archivo!R1` — posiciones distintas, pero da igual porque el mapeo es por
+  cabecera. La escribe `Filtro duplicados` de la ingesta (hash de la URL
+  normalizada; segunda clave de deduplicación junto a `id_unico` — ver
+  [jobs-ingesta.md](jobs-ingesta.md), Flujo punto 5). Queda vacía en las filas
+  antiguas y en las ofertas por email. Al escribir la cabecera **no se tocó
+  nada más de la fila 1**; el alto y el formato los repone `mantenimiento`.
 
 # Lo que el formato tiene que reponer
 

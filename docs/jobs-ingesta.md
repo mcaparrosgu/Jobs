@@ -129,11 +129,21 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    `Get row(s) in sheet` tiene desde el 29 ago 2026 una segunda salida hacia
    **`Guardarraíl huecos`** (rama aislada, ver sección D); la salida a
    `Leer archivo` no cambia.
-5. **`Filtro duplicados`** — lee de `Filtro cualificación`, calcula `id_unico`
-   con un hash 32-bit de `empresa+titulo_puesto` normalizado, y descarta lo
-   que ya este en cualquiera de las dos pestanas o repetido dentro de la
-   propia tanda. Anade `fecha_guardado`, `estado: pendiente`,
-   `generar_cv_ia: false`.
+5. **`Filtro duplicados`** — lee de `Filtro cualificación`, calcula dos claves
+   con el mismo hash 32-bit (`hash32`, extraído a función el 31 ago 2026):
+   `id_unico` sobre `empresa+titulo_puesto` normalizado, e `id_url` (desde el
+   31 ago 2026) sobre la URL normalizada de `enlace_o_email` — minúsculas, sin
+   protocolo, sin `www.`, sin `?query`, sin `#fragment`, sin barra final;
+   `id_url` queda `""` para ofertas por email o URL malformada. Descarta una
+   oferta si coincide **`id_unico` o `id_url`** contra cualquiera de las dos
+   pestanas o dentro de la propia tanda (un `id_url` vacío nunca deduplica).
+   Anade `fecha_guardado`, `estado: pendiente`, `generar_cv_ia: false`.
+   `id_url` cierra el caso de una misma oferta (misma URL) guardada dos veces
+   con `empresa` distinta — p. ej. «Especialista en Operaciones de HubSpot y
+   CRM» de remotojob.com con `No especificado` y con `Prismic` (M2 /
+   [tareas-pendientes.md](tareas-pendientes.md), tarea 9). El regex de
+   diacríticos de `normalizar()` se construye con `String.fromCharCode` para
+   no dejar caracteres combining invisibles en el fuente (mismo match exacto).
 6. **`Append row in sheet`** → `Ofertas_activas`. Desde el 29 ago 2026 con
    `useAppend: true` (append nativo de la API de Sheets, no el modo *update* por
    defecto): anexa tras el bloque de datos contiguo desde A1, así que un hueco
@@ -280,7 +290,16 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
   sesion de pruebas.
 - **`id_unico` es un hash de 32 bits.** Sin cambiar a proposito — cambiar el
   algoritmo invalidaria todos los ids ya escritos y rompería la deduplicacion y
-  el cruce con `Jobs · seguimiento`.
+  el cruce con `Jobs · seguimiento`. El 31 ago 2026 se extrajo el hash a la
+  función `hash32` y se añadió `id_url` (segunda clave de deduplicación, ver
+  Flujo punto 5): cambio **100 % aditivo** — se verificó byte a byte que
+  `hash32` reproduce los `id_unico` existentes (p. ej. `48d6e5bf` / `8179f924`
+  de las dos filas HubSpot/CRM). Al tocar el `jsCode` de `Filtro duplicados`
+  hay que usar `updateNodeParameters` (nunca `setNodeParameter`: corrompe
+  strings multilínea) y **releer el código publicado byte a byte** — el JSON
+  del MCP decodifica los escapes `\uXXXX`, así que el rango de diacríticos se
+  construye con `String.fromCharCode(0x300..0x36f)` en vez de un literal con
+  escapes o con los caracteres combining invisibles.
 - **`HTTP Request All Jobs Scraper` reconectado el 15 ago 2026** (fondos de
   Apify repuestos). El nodo estaba en el workflow desde el 6 ago pero
   desconectado del `Schedule Trigger` a proposito; se le añadio `onError:

@@ -25,21 +25,6 @@ reconexión.
 **Criterio de cierre:** 7+ días sin ningún aviso de «needs to be reconnected» en
 Sheets, Drive, Docs o Gmail tras la publicación.
 
-## 9. Deduplicar también por URL en `Filtro duplicados`
-
-**Prioridad: alta. Abierta el 30 ago 2026 — aprobada por Mar.** Es M2 de
-[jobs-evaluacion.md](jobs-evaluacion.md). Bug confirmado en producción:
-*«Especialista en Operaciones de HubSpot y CRM»* está dos veces en
-`Ofertas_activas` (27 y 28 ago) con el mismo `enlace_o_email` de remotojob.com e
-`id_unico` distinto (`48d6e5bf` / `8179f924`), porque `empresa` era
-`No especificado` en una y `Prismic` en la otra. Cambio **aditivo** en
-`Filtro duplicados`: nuevo `id_url` (mismo hash de 32 bits sobre la URL
-normalizada), descarta si coincide `id_unico` **o** `id_url`. No toca el hash
-`id_unico` existente.
-
-**Criterio de cierre:** reinyectar a mano las dos filas de HubSpot/CRM — la
-segunda debe descartarse por `id_url` sin que se pierda ninguna oferta legítima.
-
 ## 10. Pestaña `Metricas` del embudo de ingesta
 
 **Prioridad: media. Abierta el 30 ago 2026 — aprobada por Mar.** Es M3 de
@@ -52,37 +37,6 @@ aislada colgando de `Filtro duplicados` — mismo patrón que
 
 **Criterio de cierre:** una pasada real deja una fila por fuente en `Metricas`
 con los recuentos cuadrando con el log de esa misma ejecución.
-
-## 11. Truncar `resumen` a ~800 caracteres en los normalizadores
-
-**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar.** Es M8 de
-[jobs-evaluacion.md](jobs-evaluacion.md). Algunas ofertas guardan la descripción
-completa sin recortar (~10 KB en la fila de GitLab), lo que dispara el alto de
-fila que el Apps Script corrige cada hora. Truncar a ~800 caracteres en cada
-normalizador, antes del `Merge`; el enlace completo se conserva en su columna. No
-afecta a la generación de CV, que ya recorta el texto de la oferta a 6.000
-caracteres en `Prompt para CV`.
-
-**Criterio de cierre:** una pasada real con ofertas largas deja `resumen` recortado
-(~800 caracteres) y el enlace intacto; el Apps Script deja de tener que corregir
-alturas de fila disparadas.
-
-## 12. Archivar `cv_enviado` sin respuesta a los 30 días
-
-**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar (solo esta mitad de
-M7).** Es la mitad de M7 de [jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado`
-con **≥ 30 días** y sin respuesta → `estado: sin_respuesta` (valor nuevo del
-desplegable, hay que añadirlo a la validación y colorear el chip a mano) → lo
-recoge el archivado normal. Requiere una columna `fecha_envio` nueva, que
-escribiría [Jobs · generación CV](jobs-generacion-cv.md) en el mismo nodo que ya
-marca `estado: cv_enviado`.
-
-**No incluye** el email de seguimiento a los 7-10 días de M7 — ver
-[Sugerencias pendientes](#sugerencias-pendientes).
-
-**Criterio de cierre:** una fila de prueba con `cv_enviado` y `fecha_envio` de
-hace 31 días pasa a `sin_respuesta` en una pasada real y el archivado se la lleva
-a `Archivo`.
 
 ## 8. Verificar el ajuste del prompt de humanización de la carta
 
@@ -118,7 +72,88 @@ en una oferta con aplicación por email) donde `Aplicar humanizacion` deje
 enfoque del original de Claude (no una apertura genérica), sin erratas nuevas y
 sin regresiones de formato.
 
+## 11. Truncar `resumen` a ~800 caracteres en los normalizadores
+
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar.** Es M8 de
+[jobs-evaluacion.md](jobs-evaluacion.md). Algunas ofertas guardan la descripción
+completa sin recortar (~10 KB en la fila de GitLab), lo que dispara el alto de
+fila que el Apps Script corrige cada hora. Truncar a ~800 caracteres en cada
+normalizador, antes del `Merge`; el enlace completo se conserva en su columna. No
+afecta a la generación de CV, que ya recorta el texto de la oferta a 6.000
+caracteres en `Prompt para CV`.
+
+**Criterio de cierre:** una pasada real con ofertas largas deja `resumen` recortado
+(~800 caracteres) y el enlace intacto; el Apps Script deja de tener que corregir
+alturas de fila disparadas.
+
+## 12. Archivar `cv_enviado` sin respuesta a los 30 días
+
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar (solo esta mitad de
+M7).** Es la mitad de M7 de [jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado`
+con **≥ 30 días** y sin respuesta → `estado: sin_respuesta` (valor nuevo del
+desplegable, hay que añadirlo a la validación y colorear el chip a mano) → lo
+recoge el archivado normal. Requiere una columna `fecha_envio` nueva, que
+escribiría [Jobs · generación CV](jobs-generacion-cv.md) en el mismo nodo que ya
+marca `estado: cv_enviado`.
+
+**No incluye** el email de seguimiento a los 7-10 días de M7 — ver
+[Sugerencias pendientes](#sugerencias-pendientes).
+
+**Criterio de cierre:** una fila de prueba con `cv_enviado` y `fecha_envio` de
+hace 31 días pasa a `sin_respuesta` en una pasada real y el archivado se la lleva
+a `Archivo`.
+
 # Cerradas
+
+## 9. Deduplicar también por URL en `Filtro duplicados`
+
+**Prioridad: alta. Cerrada el 31 ago 2026 — verificada end-to-end (#718).** Es M2
+de [jobs-evaluacion.md](jobs-evaluacion.md). Bug: *«Especialista en Operaciones de
+HubSpot y CRM»* estaba dos veces en `Ofertas_activas` (misma URL de remotojob.com,
+`id_unico` distinto `48d6e5bf` / `8179f924` porque `empresa` era `No especificado`
+en una y `Prismic` en la otra). Solución **aditiva** en `Filtro duplicados`: nueva
+clave `id_url` (mismo `hash32` sobre la URL normalizada — sin protocolo, sin www.,
+sin puerto, sin query, sin fragment, sin barra final; vacía para email o URL
+inválida). Descarta si coincide `id_unico` **o** `id_url`, contra lo guardado y
+dentro de la propia tanda.
+
+**Implementación (31 ago 2026), vía n8n MCP** en `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`):
+- Cabecera `id_url` en `Ofertas_activas!Q1` y `Archivo!R1` (fila 1 intacta por lo
+  demás).
+- `jsCode` de `Filtro duplicados` reescrito con `updateNodeParameters`. `hash32`
+  extraído a función — reproduce byte a byte los `id_unico` existentes
+  (`48d6e5bf` / `8179f924` comprobados); cambio 100 % aditivo. El rango de
+  diacríticos de `normalizar()` se construye con `String.fromCharCode(0x300..
+  0x36f)` para no dejar *combining chars* invisibles (el JSON del MCP decodifica
+  los escapes unicode — ver [[n8n-mcp-quirks]]).
+- **Dos versiones publicadas:** `8c112103-…` usaba `new URL()`, que **lanza en el
+  sandbox del Code node de esta instancia** → `id_url` salía vacío para toda URL
+  válida (visto en el output de #717). Fix en
+  `f52e922d-171a-49a5-a0f7-e3a07bdf2183` (**activa**): `normalizarUrl` parsea con
+  regex `^https?://([^/?#]+)([^?#]*)`, sin constructor. Equivalencia con la
+  versión `new URL` verificada en todas las URLs reales; código publicado releído
+  byte a byte (sha256 `31da1fa0d10fa030`).
+
+**Verificación end-to-end (#718, 31 ago 08:08Z, `success`, versión `f52e922d`):**
+Mar borró a mano la fila `No especificado`/`48d6e5bf` y se rellenó
+`id_url = a5a42240` en la fila `Prismic`/`8179f924` (`Q18`). En esa pasada:
+- `Filtro cualificación` pasó la oferta HubSpot/CRM del feed de RemotoJob
+  (`empresa: No especificado` → `id_unico 48d6e5bf`, `id_url a5a42240`).
+- `Get row(s) in sheet` (30 filas) y `Leer archivo` (299): **`48d6e5bf` no está en
+  ninguna** (fila borrada), y `a5a42240` está en **una sola** fila
+  (`Prismic`/`8179f924`).
+- `Filtro duplicados` **descartó la oferta**: su `id_unico` no coincidía con nada,
+  así que el descarte fue **por `id_url`** — el escenario exacto del bug (misma
+  URL, `empresa` distinta, `id_unico` distinto). Salida 0 items (el resto de las
+  18 ya estaban en la hoja tras la #717), ningún `Append`, ninguna oferta legítima
+  perdida.
+- Caso Jooble comprobado antes: 4 URLs reales (`jooble.org/away/<id>?p=…`) → 4
+  `id_url` distintos tras quitar la query. Sin colisión.
+
+**Cierre:** cumplido — #718 descarta la oferta duplicada por `id_url` sin perder
+ofertas legítimas; `id_unico` intacto. Docs `jobs-ingesta.md` y
+`jobs-hoja-formato.md` actualizados.
 
 ## 7. Publicar y verificar el paso de humanización con OpenAI (Jobs · generación CV)
 
