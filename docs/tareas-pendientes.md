@@ -29,11 +29,20 @@ Auth Platform → Público → «Publicar aplicación»), sin cambios en n8n.
 - Comprobado vía n8n MCP (31 ago): ninguna ejecución `error`/`crashed` en ningún
   workflow después de #709 (30 ago). Línea base sin incidencias.
 
-**Seguimiento pendiente por Claude:** revisar las ejecuciones con error cada pocos
-días y confirmar que se llega al **7 sep 2026** (7+ días desde la reconexión base)
-sin que ninguna de las 5 credenciales dispare «needs to be reconnected». Si alguna
-cae antes, la publicación no bastó (revocación manual, otra app OAuth, scopes) y
-hay que reabrir el diagnóstico.
+**Seguimiento pendiente por Claude — supervisión manual el 7 sep 2026 (o
+después).** El **7 sep 2026** (7+ días desde la reconexión base del 31 ago), o en
+la primera sesión posterior, comprobar vía n8n MCP que ninguna ejecución
+`error`/`crashed` desde el 31 ago sea un «needs to be reconnected» de una de las 5
+credenciales de Google (Drive, Docs, Sheets, Sheets Trigger, Gmail):
+`search_executions` con `status: [error, crashed]`, `startedAfter: 2026-08-31`. Si
+está limpio → cerrar esta tarea. Si alguna credencial cayó antes del 7 sep → la
+publicación no bastó (revocación manual, otra app OAuth, scopes) y hay que reabrir
+el diagnóstico.
+
+No se automatiza: un `/loop` local muere al apagar el ordenador y un routine de
+`/schedule` (nube) no alcanza la instancia de n8n del portátil (`127.0.0.1`) ni el
+MCP `n8n-mcp` (local, no es conector de claude.ai). Queda como recordatorio para
+que Claude lo haga a mano.
 
 **Criterio de cierre:** 7+ días (hasta el 7 sep 2026) sin ningún aviso de «needs
 to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail tras la
