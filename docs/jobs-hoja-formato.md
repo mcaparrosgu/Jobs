@@ -41,6 +41,14 @@ la fila 1 por nombre**, no por posición. Consecuencias:
   [jobs-ingesta.md](jobs-ingesta.md), Flujo punto 5). Queda vacía en las filas
   antiguas y en las ofertas por email. Al escribir la cabecera **no se tocó
   nada más de la fila 1**; el alto y el formato los repone `mantenimiento`.
+- **Columna `fecha_envio`** (añadida el 31 ago 2026, tarea 12 / mitad de M7):
+  `Ofertas_activas!R1` y `Archivo!S1` — otra vez posiciones distintas, mapeo por
+  cabecera. La escribe `Actualizar estado cv_enviado` de
+  [jobs-generacion-cv.md](jobs-generacion-cv.md) al marcar `estado: cv_enviado`
+  (formato `yyyy-MM-dd`). Sólo se rellena en la rama `email`; vacía en el resto.
+  La consume la Regla 3 de [jobs-archivado.md](jobs-archivado.md) para archivar
+  `cv_enviado` sin respuesta a los 30 días con `estado: sin_respuesta`. Fila 1
+  intacta por lo demás; el formato lo repone `mantenimiento`.
 
 # Lo que el formato tiene que reponer
 

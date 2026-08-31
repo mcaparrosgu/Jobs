@@ -141,19 +141,52 @@ alturas de fila disparadas.
 ## 12. Archivar `cv_enviado` sin respuesta a los 30 días
 
 **Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar (solo esta mitad de
-M7).** Es la mitad de M7 de [jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado`
-con **≥ 30 días** y sin respuesta → `estado: sin_respuesta` (valor nuevo del
-desplegable, hay que añadirlo a la validación y colorear el chip a mano) → lo
-recoge el archivado normal. Requiere una columna `fecha_envio` nueva, que
-escribiría [Jobs · generación CV](jobs-generacion-cv.md) en el mismo nodo que ya
-marca `estado: cv_enviado`.
+M7). Implementada y publicada el 31 ago 2026; en vigilancia hasta ver los dos
+pasos en pasadas reales.** Es la mitad de M7 de
+[jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado` con **≥ 30 días** y sin
+respuesta → se archiva con `estado: sin_respuesta`. Requiere una columna
+`fecha_envio` nueva, que la escribe [Jobs · generación CV](jobs-generacion-cv.md)
+en el mismo nodo que marca `estado: cv_enviado`.
+
+**Decisión del 31 ago 2026 — transición directa a `Archivo` en una pasada** (Mar
+eligió entre esto y una fase intermedia visible en `Ofertas_activas`). La regla
+vive en `Decisión archivar` de [Jobs · archivado](jobs-archivado.md), que ya lee
+toda la hoja dos veces al día: marca la fila `sin_respuesta` **en una copia** y la
+manda a `Archivo` en la misma pasada. `sin_respuesta` **nunca aparece en
+`Ofertas_activas`**, así que **no hay que tocar la validación del desplegable ni
+colorear ningún chip**. En `Archivo` el `estado` no lleva desplegable (allowlist
+del Apps Script), así que queda como texto plano.
+
+**Implementación (31 ago 2026), vía n8n MCP:**
+- **Hoja `n8n_jobs`:** cabecera `fecha_envio` nueva en `Ofertas_activas!R1` y
+  `Archivo!S1` (mapeo por cabecera, la posición da igual). Fila 1 intacta por lo
+  demás; el formato lo repone `mantenimiento`.
+- **`Jobs · generación CV`** (`morsS0M2folmXWhS`, `activeVersionId
+  5c2638d4-16e9-419a-b945-57043cbe1dcb`): el nodo `Actualizar estado cv_enviado`
+  añade `fecha_envio: {{ $now.toFormat('yyyy-MM-dd') }}` junto a
+  `estado: cv_enviado`. Cambio 100 % aditivo (solo en la rama `email`).
+- **`Jobs · archivado`** (`t4jxqH2wJyDF3EYt`, `activeVersionId
+  75d363e2-d475-4a70-a807-e93012aca1a3`): `Decisión archivar` (Code) reescrito con
+  `updateNodeParameters` (releído byte a byte, acentos intactos). **Regla 3 nueva
+  y aditiva** — si `estado === 'cv_enviado'`, `estado_propuesto` está vacío (Jobs ·
+  seguimiento no propuso nada) y `fecha_envio` tiene ≥ 30 días → se empuja
+  `{ ...oferta, estado: 'sin_respuesta' }` (copia, sin mutar el item original).
+  Filas antiguas sin `fecha_envio` → se ignoran. Reglas 1 y 2 y el centinela
+  `_sinArchivar` sin cambios. 8 nodos, wiring intacto.
 
 **No incluye** el email de seguimiento a los 7-10 días de M7 — ver
 [Sugerencias pendientes](#sugerencias-pendientes).
 
-**Criterio de cierre:** una fila de prueba con `cv_enviado` y `fecha_envio` de
-hace 31 días pasa a `sin_respuesta` en una pasada real y el archivado se la lleva
-a `Archivo`.
+**Pendiente de verificación en pasadas reales:**
+1. Un `cv_enviado` marcado por `Jobs · generación CV` (rama `email`) deja
+   `fecha_envio` en formato `yyyy-MM-dd` en `Ofertas_activas`.
+2. Una fila `cv_enviado` + `estado_propuesto` vacío + `fecha_envio` de hace ≥ 30
+   días pasa a `Archivo` con `estado: sin_respuesta` en una pasada de las
+   09:00/17:00, sin arrastrar filas legítimas. (Se puede forzar antes con una
+   fila de prueba y `DIAS_SIN_RESPUESTA` bajado temporalmente, patrón de la
+   tarea 2 con `UMBRAL = -1`.)
+
+**Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 

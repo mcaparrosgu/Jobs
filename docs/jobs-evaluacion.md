@@ -343,12 +343,20 @@ para desplegarlo end-to-end (Docker Compose + Caddy + HTTPS automático).
 - `cv_enviado` sin `estado_propuesto` y con **≥ 7 días** → email a Mar con un
   borrador de mensaje de seguimiento (mismo patrón Gmail que
   `Notificación nuevas ofertas`).
-- `cv_enviado` con **≥ 30 días** y sin respuesta → `estado: sin_respuesta` (valor
-  nuevo del desplegable, que habría que añadir a la validación y colorear el chip
-  a mano — la API no expone el color) → lo recoge el archivado normal.
+- `cv_enviado` con **≥ 30 días** y sin respuesta → `estado: sin_respuesta` → lo
+  recoge el archivado. **Implementado y publicado el 31 ago 2026** (tarea 12 /
+  [tareas-pendientes.md](tareas-pendientes.md)). Decisión de implementación: la
+  transición la hace `Decisión archivar` de
+  [Jobs · archivado](jobs-archivado.md) **en una sola pasada** (Regla 3 aditiva:
+  `cv_enviado` + `estado_propuesto` vacío + `fecha_envio` ≥ 30 días → copia con
+  `estado: sin_respuesta` directa a `Archivo`). `sin_respuesta` **no pasa por
+  `Ofertas_activas`**, así que no hubo que tocar la validación del desplegable ni
+  colorear el chip (lo que este doc daba por necesario). En vigilancia hasta ver
+  los dos pasos en pasadas reales.
 
-Requiere una columna **`fecha_envio`** que hoy no existe: la escribiría
-[Jobs · generación CV](jobs-generacion-cv.md) en el mismo nodo que ya marca
+Requiere una columna **`fecha_envio`** (añadida el 31 ago 2026 a
+`Ofertas_activas` y `Archivo`): la escribe
+[Jobs · generación CV](jobs-generacion-cv.md) en el mismo nodo que marca
 `estado: cv_enviado`.
 
 ## M8 — Menores

@@ -40,6 +40,42 @@ decisión cambió, se anota una entrada nueva que lo diga.
   molestando para comparar semanas entre sí; se revisa con dos semanas de datos
   reales, junto con la decisión sobre M4.
 
+## 2026-08-31 · Hito: archivar `cv_enviado` sin respuesta a los 30 días (tarea 12 / mitad de M7)
+
+- QUÉ SE DECIDIÓ — Una candidatura que lleva 30 días en `cv_enviado`, sin que
+  `Jobs · seguimiento` haya propuesto ningún estado, se archiva automáticamente
+  con `estado: sin_respuesta`. Columna nueva `fecha_envio` en `Ofertas_activas` y
+  `Archivo`, que `Jobs · generación CV` escribe (`{{ $now.toFormat('yyyy-MM-dd')
+  }}`) en el mismo nodo que marca `cv_enviado`, solo en la rama `email`. La
+  transición la hace la nueva Regla 3 de `Decisión archivar` en
+  [Jobs · archivado](jobs-archivado.md), **en la misma pasada** que el archivado:
+  empuja `{ ...oferta, estado: 'sin_respuesta' }` (una copia) directo a `Archivo`.
+- ALTERNATIVAS DESCARTADAS — (a) Dos fases: una pasada escribe `sin_respuesta` en
+  `Ofertas_activas` (visible, con opción a que Mar intervenga) y la siguiente
+  pasada lo archiva. (b) Que la transición la hiciera `Jobs · generación CV` o un
+  workflow nuevo con Schedule propio.
+- POR QUÉ ESTA — Mar eligió la vía directa. La de dos fases obliga a un nodo
+  Google Sheets `update` extra, a añadir `sin_respuesta` a la validación del
+  desplegable de `estado` y a colorear el chip a mano (la API no expone el
+  color) — justo lo que el texto de M7 daba por necesario. Haciéndolo en
+  `Decisión archivar`, que ya lee toda la hoja dos veces al día, `sin_respuesta`
+  nunca llega a `Ofertas_activas`: entra en `Archivo` como texto plano (allí el
+  `estado` no lleva desplegable) y no hay nada manual que tocar. Mismo patrón
+  aditivo de un solo nodo que las tareas 9/10/11.
+- QUÉ SE ROMPIÓ — Nada. `updateNodeParameters` + relectura byte a byte (acentos
+  intactos) en los dos workflows; `Jobs · generación CV` publicado como
+  `5c2638d4-…`, `Jobs · archivado` como `75d363e2-…`. La única advertencia de
+  validación es la preexistente de `Enviar cv y carta por email` (falso positivo
+  ya documentado). No hay ninguna fila `cv_enviado` en la hoja ahora mismo, así
+  que la próxima pasada de archivado es un no-op para la Regla 3.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Si «sin respuesta» = `estado_propuesto` vacío
+  es señal suficiente, o si hay que mirar también `resumen_respuesta` u otra
+  cosa. Y qué hacer con las filas `cv_enviado` anteriores a hoy, que no tienen
+  `fecha_envio` y la Regla 3 ignora a propósito: hoy no hay ninguna, pero si
+  aparecieran habría que rellenarles `fecha_envio` a mano o dejarlas para el
+  archivado por otra vía. Se cierra cuando se vean los dos pasos en pasadas
+  reales.
+
 ## 2026-08-31 · Hito: truncar `resumen` a ~800 caracteres (tarea 11 / M8)
 
 - QUÉ SE DECIDIÓ — El `resumen` de cada oferta se recorta a ~800 caracteres

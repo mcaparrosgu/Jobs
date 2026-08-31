@@ -1,7 +1,7 @@
 ---
 type: n8n Workflow
 title: Jobs · archivado
-description: Archiva las candidaturas antiguas (descartadas/rechazadas siempre, pendientes con más de 7 días) de Ofertas_activas a Archivo.
+description: Archiva las candidaturas antiguas (descartadas/rechazadas siempre, pendientes con más de 7 días, cv_enviado sin respuesta a los 30 días) de Ofertas_activas a Archivo.
 resource: https://<N8N_HOST>/workflow/t4jxqH2wJyDF3EYt
 tags: [n8n, empleo, google-sheets]
 timestamp: 2026-08-27T18:00:00Z
@@ -56,6 +56,14 @@ con la que alinearse.
    encuentra ninguna, devuelve un único item centinela `{ _sinArchivar: true }`
    en vez de un array vacío (ver Fallos conocidos — es imprescindible para que
    el ping llegue igual).
+   - **Regla 3 (31 ago 2026, tarea 12 / mitad de M7):** `cv_enviado` con
+     `estado_propuesto` vacío y `fecha_envio` de **≥ 30 días** → se archiva con
+     `estado: sin_respuesta` (se empuja una **copia** `{ ...oferta, estado:
+     'sin_respuesta' }`, sin mutar el item original). Las filas sin `fecha_envio`
+     —las anteriores a la tarea 12— se ignoran. `sin_respuesta` nunca pasa por
+     `Ofertas_activas`: entra directo en `Archivo` como texto plano (allí el
+     `estado` no lleva desplegable). La columna `fecha_envio` la escribe
+     [Jobs · generación CV](jobs-generacion-cv.md) al marcar `cv_enviado`.
 3. **`Hay para archivar`** (`if`, desde el 17 ago 2026) — `true` si
    `$json._sinArchivar` es `true` (nada que archivar) → va directo a
    `Ping Healthchecks`. `false` (hay candidatas reales) → sigue la cadena

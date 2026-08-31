@@ -129,9 +129,15 @@ Se dispara sobre las filas que Mar marca a mano con `generar_cv_ia = true`.
 7. **`Actualizar estado generar_cv_ia`** → `estado: cv_ia_creado`.
 8. **`email o enlace`** — si `tipo_aplicacion == "email"`, descarga ambos docs
    como PDF, los une (`Juntar PDFs`), los envia con **`Enviar cv y carta por
-   email`** (asunto y cuerpo en ES o EN segun el idioma detectado) y marca
-   `estado: cv_enviado`. Si es "enlace", la rama va directa al ping (Mar
-   aplica a mano). Ambas ramas convergen en **`Ping Healthchecks`** (desde el
+   email`** (asunto y cuerpo en ES o EN segun el idioma detectado) y
+   **`Actualizar estado cv_enviado`** marca `estado: cv_enviado` y escribe
+   `fecha_envio` con la fecha de hoy (`{{ $now.toFormat('yyyy-MM-dd') }}`, zona
+   horaria de la instancia). `fecha_envio` la consume la Regla 3 de
+   [Jobs · archivado](jobs-archivado.md) (archivar `cv_enviado` sin respuesta a
+   los 30 dias, tarea 12 / 31 ago 2026, `activeVersionId
+   5c2638d4-16e9-419a-b945-57043cbe1dcb`). Si es "enlace", la rama va directa al
+   ping (Mar aplica a mano) y `fecha_envio` queda vacia. Ambas ramas convergen en
+   **`Ping Healthchecks`** (desde el
    16 ago 2026, mismo patron que [Jobs · ingesta](jobs-ingesta.md):
    `retryOnFail` 3 intentos/3s, `onError: continueRegularOutput`).
 
