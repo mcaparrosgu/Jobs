@@ -38,16 +38,21 @@ sin afectar a la ingesta ni al seguimiento.
   introducir algún guion largo sin espacios (tic de IA, no errata). Ver
   [tareas-pendientes.md](tareas-pendientes.md) tarea 8 (cerrada).
 - **Nodos:** 26 (la cifra de 21 estaba desactualizada; +3 del paso de humanización del 29 ago 2026)
-- **Auditoría de la generación (3 sep 2026) — draft `versionId 40d83c73-…`,
-  PENDIENTE DE PUBLICAR (lo publica Mar).** Al supervisar 3 CV reales
-  (#734/#735/#736) se vio que el CV perdía el Grado de la UOC y que
-  `Filtro generar CV` disparaba N llamadas Sonnet y solo se usaba 1. Tres cambios,
-  ver [tareas-pendientes.md](tareas-pendientes.md) tarea 15 y
-  [bitacora.md](bitacora.md) (3 sep 2026): `Prompt para CV` exige 2 bloques de
-  Formación (NEOLAND + Grado UOC, sin sección de Proyectos); `Adaptar cv
-  plantilla` pliega la 2.ª entrada de Formación en `{{FORMACION_DETALLE}}` y suma
-  `formacionTitulo`/`habilidades` a los campos esenciales; `Filtro generar CV`
-  deduplica por `id_unico` y emite 1 oferta por ejecución.
+- **Auditoría de la generación (3 sep 2026) — `activeVersionId 4552575d-…`,
+  publicada por Mar. Tarea 15 CERRADA, verificada e2e (#749/#750).** Al
+  supervisar CV reales se corrigieron 4 cosas (detalle en
+  [tareas-pendientes.md](tareas-pendientes.md) tarea 15 y
+  [bitacora.md](bitacora.md), 3 sep 2026): `Prompt para CV` exige **2 bloques de
+  Formación** (NEOLAND en curso + Grado UOC 2012–2019 con Honores) y aclara que el
+  CV **no lleva sección de Proyectos** (van en resumen/experiencia); Mar añadió
+  `{{FORMACION_TITULO2}}` / `{{FORMACION_DETALLE2}}` a la plantilla del CV y
+  `Adaptar cv plantilla` los rellena por separado; ese mismo nodo traduce los
+  encabezados fijos de la plantilla «Experiencia/Formación/Habilidades» →
+  «Experience/Education/Skills» cuando `idioma === 'EN'`; `Filtro generar CV`
+  deduplica por `id_unico` y emite **1 oferta por ejecución** (el disparador drena
+  el resto), evitando pagar N llamadas Sonnet de las que solo se usaba 1; y
+  `Crear doc cv` fija `folderId` a la carpeta **«Cvs jobs n8n»** (antes el CV se
+  copiaba en la carpeta de la plantilla).
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`,
   pestana `Ofertas_activas` (`gid=0`)
 

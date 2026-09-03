@@ -248,3 +248,32 @@ decisión cambió, se anota una entrada nueva que lo diga.
 - PENDIENTE — Mar publica `4552575d` y un CV nuevo aterriza en «Cvs jobs n8n».
   Opcional: mover a mano los CV ya generados (#734–#745) de «Plantillas CV n8n» a
   «Cvs jobs n8n». Cierre de la tarea 15.
+
+## 2026-09-03 · Cierre tarea 15: auditoría de generación de CV/carta completada
+
+- Mar publicó `4552575d` (todas las versiones de la tarea 15 quedan publicadas;
+  `activeVersionId == 4552575d`). Se marcaron 2 ofertas más: **#749** (mercor) y
+  **#750** (Blink Health), ambas `idioma EN`, `success`.
+- VERIFICADO e2e con el workflow completamente publicado: (1) `Filtro generar CV`
+  emitió **1 oferta por ejecución** (dedupe), la 2.ª en la pasada siguiente sin
+  colgarse; (2) el Doc del CV **aterrizó en «Cvs jobs n8n»**
+  (`17YrQa7V0x2pYJh0Cu5aZ8tWcami-D-MY`), no en la carpeta de la plantilla; (3)
+  Formación con **las 2 entradas** (Bootcamp NEOLAND + Grado UOC 2012–2019 con
+  Honores) cada una en su ranura propia con estilo de título; (4) encabezados
+  traducidos a **Experience / Education / Skills** por ser CV en inglés; (5)
+  habilidades y resto del CV intactos; (6) el proyecto de Mar (pipeline
+  n8n/Docker) integrado en el `<p class="resumen">`, sin sección de Proyectos.
+- LIMPIEZA — Los **13 CV** generados antes del arreglo (26-08-03 … 26-09-03) se
+  movieron a mano de «Plantillas CV n8n» a «Cvs jobs n8n» vía Drive MCP
+  (`update_file` con `parentId`). En «Plantillas CV n8n» quedan solo la plantilla
+  del CV, la de la carta y un `Copy of Plantilla CV` huérfano (Mar decide si lo
+  borra).
+- LO QUE COSTÓ — `publish_workflow` del MCP n8n lo bloquea el clasificador de
+  auto-mode de Claude Code en esta sesión: cada versión (5 en total a lo largo de
+  la tarea) la tuvo que publicar Mar a mano desde el editor. Patrón para futuras
+  tareas de n8n: dejar el draft verificado byte a byte y pedir a Mar el Publish.
+- APRENDIZAJE — Una copia de Google Drive (`operation: copy`) sin `folderId`
+  aterriza en la carpeta del **archivo origen**, no en «Mi unidad». Si un nodo
+  `googleDrive` de copia debe guardar en una carpeta concreta, hay que fijarle
+  `folderId` + `sameFolder: false` + `driveId` explícitamente (como ya hacía
+  `Crear doc carta` y no `Crear doc cv`).
