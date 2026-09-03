@@ -367,14 +367,16 @@ Requiere una columna **`fecha_envio`** (añadida el 31 ago 2026 a
 
 - **Truncar `resumen`** a ~800 caracteres (resuelve H9). Menos peso en la hoja y
   menos trabajo para el Apps Script. El prompt del CV lo recorta igualmente a
-  6.000 caracteres. **Implementado y publicado el 31 ago 2026** (tarea 11 /
-  [tareas-pendientes.md](tareas-pendientes.md)) — `versionId
+  6.000 caracteres. **Implementado y publicado el 31 ago 2026, CERRADO el 3 sep
+  2026** (tarea 11 / [tareas-pendientes.md](tareas-pendientes.md)) — `versionId
   f8ac4e6b-…`. Se hace **dentro de `Filtro duplicados`**, al construir la oferta
   de salida, **no en los normalizadores como decía este doc**: truncar antes del
   `Merge` cambiaría decisiones de `Filtro teletrabajo` y del criterio de idioma
   de `Filtro cualificación` cuando la palabra clave cae más allá del carácter
-  800. Un solo nodo tocado y filtrado intacto. En vigilancia hasta ver el
-  recorte en una pasada real con ofertas largas.
+  800. Un solo nodo tocado y filtrado intacto. **Verificado end-to-end en #748**
+  (3 sep, `trigger`): una oferta de We Work Remotely entró con la descripción
+  entera y quedó en `Ofertas_activas` con `resumen` de 801 car. terminado en
+  `...` (corte en espacio) y el enlace intacto.
 - **No tocar el umbral del `Filtro salario`**: con H5 hoy es inocuo. Solo dejar
   constancia de que no está filtrando, para no perder tiempo ajustándolo.
 

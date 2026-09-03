@@ -163,7 +163,9 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    idioma de `Filtro cualificación`) siguen viendo el `resumen` completo y no
    cambian ninguna decisión. Cambio 100 % aditivo: `id_unico`, `id_url` y
    pasa/descarta intactos. El enlace completo va en su columna y la generación
-   de CV recorta a 6.000 aparte.
+   de CV recorta a 6.000 aparte. **Verificado en #748** (3 sep 2026, `trigger`):
+   una oferta de We Work Remotely (Ellipsis®) entró con la descripción entera y
+   quedó con `resumen` de 801 car. terminado en `...` y el enlace intacto.
 6. **`Append row in sheet`** → `Ofertas_activas`. Desde el 29 ago 2026 con
    `useAppend: true` (append nativo de la API de Sheets, no el modo *update* por
    defecto): anexa tras el bloque de datos contiguo desde A1, así que un hueco

@@ -277,3 +277,27 @@ decisión cambió, se anota una entrada nueva que lo diga.
   `googleDrive` de copia debe guardar en una carpeta concreta, hay que fijarle
   `folderId` + `sameFolder: false` + `driveId` explícitamente (como ya hacía
   `Crear doc carta` y no `Crear doc cv`).
+
+## 2026-09-03 · Cierre tarea 11: truncado de `resumen` a ~800 verificado
+
+- Verificada e2e la tarea 11 (M8) sin tocar nada: ya estaba implementada y
+  publicada el 31 ago (`Jobs · ingesta`, `Filtro duplicados`, `truncarResumen()`
+  + `LIMITE_RESUMEN = 800`, `versionId == activeVersionId == f8ac4e6b-…`).
+- EVIDENCIA — Ejecución **#748** (3 sep 15:01Z, `trigger`, `success`). `Filtro
+  duplicados` emitió 4 ofertas nuevas; la de **We Work Remotely** («Executive
+  Assistant …» / Ellipsis®, `id_unico dbc8e3b6`) llegó con la descripción entera
+  del feed. En `Ofertas_activas` fila 8 quedó con `resumen` de **801 caracteres
+  exactos terminados en `...`**, corte en el espacio tras «…and performance» (sin
+  partir palabra) y el enlace de `L8` intacto y completo. Las otras 3 ofertas de
+  la pasada tenían `resumen` corto natural (<800) y pasaron sin tocar.
+- APRENDIZAJE — El único feed que entrega descripciones largas sin recortar es
+  We Work Remotely (su normalizador no hace `substring`, a diferencia de
+  LinkedIn/Infojobs que cortan a 200). Por eso la tarea 11 tardó 3 días en
+  encontrar un caso real que la ejercitara: la mayoría de fuentes ya llegan
+  cortas. El truncado en `Filtro duplicados` (tras los filtros) mantuvo intacto
+  el filtrado de arriba.
+- ABIERTAS — Quedan la 12 (archivar `cv_enviado` a 30 días: sin tráfico de
+  ofertas por email desde el 31 ago y ninguna fila puede tener aún `fecha_envio`
+  de hace 30 días — verificable el ~30 sep o forzando una fila de prueba), la 13
+  (vigilancia OAuth: chequeo intermedio del 3 sep limpio, cierre el 7 sep) y la
+  14 (case study, al final del proyecto).

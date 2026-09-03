@@ -29,6 +29,11 @@ Auth Platform → Público → «Publicar aplicación»), sin cambios en n8n.
 - Comprobado vía n8n MCP (31 ago): ninguna ejecución `error`/`crashed` en ningún
   workflow después de #709 (30 ago). Línea base sin incidencias.
 
+**Chequeo intermedio (3 sep 2026):** `search_executions` con
+`status: [error, crashed]`, `startedAfter: 2026-08-31` → **0 resultados** en toda
+la instancia. 7+ días desde la reconexión base van limpios; falta llegar al 7 sep
+para cumplir la ventana de cierre.
+
 **Seguimiento pendiente por Claude — supervisión manual el 7 sep 2026 (o
 después).** El **7 sep 2026** (7+ días desde la reconexión base del 31 ago), o en
 la primera sesión posterior, comprobar vía n8n MCP que ninguna ejecución
@@ -47,46 +52,6 @@ que Claude lo haga a mano.
 **Criterio de cierre:** 7+ días (hasta el 7 sep 2026) sin ningún aviso de «needs
 to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail tras la
 reconexión base del 31 ago.
-
-## 11. Truncar `resumen` a ~800 caracteres
-
-**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar. Implementada y
-publicada el 31 ago 2026; en vigilancia hasta confirmar el recorte en una pasada
-real con ofertas largas.** Es M8 de [jobs-evaluacion.md](jobs-evaluacion.md).
-Algunas ofertas guardan la descripción completa sin recortar (~10 KB en la fila
-de GitLab), lo que dispara el alto de fila que el Apps Script corrige cada hora.
-El enlace completo se conserva en su columna. No afecta a la generación de CV,
-que ya recorta el texto de la oferta a 6.000 caracteres en `Prompt para CV`.
-
-**Dónde se trunca (decisión del 31 ago 2026):** el doc original decía «en cada
-normalizador, antes del `Merge`», pero ahí el recorte cambiaría decisiones de
-`Filtro teletrabajo` (mira `titulo+resumen` para «hybrid»/«onsite» y para las
-palabras de remoto) y del criterio de idioma de `Filtro cualificación`, si la
-palabra clave cae más allá del carácter 800. Se hace **dentro de
-`Filtro duplicados`**, al construir cada oferta de salida — después de todos los
-filtros, que siguen viendo el `resumen` completo. Un solo nodo tocado en vez de
-13 y comportamiento de filtrado intacto.
-
-**Implementación (31 ago 2026), vía n8n MCP** en `Jobs · ingesta`
-(`CXCD8BZUQEQKex2a`), detalle en [jobs-ingesta.md](jobs-ingesta.md) sección A
-punto 5:
-- `Filtro duplicados` (Code) reescrito con `updateNodeParameters` (releído byte a
-  byte, sha256 `285e5933a2d86986`). Cambio **100 % aditivo**: nueva función
-  `truncarResumen()` + `LIMITE_RESUMEN = 800`, aplicada como
-  `resumen: truncarResumen(oferta.resumen)` en el objeto de salida. `id_unico`,
-  `id_url` y la decisión pasa/descarta **sin tocar**.
-- Recorta al último espacio si está a menos de 120 car. del límite (no parte
-  palabras) y marca el corte con `...`. Texto `≤ 800` o no-string → pasa igual.
-- Publicado, `versionId == activeVersionId ==
-  f8ac4e6b-ef03-4fbe-9836-259a010e81b7`. 48 nodos, wiring intacto (entra de
-  `Leer archivo`, sale a `Append row in sheet` + `Registrar métricas`).
-
-**Pendiente:** una pasada real con ≥1 oferta de `resumen` largo (>800 car.) que
-deje la celda recortada (~800 + `...`) y el enlace intacto.
-
-**Criterio de cierre:** una pasada real con ofertas largas deja `resumen` recortado
-(~800 caracteres) y el enlace intacto; el Apps Script deja de tener que corregir
-alturas de fila disparadas.
 
 ## 12. Archivar `cv_enviado` sin respuesta a los 30 días
 
@@ -142,6 +107,22 @@ hace falta. La regla solo aplica de aquí en adelante.
    fila de prueba y `DIAS_SIN_RESPUESTA` bajado temporalmente, patrón de la
    tarea 2 con `UMBRAL = -1`.)
 
+**Estado (3 sep 2026):** los dos puntos siguen sin poder verificarse de forma
+natural:
+- Punto 1 — desde el 31 ago **ninguna oferta de aplicación por email** ha pasado
+  por `Jobs · generación CV`; todas las candidaturas recientes (#734–#751) son de
+  `tipo_aplicacion: enlace`, que no tocan la rama `email` ni marcan `cv_enviado`.
+  `Ofertas_activas` no tiene ninguna fila `cv_enviado` con la columna
+  `fecha_envio` (R) rellena.
+- Punto 2 — la `fecha_envio` más antigua posible es del 31 ago 2026, así que
+  ninguna fila llega a los 30 días hasta **~30 sep 2026**. La Regla 3 no puede
+  disparar antes sin forzarla.
+- Decisión pendiente de Mar: esperar al tráfico real (fecha natural ~30 sep) o
+  montar la prueba forzada (fila de prueba `cv_enviado` con `fecha_envio` vieja +
+  `DIAS_SIN_RESPUESTA` bajado temporalmente en `Jobs · archivado`, con Mar
+  publicando el draft y revirtiéndolo después — el `publish_workflow` del MCP lo
+  bloquea el clasificador de auto-mode de Claude Code en esta sesión).
+
 **Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
@@ -159,6 +140,58 @@ guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
 Google) y los resultados reales del pipeline.
 
 # Cerradas
+
+## 11. Truncar `resumen` a ~800 caracteres
+
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar. Implementada y
+publicada el 31 ago 2026. CERRADA el 3 sep 2026 — verificada end-to-end en una
+pasada real (#748).** Es M8 de [jobs-evaluacion.md](jobs-evaluacion.md). Algunas
+ofertas guardaban la descripción completa sin recortar (~10 KB), lo que disparaba
+el alto de fila que el Apps Script corrige cada hora. El enlace completo se
+conserva en su columna; la generación de CV recorta la oferta a 6.000 caracteres
+aparte, así que no le afecta.
+
+**Dónde se trunca (decisión del 31 ago 2026):** dentro de `Filtro duplicados`, al
+construir cada oferta de salida — después de todos los filtros, que siguen viendo
+el `resumen` completo. Truncar antes del `Merge` cambiaría decisiones de
+`Filtro teletrabajo` y del criterio de idioma de `Filtro cualificación` si la
+palabra clave cae más allá del carácter 800. Un solo nodo tocado en vez de 13 y
+comportamiento de filtrado intacto.
+
+**Implementación (31 ago 2026), vía n8n MCP** en `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`), detalle en [jobs-ingesta.md](jobs-ingesta.md) sección A
+punto 5:
+- `Filtro duplicados` (Code) reescrito con `updateNodeParameters` (releído byte a
+  byte, sha256 `285e5933a2d86986`). Cambio **100 % aditivo**: nueva función
+  `truncarResumen()` + `LIMITE_RESUMEN = 800`, aplicada como
+  `resumen: truncarResumen(oferta.resumen)` en el objeto de salida. `id_unico`,
+  `id_url` y la decisión pasa/descarta **sin tocar**.
+- Recorta al último espacio si está a menos de 120 car. del límite (no parte
+  palabras) y marca el corte con `...`. Texto `≤ 800` o no-string → pasa igual.
+- Publicado, `versionId == activeVersionId ==
+  f8ac4e6b-ef03-4fbe-9836-259a010e81b7`. 48 nodos, wiring intacto.
+
+**Verificación end-to-end (3 sep 2026), vía n8n MCP + lectura de la hoja** —
+ejecución **#748** de `Jobs · ingesta` (3 sep 15:01Z, `trigger`, `success`, con
+la versión activa `f8ac4e6b`):
+- `Filtro duplicados` emitió 4 ofertas nuevas. La de **We Work Remotely**
+  («Executive Assistant (Remote, UK/EU, £38k-£43k/year)» / Ellipsis®,
+  `id_unico dbc8e3b6`) llegó con la descripción entera del feed (WWR no la recorta
+  en su normalizador, a diferencia de LinkedIn/Infojobs que hacen `substring(0,
+  200)`).
+- En `Ofertas_activas` esa fila (fila 8) quedó con **`resumen` de 801 caracteres
+  exactos, terminado en `...`**, cortado en un espacio tras «…and performance»
+  (sin partir la palabra) — la firma de `truncarResumen()`. El enlace en `L8`
+  intacto y completo
+  (`https://weworkremotely.com/remote-jobs/ellipsis-executive-assistant-remote-uk-eu-38k-43k-year`).
+- Las otras 3 ofertas de la misma pasada tenían `resumen` corto natural (<800) y
+  pasaron sin tocar. Ninguna oferta con `resumen` > 800 sin recortar en el resto
+  de la hoja.
+
+**Cierre:** cumplido — pasada real con una oferta de descripción larga deja
+`resumen` recortado a ~800 + `...` y el enlace intacto; el filtrado de arriba no
+cambió ninguna decisión. Docs `jobs-evaluacion.md` (M8) y `jobs-ingesta.md`
+actualizados.
 
 ## 15. El CV generado perdía el Grado de la UOC y el CV salía mal ubicado
 
