@@ -173,3 +173,30 @@ decisión cambió, se anota una entrada nueva que lo diga.
   de línea nativo de Google Docs, U+000B, en vez del `\n` actual). (3) Confirmar
   que, al procesar 1 oferta por ejecución, el disparador drena el resto sin dejar
   filas colgadas. Cierre en la tarea 15.
+
+## 2026-09-03 · Seguimiento tarea 15: v1 verificada + ranura real de Formación (v2)
+
+- Mar publicó el draft `40d83c73`. Se marcaron 2 ofertas; las 2 salieron bien:
+  **#739** (OpenNebula) y **#740** (Doppel), ambas `success`. `Filtro generar CV`
+  recibió 8 filas (2 ofertas × duplicados del trigger) y emitió 1 por ejecución;
+  la 2.ª oferta se procesó en la pasada siguiente del disparador, ninguna quedó
+  colgada. **La API de Docs acepta el `\n`** de `{{FORMACION_DETALLE}}`: el Doc
+  del CV muestra el Grado UOC plegado en la línea de detalle, habilidades y resto
+  intactos. El proyecto de Mar (pipeline n8n/Docker/Tailscale) sale integrado en
+  el `<p class="resumen">`, sin sección de Proyectos — el cambio del prompt
+  funciona.
+- MEJORA v2 — Mar añadió a la plantilla del CV (Doc `11IUpAhDJHIP…`) las 2
+  ranuras `{{FORMACION_TITULO2}}` / `{{FORMACION_DETALLE2}}` (nombró los
+  placeholders con `2` pegado, sin guion bajo). `Adaptar cv plantilla` reescrito
+  (sha256 `52aa49a9…`, `node --check` OK): deja de plegar la 2.ª entrada en la
+  línea de detalle y la manda a su ranura propia, con el mismo estilo (título en
+  negrita) que el Bootcamp. Aviso en log si Claude solo trae 1 entrada. Publicado
+  como draft `versionId e3da5677-…`; **el `publish_workflow` lo bloqueó otra vez
+  el clasificador de auto-mode → lo publica Mar**.
+- ORDEN QUE SE SIGUIÓ — Primero Mar editó la plantilla del Doc, luego se subió el
+  código: así no hubo ventana en que `{{FORMACION_TITULO2}}` no existiera y el
+  Grado se cayera. Entre la publicación de `e3da5677` y su verificación, la
+  versión activa `40d83c73` (plegado) ya deja el Grado en el CV, así que no hay
+  regresión posible.
+- PENDIENTE — Mar publica `e3da5677` y marca 1 oferta para ver el Grado en su
+  ranura propia (no plegado). Cierre de la tarea 15.
