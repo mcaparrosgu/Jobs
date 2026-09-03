@@ -200,3 +200,31 @@ decisión cambió, se anota una entrada nueva que lo diga.
   regresión posible.
 - PENDIENTE — Mar publica `e3da5677` y marca 1 oferta para ver el Grado en su
   ranura propia (no plegado). Cierre de la tarea 15.
+
+## 2026-09-03 · Seguimiento tarea 15: encabezados de sección según idioma
+
+- Mar publicó `e3da5677` y marcó una oferta. **#743** (TripleTen, `idioma EN`,
+  `success`): `Adaptar cv plantilla` mapeó las 4 ranuras de Formación por
+  separado y el Doc muestra el Grado UOC **en su línea propia con estilo de
+  título** — la mejora v2 funciona.
+- FALLO NUEVO (lo detectó Mar en #743) — Los encabezados de sección del CV salen
+  en **castellano** («Experiencia» / «Formación» / «Habilidades») aunque la
+  oferta, el CV y la carta estén en inglés. Causa: esos encabezados son **texto
+  fijo de la plantilla del Doc**, no marcadores; `Adaptar cv plantilla` solo
+  extrae el contenido de `<h3>` y `<p class>`, nunca toca los `<h2>` de Claude
+  (que además siempre van en castellano por el spec del prompt).
+- ARREGLO — `Adaptar cv plantilla` v3 (draft `versionId d2db224c-…`, pendiente de
+  publicar): si `idioma === 'EN'` (de `Aplicar humanizacion`) añade 3
+  `replaceAllText` que traducen «Experiencia»→«Experience», «Formación»→
+  «Education», «Habilidades»→«Skills» **después** de rellenar los marcadores —en
+  un CV inglés esas 3 palabras solo quedan en los encabezados, así que el
+  reemplazo por palabra suelta es seguro—. Un CV en español no añade nada
+  (la plantilla ya está en castellano).
+- ALTERNATIVA DESCARTADA — Convertir los encabezados en marcadores
+  (`{{H_EXPERIENCIA}}`…) en la plantilla: más limpio pero obliga a otra edición
+  manual del Doc. El swap por `replaceAllText` es autocontenido y no toca la
+  plantilla.
+- PENDIENTE — Mar publica `d2db224c` y un CV real en inglés confirma «Experience /
+  Education / Skills». Menor: párrafo vacío entre `{{FORMACION_DETALLE2}}` y
+  «— Habilidades» en la plantilla (del copia-pega de Mar); se puede borrar para
+  apretar el interlineado. Cierre de la tarea 15.

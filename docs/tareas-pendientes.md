@@ -58,22 +58,35 @@ con la de **NEOLAND** en el CV.
     ranura propia con el mismo estilo (título en negrita) que el Bootcamp, sin
     plegado. Aviso en log si Claude solo trae 1 entrada.
 
-**Verificación parcial (3 sep 2026) — v1 (`40d83c73`) end-to-end:**
-- **#739** (OpenNebula, `success`): `Filtro generar CV` recibió 8 filas (2
-  ofertas × duplicados del trigger) y emitió **1**; Claude emitió las 2 entradas
-  de Formación; el Doc del CV muestra el Grado UOC (plegado en la línea de
-  detalle, la API de Docs aceptó el `\n`); habilidades y resto intactos; el
-  proyecto de Mar integrado en el resumen, sin sección de Proyectos.
-- **#740** (Doppel, `success`): la 2.ª oferta procesada en la pasada siguiente
-  del disparador, mismo resultado. Ninguna fila quedó colgada.
+- **`Adaptar cv plantilla` v3** (draft `versionId d2db224c-…`, **pendiente de
+  publicar** — bloqueado por el clasificador): los encabezados de sección de la
+  plantilla («Experiencia» / «Formación» / «Habilidades») son texto fijo en
+  castellano; cuando `idioma === 'EN'` (de `Aplicar humanizacion`) se traducen in
+  situ a Experience / Education / Skills vía `replaceAllText`, después de rellenar
+  los marcadores (en un CV inglés esas palabras solo quedan en los 3 encabezados).
 
-**Pendiente:** Mar publica el draft `e3da5677-…` y marca 1 oferta más para ver el
-Grado en su ranura propia (no plegado).
+**Verificación (3 sep 2026):**
+- **v1 (`40d83c73`) e2e** — **#739** (OpenNebula) y **#740** (Doppel), ambas
+  `success`: `Filtro generar CV` recibió 8 filas (2 ofertas × duplicados del
+  trigger) y emitió **1** por ejecución, la 2.ª oferta se procesó en la pasada
+  siguiente sin colgarse; Claude emitió las 2 entradas de Formación; el Doc del CV
+  muestra el Grado UOC (plegado), habilidades y resto intactos; el proyecto de Mar
+  integrado en el resumen, sin sección de Proyectos.
+- **v2 (`e3da5677`, publicada por Mar)** — **#743** (TripleTen, `idioma EN`,
+  `success`): `Adaptar cv plantilla` mapea las 4 ranuras por separado; el Doc
+  muestra el Grado UOC **en su línea propia con el estilo de título** (no
+  plegado). Detectado el fallo de idioma en los encabezados → v3.
 
-**Criterio de cierre:** con `e3da5677` publicado, un CV real nuevo deja en el Doc,
-bajo Formación, **las 2 entradas con el mismo estilo**: «AI Engineering
-Bootcamp · NEOLAND …» y «Grado en Comunicación y Publicidad Creativa · UOC ·
-2012–2019, con Honores», con habilidades y resto del CV intactos.
+**Pendiente:** Mar publica `d2db224c-…` y un CV real en inglés confirma
+«Experience / Education / Skills» en vez de «Experiencia / Formación /
+Habilidades». Menor: en la plantilla quedó un párrafo vacío entre
+`{{FORMACION_DETALLE2}}` y `— Habilidades` (del copia-pega); Mar puede borrarlo
+para apretar el interlineado.
+
+**Criterio de cierre:** con `d2db224c` publicado, un CV real en inglés deja en el
+Doc las 2 entradas de Formación con el mismo estilo (NEOLAND + Grado UOC) y los
+encabezados «Experience / Education / Skills»; un CV en español los mantiene en
+castellano; habilidades y resto del CV intactos.
 
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 
