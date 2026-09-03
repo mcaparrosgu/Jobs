@@ -8,6 +8,43 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
+## 15. El CV generado pierde el Grado de la UOC (2.ª entrada de Formación)
+
+**Prioridad: alta. Abierta el 3 sep 2026 — detectada al supervisar 3 CV reales
+(#734 Simera, #735 Elevenlabs, #736 PadSplit), aprobada por Mar.** En los 3 CV
+(Google Doc) **falta el «Grado en Comunicación y Publicidad Creativa · UOC ·
+2012–2019, con Honores»**. El HTML que genera Claude y el que sale de la
+humanización **sí lo llevan** (2 `<h3>` bajo `<h2>Formación>`: Bootcamp NEOLAND +
+Grado UOC); se pierde al volcar a la plantilla del Doc. Agravante: la carta de
+Simera afirma «I hold a degree in Communication and Creative Advertising» que el
+CV adjunto no lista.
+
+**Causa raíz** (no es de OpenAI): el Code node `Adaptar cv plantilla` de
+[Jobs · generación CV](jobs-generacion-cv.md) (`morsS0M2folmXWhS`) asume una
+estructura fija — `h3[0..2]` = 3 puestos, `h3[3]` = formación **única**,
+`descripcion[3]` = habilidades — y solo mapea `{{FORMACION_TITULO}}` = `h3[3]` y
+`{{FORMACION_DETALLE}}` = `empresa[3]`. Cuando Claude emite **2** `<h3>` de
+formación (los 3 CV de hoy), `h3[3]` = «AI Engineering Bootcamp» entra y `h3[4]` =
+«Grado UOC» **se descarta en silencio**. Las habilidades se salvan solo porque el
+recuento de `p.descripcion` no cambia. El prompt `Prompt para CV` es el origen de
+la contradicción: su spec HTML pide **una** entrada de formación, pero su «ORDEN
+FIJO» habla de «3) proyectos, 4) formación» y no hay sección de proyectos.
+
+**Requisito de Mar:** la formación de la **UOC** debe aparecer **siempre** junto
+con la de **NEOLAND** en el CV.
+
+**Arreglo aprobado (opción 1):** ampliar la plantilla de Google Doc del CV y
+`Adaptar cv plantilla` para admitir **2 entradas de formación**
+(`{{FORMACION_TITULO_2}}` / `{{FORMACION_DETALLE_2}}`, vacías y sin dejar hueco si
+Claude solo emite una) y apretar `Prompt para CV` para que emita exactamente 2
+`<h3>` de formación (NEOLAND en curso + Grado UOC) y se limpie la incoherencia
+proyectos/formación del «ORDEN FIJO».
+
+**Criterio de cierre:** un CV real nuevo deja en el Doc, bajo Formación, **las 2
+entradas**: «AI Engineering Bootcamp · NEOLAND …» y «Grado en Comunicación y
+Publicidad Creativa · UOC · 2012–2019, con Honores», con las habilidades y el
+resto del CV intactos.
+
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 
 **Prioridad: alta. Abierta el 30 ago 2026. En vigilancia desde el 31 ago 2026.**
