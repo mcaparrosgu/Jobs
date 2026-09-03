@@ -82,8 +82,8 @@ publicar** — el `publish_workflow` lo bloquea el clasificador de auto-mode.
 **Pendiente:** Mar publica `4552575d-…` y un CV nuevo confirma que el Doc del CV
 aterriza en «Cvs jobs n8n». Los **13 CV ya generados** (26-08-03 … 26-09-03) se
 movieron a mano de «Plantillas CV n8n» a «Cvs jobs n8n» el 3 sep 2026 (vía Drive
-MCP); en «Plantillas CV n8n» solo quedan `Plantilla CV`, `Plantilla Carta` y un
-`Copy of Plantilla CV ` huérfano (Mar puede borrarlo).
+MCP); en «Plantillas CV n8n» solo quedan la plantilla del CV, la de la carta y un
+`Copy of Plantilla CV` huérfano (Mar puede borrarlo).
 
 **Criterio de cierre:** con `4552575d` publicado, un CV real en inglés deja en el
 Doc, en la carpeta «Cvs jobs n8n», las 2 entradas de Formación con el mismo
