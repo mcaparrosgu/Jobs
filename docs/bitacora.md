@@ -301,3 +301,31 @@ decisión cambió, se anota una entrada nueva que lo diga.
   de hace 30 días — verificable el ~30 sep o forzando una fila de prueba), la 13
   (vigilancia OAuth: chequeo intermedio del 3 sep limpio, cierre el 7 sep) y la
   14 (case study, al final del proyecto).
+
+## 2026-09-03 · 3 tareas nuevas de mejora (Mar) — capturadas y triadas
+
+- Mar pide 3 mejoras para Jobs. Anotadas en `docs/tareas-pendientes.md`
+  (Abiertas) como tareas **16, 17, 18**, sin empezar. Se arrancan «mañana o
+  luego», una a una, con el ciclo de siempre.
+- **16 — revisión de legalidad frente al AI Act.** Solo docs; no hay
+  `docs/03-legal.md` (el proyecto se construyó sin el paso 4 del método). Hay
+  que investigar el Reglamento (UE) 2024/1689 vigente (a 3 sep 2026 ya aplican
+  las obligaciones de alto riesgo del 2 ago 2026) + `WebSearch` del «Digital
+  Omnibus» de simplificación de finales de 2025. Hipótesis previa a validar:
+  Jobs es herramienta **personal del lado del candidato** → no Anexo III.4 (lado
+  reclutador) → riesgo mínimo; cambia si se comercializa. Duda para Mar: ¿solo
+  uso personal o contemplando comercialización?
+- **17 — endurecer `Filtro cualificación`.** Entran ofertas técnicas fuera de
+  perfil (*Kubernetes & Cloud Integration Engineer*, *AI Enablement Engineer*,
+  ambas con CV ya generado el 3 sep). Causa probable: el criterio 5 «encaje»
+  rescata todo lo que mencione la familia `IA`, colando infra que solo dice
+  «AI». Diseño tentativo: lista de rechazo «ingeniería técnica dura» antes del
+  rescate por `IA`. Riesgo medio (no descartar *AI Engineer* legítimos — el
+  bootcamp de Mar es eso). **Bloqueada:** falta la lista concreta de ofertas
+  malas de Mar.
+- **18 — columnas `enlace_cv` / `enlace_carta` en `Ofertas_activas`.** Quick
+  win, mismo patrón que la tarea 12 (`fecha_envio`): cabeceras nuevas S y T +
+  `Archivo`, el nodo `Actualizar estado` de `Jobs · generación CV` escribe las 2
+  URLs de los Docs. 100 % aditivo. Orden propuesto: **esta primero.**
+- ORDEN PROPUESTO POR CLAUDE: 18 → 17 → 16. Pendiente de que Mar confirme por
+  dónde empezar y responda las dudas abiertas de cada una.

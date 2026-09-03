@@ -125,6 +125,100 @@ natural:
 
 **Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
 
+## 16. Revisión de legalidad frente al AI Act de la UE
+
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Sin empezar.**
+Investigar el estado vigente del Reglamento (UE) 2024/1689 (AI Act) y comprobar
+si Jobs está dentro de la legalidad y qué habría que modificar.
+
+**Contexto y alcance:**
+- Este proyecto se construyó **sin el paso 4 del método** — no existe
+  `docs/03-legal.md`. La tarea crea ese doc con la clasificación y el veredicto.
+- Solo toca documentación. Ningún cambio en workflows previsto (salvo que la
+  investigación encuentre algo ilegal, poco probable).
+- A fecha de hoy (3 sep 2026) **ya aplican las obligaciones de alto riesgo del
+  2 ago 2026**. Hay que mirar además, vía `WebSearch`, el «Digital Omnibus» de
+  simplificación que se movió a finales de 2025 y cualquier retoque posterior
+  (el conocimiento del modelo llega a ene 2026).
+
+**Hipótesis previa (NO conclusión, a validar en la investigación):** Jobs es una
+herramienta **personal y del lado del candidato** — filtra *ofertas* para Mar, no
+*candidaturas* de terceros. El Anexo III.4 (alto riesgo en empleo) apunta a
+sistemas usados por **reclutadores**, no a un asistente de búsqueda propio. Lo
+más probable: categoría de **riesgo mínimo**, con obligaciones ligeras de
+alfabetización en IA (art. 4, vigente desde feb 2025) y transparencia. **El
+cuadro cambia si se comercializa** (M6 / plan de comercialización) → ahí sí
+entraría el Anexo III.4. Es también un gate útil antes de construir M1
+(scoring de encaje con IA).
+
+**Duda para Mar:** ¿análisis solo para uso personal, o contemplando ya el
+escenario de comercialización?
+
+**Criterio de cierre:** `docs/03-legal.md` escrito y revisado por Mar, con la
+clasificación de riesgo del AI Act, el estado RGPD (exención de actividad
+doméstica), las obligaciones que aplican hoy y las que aplicarían al comercializar,
+y la lista de modificaciones necesarias (si las hay).
+
+## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
+
+**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. Sin empezar.**
+A Mar le entran ofertas para las que obviamente no está cualificada (roles
+técnicos, de ingeniería informática, infraestructura…).
+
+**Toca:** el Code node `Filtro cualificación` de `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`) — nodo caliente. Posiblemente una columna nueva en la pestaña
+`Metricas` (o reusar `descartes_perfil` / `descartes_encaje`).
+
+**Causa probable (a confirmar leyendo el nodo):** el criterio 5 «encaje» *rescata*
+cualquier oferta cuyo título mencione la familia `IA`. Así entran roles de
+infraestructura que solo mencionan «AI»: en la hoja el 3 sep están *Kubernetes &
+Cloud Integration Engineer* (OpenNebula, `id_unico 4d13f46f`) y *AI Enablement
+Engineer* (LocalStack, `fac88e75`), **ambas con CV ya generado**. La lista «dura»
+del criterio 4 no cubre `kubernetes`, `cloud`, `backend`, `infra`…, y `engineer`
+suelto no descarta a propósito (para no perder *Automation Engineer*).
+
+**Diseño tentativo:** lista de rechazo «ingeniería técnica dura» (`kubernetes`,
+`devops`, `sre`, `backend`, `frontend`, `full-stack`, `software engineer`,
+`data engineer`, `cloud engineer`, `platform engineer`, `firmware`…) que corte
+**antes** del rescate por familia `IA`, salvo enmarcado claro de ops/PM/enablement.
+
+**Riesgo:** medio — un umbral mal puesto deja fuera *AI Engineer* legítimos (el
+bootcamp de Mar es justo eso).
+
+**Necesito de Mar antes de diseñar:** la **lista concreta** de ofertas que
+entraron mal (título + por qué no encajan). Claude puede sacar candidatas de
+`Archivo` y de las últimas pasadas, pero el criterio de Mar manda.
+
+**Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
+que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
+recuento de descartes cuadra en `Metricas`.
+
+## 18. Columnas `enlace_cv` y `enlace_carta` en `Ofertas_activas`
+
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Sin empezar.**
+Añadir al sheet dos columnas con el enlace del Doc de CV y el del Doc de carta
+generados para cada oferta, para reducir confusiones al enviar.
+
+**Toca:** cabeceras nuevas en `Ofertas_activas` (S y T; hoy hay 18 cols A–R) y en
+`Archivo`. El nodo `Actualizar estado` de `Jobs · generación CV`
+(`morsS0M2folmXWhS`) escribe las dos URLs junto a `estado: cv_ia_creado`. Docs
+[jobs-hoja-formato.md](jobs-hoja-formato.md) y
+[jobs-generacion-cv.md](jobs-generacion-cv.md).
+
+**Patrón:** idéntico a la tarea 12 (`fecha_envio`) — mapeo por cabecera, 100 %
+aditivo, `mantenimiento` no lo toca. Los IDs de los Docs ya existen dentro del
+workflow (`Crear doc cv` / `Crear doc carta`).
+
+**Riesgo:** bajo. Puramente aditivo. Quick win — orden propuesto: **esta primero**.
+
+**Dudas para Mar:** ¿URL de edición normal (`docs.google.com/document/d/…/edit`)?
+¿Se escriben las URLs también en la rama de aplicación por email o solo en la de
+enlace?
+
+**Criterio de cierre:** una pasada real de `Jobs · generación CV` deja en la fila
+de la oferta el enlace correcto al Doc de CV y al de carta; sobreviven a una
+pasada de `mantenimiento`.
+
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
 **Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
