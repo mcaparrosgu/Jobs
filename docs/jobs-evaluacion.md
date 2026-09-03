@@ -276,15 +276,19 @@ nuevas ofertas, ni la rama de error compartida.
 Responde a: qué fuente aporta ofertas que **sobreviven** a los filtros, qué
 criterio descarta más, y si M1 y M4 mejoran algo.
 
-**Estado (31 ago 2026): IMPLEMENTADO y publicado.** Pestaña `Metricas`
+**Estado (3 sep 2026): CERRADO — verificado end-to-end.** Pestaña `Metricas`
 (`gid=1516813991`, 12 columnas) + rama aislada `Registrar métricas` →
 `Append métricas` en [Jobs · ingesta](jobs-ingesta.md), sección E. Se separó el
 criterio 5 de `Filtro cualificación` (`perfil:` → `encaje:`) y ese nodo publica
 el desglose de descartes por fuente en `workflowStaticData`. `Registrar métricas`
-verificado end-to-end (#720); pendiente confirmar la escritura de
-`Append métricas` en una pasada con ofertas nuevas. Tarea 10 de
-[tareas-pendientes.md](tareas-pendientes.md). Limitación asumida: una pasada 100 %
-duplicados no deja fila (la rama cuelga de `Filtro duplicados`, que no emite).
+verificado end-to-end (#720). La escritura de `Append métricas` quedó confirmada
+en 3 pasadas reales (#724 manual 1 sep, #727 trigger 1 sep, #731 trigger 2 sep):
+7 filas por pasada en la hoja, `Σ nuevas` = salida de `Filtro duplicados`,
+`Σ tras_cualificacion` = salida de `Filtro cualificación` (fuente a fuente), y
+autochequeo del embudo `Σ descartes = tras_salario − tras_cualificacion` cuadrando
+en las 7 fuentes. Tarea 10 de [tareas-pendientes.md](tareas-pendientes.md).
+Limitación asumida: una pasada 100 % duplicados no deja fila (la rama cuelga de
+`Filtro duplicados`, que no emite).
 
 ## M4 — Podar Wellfound y FlexJobs
 

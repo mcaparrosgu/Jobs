@@ -285,9 +285,16 @@ monótono por fuente, `Σ descartes = 232 = Σ tras_salario (249) −
 En #720 `Append métricas` falló por referenciar la pestaña por `gid` en modo
 *list* (`Sheet with ID gid=… not found`) — el `onError` lo absorbió sin tocar el
 pipeline; corregido a `sheetName` por nombre. #721 fue una pasada 100 %
-duplicados (rama no ejecutada). **Pendiente:** confirmar la escritura de
-`Append métricas` en `Metricas` en la primera pasada con ofertas nuevas. Ver
-[tareas-pendientes.md](tareas-pendientes.md) tarea 10.
+duplicados (rama no ejecutada).
+
+**Cerrado (3 sep 2026) — tarea 10 verificada end-to-end.** 3 pasadas reales con
+ofertas nuevas (#724 manual 1 sep, #727 trigger 1 sep, #731 trigger 2 sep)
+dejaron las 7 filas por pasada en la pestaña `Metricas`. En #731 `Append métricas`
+→ `success` (1.538 ms, 7 items) y las filas de la hoja coinciden byte a byte con
+lo que emitió `Registrar métricas`; cuadre con el log: `Σ nuevas` = salida de
+`Filtro duplicados`, `Σ tras_cualificacion` = salida de `Filtro cualificación`
+(fuente a fuente), autochequeo del embudo cuadrando en las 7 fuentes. Ver
+[tareas-pendientes.md](tareas-pendientes.md) tarea 10 (cerrada).
 
 # Dependencias
 
