@@ -33,17 +33,37 @@ FIJO» habla de «3) proyectos, 4) formación» y no hay sección de proyectos.
 **Requisito de Mar:** la formación de la **UOC** debe aparecer **siempre** junto
 con la de **NEOLAND** en el CV.
 
-**Arreglo aprobado (opción 1):** ampliar la plantilla de Google Doc del CV y
-`Adaptar cv plantilla` para admitir **2 entradas de formación**
-(`{{FORMACION_TITULO_2}}` / `{{FORMACION_DETALLE_2}}`, vacías y sin dejar hueco si
-Claude solo emite una) y apretar `Prompt para CV` para que emita exactamente 2
-`<h3>` de formación (NEOLAND en curso + Grado UOC) y se limpie la incoherencia
-proyectos/formación del «ORDEN FIJO».
+**Implementado (3 sep 2026) — draft `versionId 40d83c73-…`, pendiente de publicar
+(el `publish_workflow` lo bloqueó el clasificador de auto-mode; lo publica Mar).**
+Tres cambios en `Jobs · generación CV` (`morsS0M2folmXWhS`), vía
+`updateNodeParameters` + relectura byte a byte (sha256 `Filtro generar CV`
+`969532f7…`, `Adaptar cv plantilla` `087bb1f4…`, `Prompt para CV` `938f148d…`),
+`node --check` OK:
+- **`Prompt para CV`** — el spec HTML pasa a **EXACTAMENTE 2 bloques de
+  Formación**, siempre y en este orden: (1) Bootcamp de AI Engineering de NEOLAND
+  (en curso, con fecha prevista de fin) y (2) Grado en Comunicación y Publicidad
+  Creativa de la UOC (2012–2019, con Honores). «Nunca omitas el Grado de la UOC».
+  Se aclara además que el CV **no lleva sección de Proyectos** (van integrados en
+  `resumen`/experiencia), resolviendo la contradicción con el «ORDEN FIJO».
+- **`Adaptar cv plantilla`** — recoge `h3[4]`/`empresa[4]` y **pliega la 2.ª
+  entrada de Formación dentro de `{{FORMACION_DETALLE}}`** como línea extra (sin
+  editar la plantilla del Doc). `formacionTitulo` y `habilidades` pasan a campos
+  esenciales (error ruidoso en vez de Doc silenciosamente incompleto).
+- **`Filtro generar CV`** — (mejora colateral) deduplica por `id_unico` y emite
+  **1 oferta por ejecución**, para no pagar N llamadas Sonnet de las que
+  `Separar CV y carta` (`.first()`) solo usa 1 (en #735 se pagaron 6 y se usó 1).
+  El resto drena en pasadas sucesivas del disparador.
 
-**Criterio de cierre:** un CV real nuevo deja en el Doc, bajo Formación, **las 2
-entradas**: «AI Engineering Bootcamp · NEOLAND …» y «Grado en Comunicación y
-Publicidad Creativa · UOC · 2012–2019, con Honores», con las habilidades y el
-resto del CV intactos.
+**Mejora opcional aparcada:** 2.ª ranura real en la plantilla del Doc
+(`{{FORMACION_TITULO_2}}` / `{{FORMACION_DETALLE_2}}`) para que el Grado salga con
+el mismo estilo (negrita) que el Bootcamp, en vez de plegado en la línea de
+detalle. Necesita editar el Google Doc a mano.
+
+**Criterio de cierre:** publicado el draft, un CV real nuevo deja en el Doc, bajo
+Formación, **las 2 entradas**: «AI Engineering Bootcamp · NEOLAND …» y «Grado en
+Comunicación y Publicidad Creativa · UOC · 2012–2019, con Honores», con las
+habilidades y el resto del CV intactos; y una ejecución con varias ofertas
+marcadas no deja filas colgadas sin CV.
 
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 

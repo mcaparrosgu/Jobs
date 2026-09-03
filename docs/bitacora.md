@@ -111,3 +111,65 @@ decisión cambió, se anota una entrada nueva que lo diga.
   aparte, pero no se ha medido cuánto texto útil se pierde de media. Se revisa
   cuando una pasada real con ofertas largas deje ver el recorte en la hoja
   (criterio de cierre de la tarea 11).
+
+## 2026-09-03 · Auditoría de la generación de CV/carta y arreglo del Grado UOC (tarea 15)
+
+- CONTEXTO — Mar marcó 3 ofertas y pidió supervisar la generación. Las 3
+  ejecuciones (#734 Simera, #735 Elevenlabs, #736 PadSplit) salieron `success`,
+  la humanización con `gpt-4.1-mini` fiel (sin inventar datos, habilidades
+  intactas, cartas 97–102 % de longitud). Pero **los 3 CV (Google Doc) perdían
+  el Grado de la UOC**: el HTML de Claude y el humanizado lo llevan (2 `<h3>`
+  bajo `<h2>Formación>`), pero `Adaptar cv plantilla` solo mapeaba `h3[3]` /
+  `empresa[3]` a la única ranura `{{FORMACION_TITULO}}` / `{{FORMACION_DETALLE}}`,
+  así que `h3[4]` (el Grado) se descartaba en silencio. Además, al revisar el
+  flujo se vio que `Filtro generar CV` no deduplica: el Google Sheets Trigger
+  emite la misma fila varias veces por pasada y `Prompt para CV` +
+  `HTTP Request Claude` generan N CV, de los que `Separar CV y carta` (`.first()`)
+  se queda 1 — en #735 se pagaron **6 llamadas Sonnet (8k tokens) y se usó 1**.
+- QUÉ SE DECIDIÓ — Tres cambios en `Jobs · generación CV` (`morsS0M2folmXWhS`),
+  vía `updateNodeParameters` + relectura byte a byte (sha256 `Filtro generar CV`
+  `969532f7…`, `Adaptar cv plantilla` `087bb1f4…`, `Prompt para CV` `938f148d…`),
+  `node --check` OK, publicado como draft `versionId 40d83c73-…` (**pendiente de
+  publicar: el `publish_workflow` lo bloqueó el clasificador de auto-mode; lo
+  publica Mar**):
+  1. **`Filtro generar CV`** — deduplica por `id_unico` y emite **1 sola oferta
+     por ejecución**. El resto sigue con `generar_cv_ia = true` y entra en la
+     siguiente pasada del disparador (que se re-dispara al escribir
+     `generar_cv_ia = false`, comportamiento observado hoy en #734→#735→#736).
+     Cada ejecución hace 1 llamada a Claude en vez de N.
+  2. **`Prompt para CV`** — el spec HTML pasa a **EXACTAMENTE 2 bloques de
+     Formación** (1: Bootcamp NEOLAND en curso; 2: Grado UOC 2012–2019 con
+     Honores), siempre y en ese orden, nunca omitir la UOC. Se aclara que el CV
+     **no lleva sección de Proyectos** (van integrados en `resumen`/experiencia),
+     resolviendo la contradicción con el «ORDEN FIJO» de `notas_para_la_ia` que
+     hablaba de «3) proyectos, 4) formación» sin que existiera slot de proyectos.
+  3. **`Adaptar cv plantilla`** — recoge `h3[4]`/`empresa[4]` y **pliega la 2.ª
+     entrada de Formación dentro de `{{FORMACION_DETALLE}}`** como línea extra
+     (`\n` → salto de línea en la plantilla del Doc). `formacionTitulo` y
+     `habilidades` pasan a campos esenciales: si faltan, error ruidoso en vez de
+     Doc silenciosamente incompleto.
+- ALTERNATIVAS DESCARTADAS — (a) Ampliar la plantilla del Doc con una 2.ª ranura
+  real (`{{FORMACION_TITULO_2}}` / `{{FORMACION_DETALLE_2}}`): es lo correcto para
+  paridad tipográfica (el Grado en negrita como el Bootcamp) pero necesita editar
+  el Google Doc a mano y crea una ventana en que el placeholder no existe. Queda
+  como mejora opcional. (b) Hacer todo el chain multi-item para procesar N
+  ofertas en una ejecución: cambio estructural grande (afecta `Crear doc`,
+  `email o enlace`, el envío) con solo verificación e2e manual; el dedupe+first
+  resuelve el coste sin ese riesgo.
+- POR QUÉ ESTA — El requisito de Mar es que la UOC aparezca **siempre** junto a
+  NEOLAND; plegarla en la línea de detalle lo garantiza sin depender de una
+  edición manual del template. El dedupe corta el gasto desperdiciado de Claude
+  de inmediato y con un cambio de 3 líneas en un Code node de lógica pura (misma
+  forma de salida). Ninguno toca el wiring ni la humanización (que sustituye por
+  substring `resumen` + `descripcion_1..3`, ajena a las `<h3>` de formación).
+- QUÉ SE ROMPIÓ — Nada verificado aún. Advertencia preexistente de
+  `Enviar cv y carta por email` (sin `parameters.operation` explícito) sigue
+  igual, no la introdujo este cambio.
+- QUÉ QUEDA PENDIENTE — (1) Mar publica el draft `40d83c73-…` (el `publish_workflow`
+  lo bloqueó el clasificador de auto-mode). (2) Verificar en un CV real nuevo: las
+  2 entradas de Formación en el Doc (NEOLAND + Grado UOC), habilidades y resto del
+  CV intactos, y que la API de Docs acepta el salto de línea que mete
+  `Adaptar cv plantilla` en `{{FORMACION_DETALLE}}` (si lo rechaza, usar el salto
+  de línea nativo de Google Docs, U+000B, en vez del `\n` actual). (3) Confirmar
+  que, al procesar 1 oferta por ejecución, el disparador drena el resto sin dejar
+  filas colgadas. Cierre en la tarea 15.
