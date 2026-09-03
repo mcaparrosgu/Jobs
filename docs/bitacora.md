@@ -228,3 +228,23 @@ decisión cambió, se anota una entrada nueva que lo diga.
   Education / Skills». Menor: párrafo vacío entre `{{FORMACION_DETALLE2}}` y
   «— Habilidades» en la plantilla (del copia-pega de Mar); se puede borrar para
   apretar el interlineado. Cierre de la tarea 15.
+
+## 2026-09-03 · Seguimiento tarea 15: el CV se guardaba en la carpeta de plantilla
+
+- Mar publicó `d2db224c` y arregló el párrafo vacío de la plantilla. **#745**
+  (LocalStack, `idioma EN`, `success`): encabezados del CV traducidos a
+  «Experience / Education / Skills» — v3 funciona.
+- FALLO NUEVO (lo detectó Mar en #745) — El Doc del CV se guardaba en la carpeta
+  **«Plantillas CV n8n»** (`1VLGVEReqJM9HDKj07xj41At6N4OabrMJ`), no en **«Cvs jobs
+  n8n»** (`17YrQa7V0x2pYJh0Cu5aZ8tWcami-D-MY`). Causa: `Crear doc cv`
+  (`operation: copy`) no fijaba carpeta destino, y una copia de Drive sin
+  `folderId` aterriza en la carpeta del **origen** (la plantilla). `Crear doc
+  carta` sí tiene `folderId` desde siempre, así que las cartas nunca estuvieron
+  mal ubicadas — la mención de «y cartas» de Mar fue una suposición.
+- ARREGLO — `Crear doc cv` (draft `versionId 4552575d-…`, pendiente de publicar):
+  se le añade `folderId 17YrQa7…` («Cvs jobs n8n»), `sameFolder false`, `driveId
+  "My Drive"`, copiando la config exacta de `Crear doc carta`. Verificado
+  releyendo el nodo tras el `update`.
+- PENDIENTE — Mar publica `4552575d` y un CV nuevo aterriza en «Cvs jobs n8n».
+  Opcional: mover a mano los CV ya generados (#734–#745) de «Plantillas CV n8n» a
+  «Cvs jobs n8n». Cierre de la tarea 15.

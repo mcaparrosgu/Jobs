@@ -33,60 +33,60 @@ FIJO» habla de «3) proyectos, 4) formación» y no hay sección de proyectos.
 **Requisito de Mar:** la formación de la **UOC** debe aparecer **siempre** junto
 con la de **NEOLAND** en el CV.
 
-**Implementado (3 sep 2026).** Cuatro cambios en `Jobs · generación CV`
-(`morsS0M2folmXWhS`), vía `updateNodeParameters` + relectura byte a byte y
-`node --check` OK:
-- **`Prompt para CV`** (sha256 `938f148d…`) — el spec HTML pasa a **EXACTAMENTE 2
-  bloques de Formación**, siempre y en este orden: (1) Bootcamp de AI Engineering
-  de NEOLAND (en curso) y (2) Grado en Comunicación y Publicidad Creativa de la
-  UOC (2012–2019, con Honores). «Nunca omitas el Grado de la UOC». Aclara que el
-  CV **no lleva sección de Proyectos** (van integrados en `resumen`/experiencia),
-  resolviendo la contradicción con el «ORDEN FIJO».
-- **`Filtro generar CV`** (sha256 `969532f7…`) — deduplica por `id_unico` y emite
-  **1 oferta por ejecución**, para no pagar N llamadas Sonnet de las que
-  `Separar CV y carta` (`.first()`) solo usa 1 (en #735 se pagaron 6 y se usó 1).
-  El resto drena en pasadas sucesivas del disparador.
-- **`Adaptar cv plantilla`** — dos versiones:
-  - **v1** (sha256 `087bb1f4…`, publicada por Mar como `activeVersionId
-    40d83c73-…`): pliega la 2.ª entrada de Formación dentro de
-    `{{FORMACION_DETALLE}}` como línea extra, sin tocar la plantilla del Doc.
-    `formacionTitulo` y `habilidades` pasan a campos esenciales.
-  - **v2** (sha256 `52aa49a9…`, **draft `versionId e3da5677-…`, pendiente de
-    publicar** — el `publish_workflow` lo bloquea el clasificador de auto-mode):
-    Mar añadió `{{FORMACION_TITULO2}}` / `{{FORMACION_DETALLE2}}` a la plantilla
-    del CV (Doc `11IUpAhDJHIP…`, 3 sep 2026), así que la 2.ª entrada va a su
-    ranura propia con el mismo estilo (título en negrita) que el Bootcamp, sin
-    plegado. Aviso en log si Claude solo trae 1 entrada.
+**Implementado (3 sep 2026), vía n8n MCP** (`updateNodeParameters` + relectura
+byte a byte + `node --check` OK), en cuatro nodos de `Jobs · generación CV`
+(`morsS0M2folmXWhS`):
 
-- **`Adaptar cv plantilla` v3** (draft `versionId d2db224c-…`, **pendiente de
-  publicar** — bloqueado por el clasificador): los encabezados de sección de la
-  plantilla («Experiencia» / «Formación» / «Habilidades») son texto fijo en
-  castellano; cuando `idioma === 'EN'` (de `Aplicar humanizacion`) se traducen in
-  situ a Experience / Education / Skills vía `replaceAllText`, después de rellenar
-  los marcadores (en un CV inglés esas palabras solo quedan en los 3 encabezados).
+1. **`Prompt para CV`** (sha256 `938f148d…`) — el spec HTML pasa a **EXACTAMENTE 2
+   bloques de Formación**, siempre y en este orden: (1) Bootcamp de AI Engineering
+   de NEOLAND (en curso) y (2) Grado en Comunicación y Publicidad Creativa de la
+   UOC (2012–2019, con Honores). «Nunca omitas el Grado de la UOC». Aclara que el
+   CV **no lleva sección de Proyectos** (van integrados en `resumen`/experiencia),
+   resolviendo la contradicción con el «ORDEN FIJO».
+2. **`Filtro generar CV`** (sha256 `969532f7…`) — deduplica por `id_unico` y emite
+   **1 oferta por ejecución**, para no pagar N llamadas Sonnet de las que
+   `Separar CV y carta` (`.first()`) solo usa 1 (en #735 se pagaron 6 y se usó 1).
+   El resto drena en pasadas sucesivas del disparador.
+3. **`Adaptar cv plantilla`** — reescrito en 3 pasos: (a) `087bb1f4` plegaba la
+   2.ª entrada de Formación en `{{FORMACION_DETALLE}}`; (b) `52aa49a9`, tras
+   añadir Mar `{{FORMACION_TITULO2}}` / `{{FORMACION_DETALLE2}}` a la plantilla
+   (Doc `11IUpAhDJHIP…`), la manda a su ranura propia con el estilo de título del
+   Bootcamp; (c) `e68b67cc` (**versión final**): si `idioma === 'EN'` (de
+   `Aplicar humanizacion`) traduce los encabezados fijos de la plantilla
+   «Experiencia/Formación/Habilidades» → «Experience/Education/Skills» vía
+   `replaceAllText`, después de rellenar los marcadores. `formacionTitulo` y
+   `habilidades` son campos esenciales; aviso en log si Claude solo trae 1
+   entrada de Formación.
+4. **`Crear doc cv`** — `operation: copy` no fijaba carpeta destino → el CV se
+   copiaba en la carpeta de la plantilla («Plantillas CV n8n»). Se le añade
+   `folderId 17YrQa7V0x2pYJh0Cu5aZ8tWcami-D-MY` («Cvs jobs n8n»), `sameFolder
+   false`, `driveId "My Drive"`, **igual que `Crear doc carta`** (que ya guardaba
+   bien; las cartas nunca estuvieron mal ubicadas).
+
+**Versiones:** `40d83c73` (pasos 1+2 + `Adaptar` `087bb1f4`) y `e3da5677`
+(`Adaptar` `52aa49a9`) y `d2db224c` (`Adaptar` `e68b67cc`) — **publicadas por
+Mar**. `Crear doc cv` (paso 4): **draft `versionId 4552575d-…`, pendiente de
+publicar** — el `publish_workflow` lo bloquea el clasificador de auto-mode.
 
 **Verificación (3 sep 2026):**
-- **v1 (`40d83c73`) e2e** — **#739** (OpenNebula) y **#740** (Doppel), ambas
-  `success`: `Filtro generar CV` recibió 8 filas (2 ofertas × duplicados del
-  trigger) y emitió **1** por ejecución, la 2.ª oferta se procesó en la pasada
-  siguiente sin colgarse; Claude emitió las 2 entradas de Formación; el Doc del CV
-  muestra el Grado UOC (plegado), habilidades y resto intactos; el proyecto de Mar
-  integrado en el resumen, sin sección de Proyectos.
-- **v2 (`e3da5677`, publicada por Mar)** — **#743** (TripleTen, `idioma EN`,
-  `success`): `Adaptar cv plantilla` mapea las 4 ranuras por separado; el Doc
-  muestra el Grado UOC **en su línea propia con el estilo de título** (no
-  plegado). Detectado el fallo de idioma en los encabezados → v3.
+- **#739** (OpenNebula) y **#740** (Doppel): `Filtro generar CV` recibió 8 filas
+  (2 ofertas × duplicados del trigger) y emitió **1** por ejecución, la 2.ª en la
+  pasada siguiente sin colgarse; Claude emitió las 2 entradas de Formación; Grado
+  UOC en el Doc; proyecto integrado en el resumen, sin sección de Proyectos.
+- **#743** (TripleTen, `EN`): las 4 ranuras de Formación por separado; Grado UOC
+  en su línea propia con estilo de título.
+- **#745** (LocalStack, `EN`): encabezados del CV traducidos a **Experience /
+  Education / Skills**; párrafo vacío de la plantilla ya arreglado por Mar. Se
+  detecta que el CV se guardó en «Plantillas CV n8n» → paso 4.
 
-**Pendiente:** Mar publica `d2db224c-…` y un CV real en inglés confirma
-«Experience / Education / Skills» en vez de «Experiencia / Formación /
-Habilidades». Menor: en la plantilla quedó un párrafo vacío entre
-`{{FORMACION_DETALLE2}}` y `— Habilidades` (del copia-pega); Mar puede borrarlo
-para apretar el interlineado.
+**Pendiente:** Mar publica `4552575d-…` y un CV nuevo confirma que el Doc del CV
+aterriza en «Cvs jobs n8n». Opcional: mover los CV ya generados (#734–#745) de
+«Plantillas CV n8n» a «Cvs jobs n8n».
 
-**Criterio de cierre:** con `d2db224c` publicado, un CV real en inglés deja en el
-Doc las 2 entradas de Formación con el mismo estilo (NEOLAND + Grado UOC) y los
-encabezados «Experience / Education / Skills»; un CV en español los mantiene en
-castellano; habilidades y resto del CV intactos.
+**Criterio de cierre:** con `4552575d` publicado, un CV real en inglés deja en el
+Doc, en la carpeta «Cvs jobs n8n», las 2 entradas de Formación con el mismo
+estilo (NEOLAND + Grado UOC) y los encabezados «Experience / Education / Skills»;
+un CV en español los mantiene en castellano; habilidades y resto intactos.
 
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 
