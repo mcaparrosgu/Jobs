@@ -137,9 +137,6 @@ horario. No toca n8n. Cada hora, en `Ofertas_activas` y `Archivo`:
 **No borra filas** — eso es deliberado (auto-borrar sería arriesgado). Las
 filas sobrantes se quitan a mano si hiciera falta.
 
-Instalación y verificación: [tareas-manuales.md](../../docs/tareas-manuales.md),
-sección «Para cerrar Jobs».
-
 Verificado el 29 ago 2026: con una fila de prueba añadida al final, una pasada
 `mantenimiento` le puso el desplegable **con el óvalo de color** (el
 `copyTo` / `PASTE_DATA_VALIDATION` sí arrastra el color del chip).
@@ -426,8 +423,6 @@ mantener, habría que añadirla a ese array.
 - [Jobs · ingesta](jobs-ingesta.md) — escribe `Ofertas_activas` por cabecera y
   `Metricas` (rama de métricas, sección E)
 - [Jobs · archivado](jobs-archivado.md) — mueve filas entre pestañas
-- [tareas-manuales.md](../../docs/tareas-manuales.md) — instalar y verificar el
-  script
 - [tareas-pendientes.md](tareas-pendientes.md) — revisar el disparador del Apps
   Script (tarea 1) y demás tareas abiertas
-- [index.md](../../docs/index.md)
+- [Índice de docs](index.md)

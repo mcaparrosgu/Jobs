@@ -139,8 +139,7 @@ comportamiento respecto a `Jobs · ingesta` antes del split, solo un
   pasar por el resto de la cadena (ver Flujo, pasos 2-3 y 7). Verificado con
   una segunda ejecución manual real (#593, con la hoja real sin candidatas en
   ese momento): el check pasó de "Never" a "14 seconds ago" en
-  Healthchecks.io. Detalle del hallazgo en
-  [tareas-manuales.md](../../docs/tareas-manuales.md).
+  Healthchecks.io.
 
 # Relacionados
 
@@ -151,4 +150,4 @@ comportamiento respecto a `Jobs · ingesta` antes del split, solo un
 - [Formato y mantenimiento de la hoja n8n_jobs](jobs-hoja-formato.md) — este
   workflow copia `generar_cv_ia` a `Archivo` por cabecera y borra filas de
   `Ofertas_activas`; el formato lo repone un Apps Script aparte
-- [index.md](../../docs/index.md)
+- [Índice de docs](index.md)

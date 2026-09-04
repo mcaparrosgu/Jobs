@@ -402,14 +402,13 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
   pais en ingles) — corregido a `"Spain"` en la misma sesion. `FlexJobs` fallo
   en la misma ejecucion con `403 full-permission-actor-not-approved`: ese actor
   de Apify exige aprobar sus permisos a mano en el panel, es una tarea de Mar
-  (ver [tareas-manuales.md](../../docs/tareas-manuales.md)). Las otras cuatro fuentes
+  (sin rastro de que se haya aprobado desde entonces). Las otras cuatro fuentes
   de Apify (Indeed, LinkedIn, InfoJobs, Wellfound) devolvieron ofertas reales,
   confirmando que el saldo de Apify esta repuesto.
 - **La ejecucion #577 tambien confirmo el ping de Healthchecks.** Como no hubo
   ninguna ejecucion a las 17:00 del 15 ago (el equipo entro en suspension y no
-  desperto hasta las 16:33, ver [tareas-manuales.md](../../docs/tareas-manuales.md)),
-  esta fue la primera senal que llego a Healthchecks desde las 09:00 de ese
-  dia.
+  desperto hasta las 16:33), esta fue la primera senal que llego a Healthchecks
+  desde las 09:00 de ese dia.
 - ~~FlexJobs y Wellfound colaban ofertas de muestra como si fueran reales~~
   **Corregido el 14 ago 2026.** Con el `Monthly usage hard limit exceeded` de
   Apify, InfoJobs y LinkedIn devuelven 403 y salen por su rama de error, pero
@@ -607,8 +606,7 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
   enviado y `Ping Healthchecks` respondió `"OK"`, confirmando de paso el
   vigilante. Sin causa raíz confirmada — es la **segunda** credencial de
   Google que caduca en 48 h (Sheets el 16, Gmail el 17); si se repite con una
-  tercera conviene investigar en serio en vez de reconectar sin más. Detalle
-  del cierre en [tareas-manuales.md](../../docs/tareas-manuales.md).
+  tercera conviene investigar en serio en vez de reconectar sin más.
 - ~~El marcador de género alemán de `Filtro cualificación` solo reconocía el
   orden "m" primero~~ **Corregido el 17 ago 2026.** Mar recibió por email
   "E-invoicing & EDI Integration Engineer (f/m/d) - with English and
@@ -747,4 +745,4 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
   lo repone un Apps Script aparte
 - [Tareas pendientes · Jobs](tareas-pendientes.md) — seguimiento del incidente
   del 29 ago 2026 (Apps Script, guardarraíl de huecos, etc.)
-- [index.md](../../docs/index.md)
+- [Índice de docs](index.md)

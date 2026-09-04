@@ -302,17 +302,31 @@ alcance (revisar validaciones, banda y el script antes de tocar nada).
 **Criterio de cierre:** Mar decide entre ocultar (cierre inmediato) o encargar la
 reordenación completa (nueva subtarea con su propio plan).
 
+## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
+
+**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
+proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
+que cambien la arquitectura), redactar el case study estructurado del proyecto
+para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
+del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
+… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
+
+**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
+problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
+guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
+Google) y los resultados reales del pipeline.
+
+# Cerradas
+
 ## 20. Arreglar enlaces rotos a `tareas-manuales.md` e `index.md` en los docs
 
 **Prioridad: baja. Abierta el 4 sep 2026 — detectada por Claude, anotada a
-petición de Mar. Sin empezar.** Varios docs de `docs/` tienen enlaces internos
-que apuntan a `../../docs/tareas-manuales.md` y `../../docs/index.md` —
-ficheros que **no existen** en este repo. Es deuda previa a que `Jobs` tuviera
-esta carpeta `docs/` propia (probablemente vivían en otra ubicación, del estilo
-`knowledge/workflows/…` que aún se menciona en la descripción de algunos
-workflows de n8n); no la causó ningún cambio reciente.
+petición de Mar. CERRADA el 4 sep 2026.** Varios docs de `docs/` tenían enlaces
+internos que apuntaban a `../../docs/tareas-manuales.md` y `../../docs/index.md`
+— ficheros que **no existen** en este repo. Deuda previa a que `Jobs` tuviera
+esta carpeta `docs/` propia; no la causó ningún cambio reciente.
 
-**Inventario de enlaces rotos:**
+**Inventario original (14 enlaces, 4 ficheros de destino inexistentes):**
 
 | Fichero | Línea | Enlace roto | Contexto |
 |---|---|---|---|
@@ -331,37 +345,33 @@ workflows de n8n); no la causó ningún cambio reciente.
 | `jobs-archivado.md` | 143 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | hallazgo del check de Healthchecks |
 | `jobs-seguimiento.md` | 102 | `[index.md](../../docs/index.md)` | sección Relacionados |
 
-**Arreglo propuesto (sin decidir aún):** las referencias a `tareas-manuales.md`
-casi todas apuntan a incidentes/tareas que hoy viven en
-[tareas-pendientes.md](tareas-pendientes.md) (secciones Abiertas/Cerradas) — hay
-que revisar caso a caso si el contenido referenciado sigue ahí o se perdió, y
-redirigir el enlace (`tareas-pendientes.md` o la sección concreta) o borrarlo si
-ya no aplica. Las referencias a `index.md` no tienen equivalente hoy — no existe
-un índice de docs en este repo; lo más simple es quitar esas líneas o, si Mar lo
-quiere, crear un `docs/index.md` real que enlace todos los docs de `Jobs`.
+**Arreglo aplicado (4 sep 2026):**
+- **`index.md` (5 enlaces):** se creó [docs/index.md](index.md), índice real que
+  enlaza los 4 workflows, la hoja, evaluación/mejora y el resto de docs. Los 5
+  enlaces ahora apuntan ahí (`[Índice de docs](index.md)`).
+- **`tareas-manuales.md` (9 referencias):** revisadas caso a caso — todas
+  apuntaban a incidentes históricos (jul–ago 2026) ya narrados en línea en el
+  propio párrafo, sin contenido adicional que rescatar y sin equivalente en
+  [tareas-pendientes.md](tareas-pendientes.md) (el fichero es anterior a la
+  creación de esta lista, el 29 ago 2026). Se quitó el enlace roto manteniendo
+  el texto en 8 casos. El caso de `jobs-revision.md:292` («Para cerrar Jobs»)
+  llevaba dos tareas: instalar el Apps Script (ya cerrada, tiene su propia
+  «Actualización 29 ago 2026» en el mismo doc) y registrar la app en
+  apidoc.infojobs.net (**sigue pendiente** — sin tarea abierta que la rastree;
+  redirigida a [jobs-ingesta.md#fallos-conocidos](jobs-ingesta.md#fallos-conocidos),
+  donde ya vivía documentada).
+- **Hallazgo de paso:** al leer `jobs-ingesta.md:405` se confirma que la
+  aprobación manual de permisos del actor de Apify de **FlexJobs** (bloqueado
+  desde el 15 ago 2026 con `403 full-permission-actor-not-approved`) sigue sin
+  rastro de haberse hecho. No se abre tarea nueva porque
+  [jobs-evaluacion.md](jobs-evaluacion.md) (M4) ya propone podar FlexJobs del
+  todo por coste/nulo retorno — decisión pendiente de Mar, no un enlace roto.
 
-**Riesgo:** ninguno — son solo enlaces markdown, no afectan a ningún workflow ni
-a la hoja.
-
-**Criterio de cierre:** los 14 enlaces de la tabla resueltos (redirigidos o
-retirados) y, si se crea, `docs/index.md` enlazado desde los docs que lo
-mencionan.
-
-## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
-
-**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
-proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
-que cambien la arquitectura), redactar el case study estructurado del proyecto
-para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
-del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
-… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
-
-**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
-problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
-guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
-Google) y los resultados reales del pipeline.
-
-# Cerradas
+**Cierre:** los 14 enlaces resueltos (5 redirigidos a `docs/index.md`, 9 sin
+enlace con el texto conservado o redirigidos a su doc real); `docs/index.md`
+creado y enlazado desde los 5 docs que lo mencionaban. Verificado con
+`grep -rn "tareas-manuales\.md\|index\.md" docs/*.md` sin resultados fuera de
+este doc.
 
 ## 11. Truncar `resumen` a ~800 caracteres
 

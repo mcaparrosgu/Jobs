@@ -402,3 +402,20 @@ decisión cambió, se anota una entrada nueva que lo diga.
   contexto) en `tareas-pendientes.md` tarea 20.
 - POR QUÉ ES DEUDA PREVIA — son enlaces de antes de que `Jobs` tuviera esta
   carpeta `docs/` propia; ningún cambio de esta sesión los rompió.
+
+## 2026-09-04 · Tarea 20 CERRADA — enlaces rotos arreglados, `docs/index.md` creado
+
+- QUÉ SE HIZO — revisados los 14 enlaces caso a caso: los 5 a `index.md` ahora
+  apuntan al `docs/index.md` real creado en esta sesión (mapa de los 4
+  workflows, la hoja y el resto de docs); los 9 a `tareas-manuales.md`
+  apuntaban a incidentes históricos ya narrados en el propio párrafo y sin
+  equivalente en `tareas-pendientes.md` (anterior a su creación), así que se
+  quitó el enlace roto conservando el texto, salvo uno redirigido a
+  `jobs-ingesta.md#fallos-conocidos` (registro de InfoJobs en
+  apidoc.infojobs.net, que sigue pendiente).
+- HALLAZGO DE PASO — la aprobación manual de permisos del actor de Apify de
+  FlexJobs (bloqueado desde el 15 ago 2026) sigue sin rastro de haberse hecho.
+  No se abre tarea nueva: M4 de `jobs-evaluacion.md` ya propone podar FlexJobs
+  del todo, así que la decisión de Mar viene primero.
+- CIERRE — detalle completo en `tareas-pendientes.md`, tarea 20 (movida a
+  Cerradas).

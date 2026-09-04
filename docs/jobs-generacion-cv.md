@@ -235,4 +235,4 @@ oportunidad.
 - [Jobs · ingesta](jobs-ingesta.md) — de donde se separo el 6 ago 2026
 - [Jobs · seguimiento](jobs-seguimiento.md)
 - [Revision y mejoras propuestas](jobs-revision.md)
-- [index.md](../../docs/index.md)
+- [Índice de docs](index.md)

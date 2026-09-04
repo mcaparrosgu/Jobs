@@ -177,8 +177,7 @@ intentos) y luego `403 Monthly usage hard limit exceeded`. Se le bajó
 `maxTries` a **2** solo a ese nodo; los otros cinco de Apify se quedaron en 3.
 Jooble salió de `All Jobs Scraper` a su propia API gratuita esas mismas fechas,
 así que ese actor se quedó con Glassdoor/SAP/Talent. El caso queda como
-contingencia vigilada en
-[tareas-manuales.md](../../docs/tareas-manuales.md). Detalle en
+contingencia vigilada. Detalle en
 [jobs-ingesta.md](jobs-ingesta.md#fallos-conocidos).
 
 # 5. `RSS Read` puede tumbar toda la ejecución
@@ -258,9 +257,8 @@ archivado. Separarlos sería el siguiente paso si vuelve a molestar.
   nodo real anterior en la cadena devuelve 0 items). El 16 ago Mar marcó a
   propósito 7 filas reales (2-8) como `descartada` y se ejecutó paso a paso en
   el editor con datos reales en cada nodo hasta el borrado real: la fila 2 pasó
-  a ser la que antes era la fila 9, sin desfase con la cabecera. Detalle
-  completo en `tareas-manuales.md` (sección "Cerradas") y en memoria
-  `estado-n8n-jobs`. De paso salieron dos hallazgos: la credencial "Google
+  a ser la que antes era la fila 9, sin desfase con la cabecera. De paso
+  salieron dos hallazgos: la credencial "Google
   Sheets account" había caducado (bloqueaba toda la ingesta ese día hasta que
   Mar la reconectó) y el nodo `Ordenar eliminación` tenía datos de prueba
   pineados del intento del 15 ago que nunca se limpiaron (desanclados).
@@ -288,15 +286,14 @@ borrado se verificó y descartó el 16 ago 2026 (ver más arriba). La escritura
 concurrente desde dos triggers quedó mitigada el 14 ago 2026 moviendo el
 sondeo de Gmail al minuto 30.
 
-**Lo que falta para dar Jobs por cerrada formalmente** está en
-[tareas-manuales.md](../../docs/tareas-manuales.md), sección «Para cerrar Jobs». A 27
-ago 2026 quedan dos tareas activas, por prioridad: (1) instalar el Apps Script
-que mantiene el formato de la hoja `n8n_jobs` —casilla de `generar_cv_ia`,
-orden por `fecha_guardado` y alto de fila; ver
-[jobs-hoja-formato.md](jobs-hoja-formato.md)— y (2), de baja prioridad,
-registrar la app en apidoc.infojobs.net para sacar `HTTP Request Infojobs` de
-Apify (bloqueada por un fallo del portal de terceros). Las tres confirmaciones
-sobre ejecución real y el vigilante que le faltaba a
+**Lo que faltaba para dar Jobs por cerrada formalmente**, a 27 ago 2026, eran
+dos tareas activas, por prioridad: (1) instalar el Apps Script que mantiene el
+formato de la hoja `n8n_jobs` —casilla de `generar_cv_ia`, orden por
+`fecha_guardado` y alto de fila; ver [jobs-hoja-formato.md](jobs-hoja-formato.md)—
+y (2), de baja prioridad, registrar la app en apidoc.infojobs.net para sacar
+`HTTP Request Infojobs` de Apify (bloqueada por un fallo del portal de
+terceros; sigue pendiente, ver [jobs-ingesta.md](jobs-ingesta.md#fallos-conocidos)).
+Las tres confirmaciones sobre ejecución real y el vigilante que le faltaba a
 [Jobs · archivado](jobs-archivado.md) se cerraron el 17 ago 2026.
 
 **Actualización 29 ago 2026:** la tarea (1) nunca se completó — al ir a revisar
