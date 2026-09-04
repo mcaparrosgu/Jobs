@@ -49,6 +49,17 @@ la fila 1 por nombre**, no por posición. Consecuencias:
   La consume la Regla 3 de [jobs-archivado.md](jobs-archivado.md) para archivar
   `cv_enviado` sin respuesta a los 30 días con `estado: sin_respuesta`. Fila 1
   intacta por lo demás; el formato lo repone `mantenimiento`.
+- **Columnas `enlace_cv` y `enlace_carta`** (añadidas el 4 sep 2026, tarea 18):
+  `Ofertas_activas!S1` / `!T1` y `Archivo!T1` / `!U1` — posiciones distintas,
+  mapeo por cabecera. Las escribe `Actualizar estado generar_cv_ia` de
+  [jobs-generacion-cv.md](jobs-generacion-cv.md) al marcar `estado: cv_ia_creado`,
+  con el enlace de edición de los Google Docs recién creados
+  (`https://docs.google.com/document/d/<id>/edit`, `<id>` de `Crear doc cv` /
+  `Crear doc carta`). Ese nodo corre **antes del bifurcado `email o enlace`**, así
+  que se rellenan en **ambas ramas**. Vacías en las filas antiguas. Al escribir
+  las cabeceras **no se tocó nada más de la fila 1**; el formato lo repone
+  `mantenimiento` (`enlace_cv`/`enlace_carta` quedan fuera de todo allowlist del
+  Apps Script, no las mantiene ni las borra).
 
 # Lo que el formato tiene que reponer
 

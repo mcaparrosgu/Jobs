@@ -195,29 +195,51 @@ recuento de descartes cuadra en `Metricas`.
 
 ## 18. Columnas `enlace_cv` y `enlace_carta` en `Ofertas_activas`
 
-**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Sin empezar.**
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Implementada el 4 sep
+2026 (draft). En espera de que Mar publique y de verla en una pasada real.**
 Añadir al sheet dos columnas con el enlace del Doc de CV y el del Doc de carta
 generados para cada oferta, para reducir confusiones al enviar.
 
-**Toca:** cabeceras nuevas en `Ofertas_activas` (S y T; hoy hay 18 cols A–R) y en
-`Archivo`. El nodo `Actualizar estado` de `Jobs · generación CV`
-(`morsS0M2folmXWhS`) escribe las dos URLs junto a `estado: cv_ia_creado`. Docs
-[jobs-hoja-formato.md](jobs-hoja-formato.md) y
-[jobs-generacion-cv.md](jobs-generacion-cv.md).
+**Decisiones de Mar (4 sep 2026):**
+- Formato del enlace: **enlace de edición** `https://docs.google.com/document/d/<id>/edit`.
+- Ramas: **ambas** (email y enlace). El nodo que las escribe corre antes del
+  bifurcado, así que cubrir las dos sale gratis (un solo nodo tocado).
+
+**Implementación (4 sep 2026), vía n8n MCP:**
+- **Hoja `n8n_jobs`:** cabeceras nuevas `enlace_cv` / `enlace_carta` en
+  `Ofertas_activas!S1:T1` y `Archivo!T1:U1` (mapeo por cabecera, la posición da
+  igual). Fila 1 intacta por lo demás; el formato lo repone `mantenimiento`
+  (ambas columnas quedan fuera de todo allowlist del Apps Script).
+- **`Jobs · generación CV`** (`morsS0M2folmXWhS`): el nodo
+  `Actualizar estado generar_cv_ia` (Google Sheets `update`, corre **antes** del
+  `email o enlace`) suma a `columns.value` dos claves:
+  `enlace_cv = {{ 'https://docs.google.com/document/d/' + $('Crear doc cv').item.json.id + '/edit' }}`
+  y `enlace_carta` con la misma forma sobre `Crear doc carta`. Cambio 100 %
+  aditivo (`updateNodeParameters`, `replace: true`, releído byte a byte):
+  `columns.value` gana 2 claves, `columns.schema` 2 entradas; `estado`,
+  `generar_cv_ia`, `id_unico` y `matchingColumns: ['id_unico']` intactos. 26
+  nodos, wiring `Escribir carta → Actualizar estado generar_cv_ia → email o
+  enlace` intacto. Salida de `Crear doc cv` confirmada en #750:
+  `json.id` = ID del Doc.
+- **Draft sin publicar:** `versionId 0e59f551-748d-432b-9ca9-6e53e16dbe8c`;
+  `activeVersionId` sigue en `4552575d-…`. **El `publish_workflow` del MCP lo
+  bloquea el clasificador de auto-mode de Claude Code en esta sesión — Mar tiene
+  que pulsar Publish.** El único warning de validación
+  (`Enviar cv y carta por email` sin `operation` explícito) es preexistente y sin
+  impacto (ver «Fallos conocidos» de [jobs-generacion-cv.md](jobs-generacion-cv.md)).
 
 **Patrón:** idéntico a la tarea 12 (`fecha_envio`) — mapeo por cabecera, 100 %
-aditivo, `mantenimiento` no lo toca. Los IDs de los Docs ya existen dentro del
-workflow (`Crear doc cv` / `Crear doc carta`).
+aditivo, `mantenimiento` no lo toca. Docs
+[jobs-hoja-formato.md](jobs-hoja-formato.md) y
+[jobs-generacion-cv.md](jobs-generacion-cv.md) ya actualizados.
 
-**Riesgo:** bajo. Puramente aditivo. Quick win — orden propuesto: **esta primero**.
+**Pendiente de verificación en una pasada real:** tras publicar Mar, una
+ejecución real de `Jobs · generación CV` deja en la fila de la oferta el enlace
+correcto al Doc de CV y al de carta (columnas S/T), tanto en la rama `enlace`
+como en la `email`; los enlaces sobreviven a una pasada de `mantenimiento`; y al
+archivarse la oferta, `enlace_cv`/`enlace_carta` viajan a `Archivo` (cols T/U).
 
-**Dudas para Mar:** ¿URL de edición normal (`docs.google.com/document/d/…/edit`)?
-¿Se escriben las URLs también en la rama de aplicación por email o solo en la de
-enlace?
-
-**Criterio de cierre:** una pasada real de `Jobs · generación CV` deja en la fila
-de la oferta el enlace correcto al Doc de CV y al de carta; sobreviven a una
-pasada de `mantenimiento`.
+**Criterio de cierre:** lo anterior verificado end-to-end.
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 

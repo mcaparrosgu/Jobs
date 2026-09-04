@@ -329,3 +329,32 @@ decisión cambió, se anota una entrada nueva que lo diga.
   URLs de los Docs. 100 % aditivo. Orden propuesto: **esta primero.**
 - ORDEN PROPUESTO POR CLAUDE: 18 → 17 → 16. Pendiente de que Mar confirme por
   dónde empezar y responda las dudas abiertas de cada una.
+
+## 2026-09-04 · Tarea 18 — enlaces de CV y carta en la hoja (draft)
+
+- QUÉ SE DECIDIÓ — `Ofertas_activas` (y `Archivo`) ganan dos columnas,
+  `enlace_cv` y `enlace_carta`, con la **URL de edición** del Google Doc
+  (`https://docs.google.com/document/d/<id>/edit`). Las escribe el nodo
+  `Actualizar estado generar_cv_ia` de `Jobs · generación CV` al marcar
+  `estado: cv_ia_creado`. Mar eligió: enlace de edición (no el corto) y **ambas
+  ramas** (email y enlace).
+- POR QUÉ EN ESE NODO — corre **antes** del bifurcado `email o enlace`, así que
+  con un solo nodo tocado se cubren las dos ramas. En la rama email el CV/carta
+  ya se mandan en PDF, pero el enlace queda como referencia por si hay que
+  reenviar.
+- CÓMO — mismo patrón que la tarea 12 (`fecha_envio`): cabeceras nuevas por
+  mapeo de cabecera (`Ofertas_activas!S1:T1`, `Archivo!T1:U1`), cambio 100 %
+  aditivo en el nodo (`updateNodeParameters`, `replace: true`, releído byte a
+  byte). `columns.value` gana 2 claves, `columns.schema` 2 entradas; `estado`,
+  `generar_cv_ia`, `id_unico` y el matching intactos. La forma del enlace usa
+  `$('Crear doc cv').item.json.id` / `$('Crear doc carta').item.json.id` —
+  ambos nodos son ancestros lineales, el `id` de salida está confirmado en la
+  ejecución #750.
+- ESTADO — **draft** `versionId 0e59f551-…`; `activeVersionId` sigue en
+  `4552575d-…`. El `publish_workflow` del MCP lo bloquea el clasificador de
+  auto-mode de Claude Code en esta sesión → **Mar tiene que pulsar Publish**.
+  Falta verlo en una pasada real (enlaces correctos en S/T, supervivencia a
+  `mantenimiento`, viaje a `Archivo` al archivar).
+- ORDEN — sigue en pie 18 → 17 → 16. La 17 sigue bloqueada (falta la lista de
+  ofertas malas de Mar); la 16 necesita que Mar diga si el análisis legal es
+  solo uso personal o contempla comercialización.

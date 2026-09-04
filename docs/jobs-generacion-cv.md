@@ -53,6 +53,16 @@ sin afectar a la ingesta ni al seguimiento.
   el resto), evitando pagar N llamadas Sonnet de las que solo se usaba 1; y
   `Crear doc cv` fija `folderId` a la carpeta **«Cvs jobs n8n»** (antes el CV se
   copiaba en la carpeta de la plantilla).
+- **Tarea 18 (4 sep 2026) — enlaces de CV y carta en la hoja. Draft pendiente de
+  que Mar publique.** `Actualizar estado generar_cv_ia` escribe dos columnas
+  nuevas (`enlace_cv`, `enlace_carta`) en `Ofertas_activas` con la URL de edición
+  de los Docs generados, en ambas ramas (email y enlace). Cambio 100 % aditivo
+  vía `updateNodeParameters` (`replace: true`, releído byte a byte): `columns.value`
+  gana 2 claves y `columns.schema` 2 entradas; `estado`, `generar_cv_ia`,
+  `id_unico` y el matching por `id_unico` intactos; 26 nodos, wiring intacto.
+  `versionId` del draft `0e59f551-748d-432b-9ca9-6e53e16dbe8c` (`activeVersionId`
+  sigue en `4552575d-…` hasta que Mar publique). Ver
+  [tareas-pendientes.md](tareas-pendientes.md) tarea 18.
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`,
   pestana `Ofertas_activas` (`gid=0`)
 
@@ -141,7 +151,13 @@ Se dispara sobre las filas que Mar marca a mano con `generar_cv_ia = true`.
    (`11IUpAhDJHIP…` y `1GvPkVpd-eK4…`), **`Adaptar * plantilla`** monta las
    peticiones y **`Escribir * en docs`** las aplica via
    `docs.googleapis.com/v1/documents/{id}:batchUpdate`.
-7. **`Actualizar estado generar_cv_ia`** → `estado: cv_ia_creado`.
+7. **`Actualizar estado generar_cv_ia`** → `estado: cv_ia_creado`. Desde el 4 sep
+   2026 (tarea 18) escribe además `enlace_cv` y `enlace_carta` en `Ofertas_activas`
+   con el enlace de edición de los Docs recién creados
+   (`https://docs.google.com/document/d/{{ $('Crear doc cv'/'Crear doc carta').item.json.id }}/edit`).
+   Este nodo corre **antes** del bifurcado `email o enlace`, así que los enlaces
+   se rellenan en las dos ramas. Detalle en
+   [jobs-hoja-formato.md](jobs-hoja-formato.md).
 8. **`email o enlace`** — si `tipo_aplicacion == "email"`, descarga ambos docs
    como PDF, los une (`Juntar PDFs`), los envia con **`Enviar cv y carta por
    email`** (asunto y cuerpo en ES o EN segun el idioma detectado) y
