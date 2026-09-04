@@ -31,8 +31,9 @@ nueva (`pendiente`) y su archivado.
   29 ago 2026 con el guardarraíl de huecos `Guardarraíl huecos` + `Aviso
   huecos`, ver Fallos conocidos y sección C; 48 desde el 31 ago 2026 con la
   rama de métricas `Registrar métricas` + `Append métricas`, ver sección E;
-  **51 desde el 4 sep 2026 (draft, sin publicar)** con `Preparar scoring` +
-  `Scoring encaje` + `Aplicar scoring`, M1, ver Flujo A.3.bis)
+  **51 desde el 4 sep 2026, publicado el mismo día** con `Preparar scoring` +
+  `Scoring encaje` + `Aplicar scoring`, M1, ver Flujo A.3.bis — pendiente de
+  verificar en una pasada real, tarea 22)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`
   - pestana `Ofertas_activas` (`gid=0`) — candidaturas vivas
   - pestana `Archivo` (`gid=1758745884`) — historico
@@ -138,8 +139,8 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    salida, no las variables internas. Cambio 100 % aditivo: la decision
    pasa/descarta no se toca.
 3.bis **`Preparar scoring`** → **`Scoring encaje`** → **`Aplicar scoring`**
-   (4 sep 2026, M1 / [jobs-evaluacion.md](jobs-evaluacion.md) — **implementado
-   en draft, sin publicar ni verificar**, ver
+   (4 sep 2026, M1 / [jobs-evaluacion.md](jobs-evaluacion.md) — **publicado,
+   pendiente de verificar en una pasada real**, ver
    [tareas-pendientes.md](tareas-pendientes.md) tarea 22). Puntúa cada oferta
    que pasó `Filtro cualificación` de 0 a 100 según su encaje con el perfil de
    Mar. **No descarta nada**: es solo una pista para priorizar la revisión.
@@ -347,14 +348,14 @@ lo que emitió `Registrar métricas`; cuadre con el log: `Σ nuevas` = salida de
 - **Credenciales n8n:** Google Sheets OAuth2, Google Drive OAuth2, Gmail OAuth2.
 - **Variables de entorno** (via `$env`, requieren passthrough en
   `docker-compose.yml`): `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `APIFY_API_TOKEN`,
-  `HEALTHCHECKS_PING_URL`, y **desde el 4 sep 2026 (M1, draft)**
+  `HEALTHCHECKS_PING_URL`, y **desde el 4 sep 2026 (M1, publicado)**
   `ANTHROPIC_API_KEY` — ya presente en el contenedor desde la tarea 7 de
   [Jobs · generación CV](jobs-generacion-cv.md), no hace falta añadirla de
   nuevo.
 - **Servicios externos de pago:** Apify (6 actores activos desde el 15 ago
   2026, con `agentx~all-jobs-scraper` reconectado); **API de Anthropic**
   (`claude-haiku-4-5`, ~1 llamada por oferta que pasa `Filtro cualificación`,
-  M1 draft).
+  M1, publicado el 4 sep 2026).
 - **Fuentes sin credencial ni clave:** Himalayas, Get on Board, We Work Remotely,
   RemotoJob y Jobicy. No requieren nada en `.env` ni passthrough en
   `docker-compose.yml`.

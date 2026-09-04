@@ -185,7 +185,8 @@ Por valor/esfuerzo. Ninguna implementada.
 
 **Resuelve H1. Es la que más tiempo ahorra a Mar.**
 
-**Estado (4 sep 2026): implementada en draft, sin publicar ni verificar.**
+**Estado (4 sep 2026): publicada por Mar, pendiente de verificar en una
+pasada real.**
 Detalle completo del cambio, la implementación exacta y el estado en
 [jobs-ingesta.md](jobs-ingesta.md), Flujo A.3.bis, y en
 [tareas-pendientes.md](tareas-pendientes.md), tarea 22. Resumen: 3 nodos

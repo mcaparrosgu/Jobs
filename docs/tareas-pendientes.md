@@ -8,17 +8,19 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
-## 22. M1 — Puntuación de encaje con IA (implementada en draft)
+## 22. M1 — Puntuación de encaje con IA (publicada, pendiente de verificar)
 
 **Prioridad: alta. Abierta el 4 sep 2026 — implementación pedida por Mar
 ("sigue con M1"), tras decidir el 4 sep que el paso 16 (red team) va después
-de esta mejora.** Es M1 de [jobs-evaluacion.md](jobs-evaluacion.md), la
-mejora que más tiempo ahorra a Mar (resuelve H1: ofertas técnicas fuera de
-perfil que colaban por mencionar «AI»).
+de esta mejora. Publicada por Mar el 4 sep 2026.** Es M1 de
+[jobs-evaluacion.md](jobs-evaluacion.md), la mejora que más tiempo ahorra a
+Mar (resuelve H1: ofertas técnicas fuera de perfil que colaban por
+mencionar «AI»).
 
 **Implementación (4 sep 2026), vía n8n MCP** en `Jobs · ingesta`
-(`CXCD8BZUQEQKex2a`, ahora 51 nodos, `versionId a8076aec-…`, **sin
-publicar** — `activeVersionId` sigue en `f8ac4e6b-…`):
+(`CXCD8BZUQEQKex2a`, 51 nodos). **Publicada por Mar el 4 sep 2026 —
+confirmado `versionId == activeVersionId == a8076aec-df56-47aa-a272-95663ea808dd`,
+`active: true`:**
 
 - 3 nodos nuevos entre `Filtro cualificación` y `Get row(s) in sheet`:
   `Preparar scoring` (Code) arma el prompt con el perfil de Mar **resumido
@@ -37,11 +39,12 @@ publicar** — `activeVersionId` sigue en `f8ac4e6b-…`):
   `Archivo!V1:W1` (mapeo por cabecera, fila 1 intacta por lo demás).
 - 12 nodos reposicionados en el lienzo (desplazados +600px en X) para hacer
   sitio a los 3 nuevos; wiring, no visual.
-- **Verificado byte a byte tras publicar el draft**: los 3 jsCode nuevos y la
-  línea cambiada de `Filtro duplicados` coinciden carácter a carácter con lo
-  enviado; conexiones (`Filtro cualificación → Preparar scoring → Scoring
-  encaje → Aplicar scoring → Get row(s) in sheet`) y el resto del grafo
-  (fan-out a `Registrar métricas`, rama de `Guardarraíl huecos`) intactos.
+- **Verificado byte a byte antes de pedir a Mar que publicara**: los 3
+  jsCode nuevos y la línea cambiada de `Filtro duplicados` coinciden
+  carácter a carácter con lo enviado; conexiones (`Filtro cualificación →
+  Preparar scoring → Scoring encaje → Aplicar scoring → Get row(s) in
+  sheet`) y el resto del grafo (fan-out a `Registrar métricas`, rama de
+  `Guardarraíl huecos`) intactos.
 - Avisos de validación tras el cambio: los mismos 4 preexistentes (`Merge`/
   `Unir aviso error` sin `numberInputs`, `Send a message1`/`Aviso huecos`
   sin `operation` explícito) — ninguno nuevo, ninguno de los 3 nodos añadidos.
@@ -52,9 +55,9 @@ publicar** — `activeVersionId` sigue en `f8ac4e6b-…`):
 descarte automático por umbral — el nodo **solo puntúa**.
 
 **Pendiente:**
-1. **Publicar el draft** — `publish_workflow` lo bloquea el clasificador de
-   auto-mode de Claude Code en esta sesión, igual que en tareas anteriores;
-   pedir a Mar que lo publique desde n8n.
+1. ~~Publicar el draft~~ — hecho por Mar el 4 sep 2026 (`publish_workflow`
+   lo sigue bloqueando el clasificador de auto-mode de Claude Code en esta
+   sesión).
 2. **Verificar en una pasada real**: una ejecución de `Jobs · ingesta` deja
    `encaje_ia`/`motivo_ia` rellenos en las ofertas nuevas de
    `Ofertas_activas`, con puntuaciones que discriminen correctamente al
