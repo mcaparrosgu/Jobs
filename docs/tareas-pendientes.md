@@ -151,8 +151,13 @@ cuadro cambia si se comercializa** (M6 / plan de comercialización) → ahí sí
 entraría el Anexo III.4. Es también un gate útil antes de construir M1
 (scoring de encaje con IA).
 
-**Duda para Mar:** ¿análisis solo para uso personal, o contemplando ya el
-escenario de comercialización?
+**Alcance decidido (4 sep 2026):** el análisis se hace **para el uso personal
+actual** de `Jobs` (los workflows n8n que Mar usa para sí misma) **y** con una
+sección aparte, claramente marcada, de **qué cambiaría al comercializar**. Mar
+confirma que quiere comercializar en el futuro y que ya tiene un MVP aparte,
+**Jobs App** (`Jobs App · ingesta`, `Rw4dTNjQa5tR3Eo4`), pero `Jobs` tal cual
+seguirá siendo de uso personal. El doc cubre los dos escenarios sin bloquearse en
+el segundo.
 
 **Criterio de cierre:** `docs/03-legal.md` escrito y revisado por Mar, con la
 clasificación de riesgo del AI Act, el estado RGPD (exención de actividad
@@ -161,9 +166,16 @@ y la lista de modificaciones necesarias (si las hay).
 
 ## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
 
-**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. Sin empezar.**
-A Mar le entran ofertas para las que obviamente no está cualificada (roles
-técnicos, de ingeniería informática, infraestructura…).
+**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. En recogida de
+ejemplos.** A Mar le entran ofertas para las que obviamente no está cualificada
+(roles técnicos, de ingeniería informática, infraestructura…).
+
+**Método acordado (4 sep 2026):** Mar **no** prepara una lista de golpe. Cada vez
+que entre una oferta mal filtrada la enlazará en la sesión; el agente la registra
+en [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md) (brief
+permanente de esta tarea) y, cuando haya patrón (≥ 5 ofertas o Mar dice
+«suficientes»), endurece el nodo `Filtro cualificación` siguiendo el protocolo de
+ese documento. La corrección se deja en draft y la publica Mar.
 
 **Toca:** el Code node `Filtro cualificación` de `Jobs · ingesta`
 (`CXCD8BZUQEQKex2a`) — nodo caliente. Posiblemente una columna nueva en la pestaña
@@ -195,10 +207,10 @@ recuento de descartes cuadra en `Metricas`.
 
 ## 18. Columnas `enlace_cv` y `enlace_carta` en `Ofertas_activas`
 
-**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Implementada el 4 sep
-2026 (draft). En espera de que Mar publique y de verla en una pasada real.**
-Añadir al sheet dos columnas con el enlace del Doc de CV y el del Doc de carta
-generados para cada oferta, para reducir confusiones al enviar.
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Implementada y
+publicada por Mar el 4 sep 2026. Verificada en la rama `enlace`; restos menores en
+observación.** Añadir al sheet dos columnas con el enlace del Doc de CV y el del
+Doc de carta generados para cada oferta, para reducir confusiones al enviar.
 
 **Decisiones de Mar (4 sep 2026):**
 - Formato del enlace: **enlace de edición** `https://docs.google.com/document/d/<id>/edit`.
@@ -221,10 +233,8 @@ generados para cada oferta, para reducir confusiones al enviar.
   nodos, wiring `Escribir carta → Actualizar estado generar_cv_ia → email o
   enlace` intacto. Salida de `Crear doc cv` confirmada en #750:
   `json.id` = ID del Doc.
-- **Draft sin publicar:** `versionId 0e59f551-748d-432b-9ca9-6e53e16dbe8c`;
-  `activeVersionId` sigue en `4552575d-…`. **El `publish_workflow` del MCP lo
-  bloquea el clasificador de auto-mode de Claude Code en esta sesión — Mar tiene
-  que pulsar Publish.** El único warning de validación
+- **Publicado el 4 sep 2026 por Mar:** `activeVersionId == versionId ==
+  0e59f551-748d-432b-9ca9-6e53e16dbe8c`. El único warning de validación
   (`Enviar cv y carta por email` sin `operation` explícito) es preexistente y sin
   impacto (ver «Fallos conocidos» de [jobs-generacion-cv.md](jobs-generacion-cv.md)).
 
@@ -233,13 +243,64 @@ aditivo, `mantenimiento` no lo toca. Docs
 [jobs-hoja-formato.md](jobs-hoja-formato.md) y
 [jobs-generacion-cv.md](jobs-generacion-cv.md) ya actualizados.
 
-**Pendiente de verificación en una pasada real:** tras publicar Mar, una
-ejecución real de `Jobs · generación CV` deja en la fila de la oferta el enlace
-correcto al Doc de CV y al de carta (columnas S/T), tanto en la rama `enlace`
-como en la `email`; los enlaces sobreviven a una pasada de `mantenimiento`; y al
-archivarse la oferta, `enlace_cv`/`enlace_carta` viajan a `Archivo` (cols T/U).
+**Verificación (4 sep 2026):** Mar confirma que en la rama `enlace` las columnas
+`enlace_cv`/`enlace_carta` (S/T) quedan rellenas con el enlace de edición correcto
+y funcionan (abren el Doc de CV y de carta).
 
-**Criterio de cierre:** lo anterior verificado end-to-end.
+**Restos menores en observación (no bloquean, se comprueban de forma
+oportunista):** confirmar en una candidatura real de tipo `email` que las mismas
+columnas se rellenan igual (el nodo corre antes del bifurcado, así que debería
+ser automático); que los enlaces sobreviven a una pasada de `mantenimiento`; y
+que al archivarse la oferta viajan a `Archivo` (cols T/U).
+
+**Criterio de cierre:** publicada y verificada — cumplido en lo esencial. Se
+cierra del todo cuando se confirmen los tres restos menores.
+
+## 19. Reorganizar/depurar las columnas de `Ofertas_activas` y `Archivo`
+
+**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar.** La hoja se ha ido
+llenando de columnas (18 en `Ofertas_activas`, 20 en `Archivo` tras la tarea 18)
+y Mar no tiene claro para qué sirven algunas ni si hacen falta. Preguntó en
+concreto por `plataforma`, `estado_propuesto`, `resumen_respuesta` e `id_url`.
+
+**Auditado el 4 sep 2026 — las 4 están vivas, ninguna se puede borrar:**
+
+| Columna | La escribe | La lee | Si se borra |
+|---|---|---|---|
+| `plataforma` | los 13 normalizadores de [Jobs · ingesta](jobs-ingesta.md) (nombre de la fuente: LinkedIn, We Work Remotely…) | `Registrar métricas` (desglose por fuente en la pestaña `Metricas`, tarea 10); base de la decisión M4 (podar Wellfound/FlexJobs) en [jobs-evaluacion.md](jobs-evaluacion.md) | se pierde el desglose por fuente de `Metricas` y no se puede decidir M4 |
+| `estado_propuesto` | `Jobs · seguimiento` (`Guardar propuesta de la IA`) | Regla 3 de `Decisión archivar` en [jobs-archivado.md](jobs-archivado.md) (tarea 12: solo archiva `cv_enviado` si está vacía) | la tarea 12 se rompe; además Mar pierde la propuesta de la IA que hoy valida a mano antes de que cambie `estado` |
+| `resumen_respuesta` | `Jobs · seguimiento`, junto con `estado_propuesto` | Mar, a mano (para entender qué respondió la empresa) | Mar pierde el resumen de la respuesta de la empresa |
+| `id_url` | `Filtro duplicados` de la ingesta (tarea 9 / M2 — hash de la URL normalizada) | el propio `Filtro duplicados`, como segunda clave de dedup junto a `id_unico` | reaparece el bug de la tarea 9 (misma oferta dos veces con `id_unico` distinto) |
+
+**Sobre reordenar:** es técnicamente seguro para la automatización — todos los
+nodos de n8n mapean por **cabecera** (nombre de columna), no por posición, y el
+Apps Script `mantenimiento` también busca sus 3 columnas clave (`fecha_guardado`,
+`generar_cv_ia`, `estado`) por nombre (`cabeceras.indexOf(...)`), no por letra.
+**El riesgo no es la automatización, es el formato manual:** el desplegable de
+`estado` con el color de cada chip lo pintó Mar a mano (la API de Sheets no
+expone el color del chip, ver tarea 6) y está atado a la **posición** de la
+columna E; moverla obligaría a rehacer esa validación+color. La banda de colores
+alternos también depende de qué columnas cubre.
+
+**Candidata a investigar aparte:** la columna **`⭐`** de `Archivo` (distinta de
+`destacada`), señalada como «sobrante» en
+[jobs-hoja-formato.md](jobs-hoja-formato.md) — comprobar si algo la escribe/lee
+antes de tocarla.
+
+**Recomendación de Claude:** no borrar ni reordenar nada por ahora. Si lo que
+molesta es el ruido visual, la opción de coste cero es **ocultar columnas**
+(clic derecho → Ocultar columna) en Google Sheets — no afecta a la
+automatización (sigue mapeando por cabecera) y es reversible al instante. Mar
+puede ocultar `estado_propuesto`, `resumen_respuesta`, `id_url`, `plataforma` (o
+las que le estorben) sin ningún riesgo.
+
+**Duda para Mar:** ¿ocultar columnas es suficiente, o prefieres que se investigue
+en serio una reordenación (agrupar lo que consultas tú a la izquierda, lo que
+solo usan los workflows a la derecha)? Si es lo segundo, es una tarea con más
+alcance (revisar validaciones, banda y el script antes de tocar nada).
+
+**Criterio de cierre:** Mar decide entre ocultar (cierre inmediato) o encargar la
+reordenación completa (nueva subtarea con su propio plan).
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 

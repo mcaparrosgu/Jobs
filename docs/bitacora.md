@@ -358,3 +358,37 @@ decisión cambió, se anota una entrada nueva que lo diga.
 - ORDEN — sigue en pie 18 → 17 → 16. La 17 sigue bloqueada (falta la lista de
   ofertas malas de Mar); la 16 necesita que Mar diga si el análisis legal es
   solo uso personal o contempla comercialización.
+
+## 2026-09-04 · Tarea 18 publicada y verificada; alcance de la 16 decidido; método de la 17; nace la 19
+
+- TAREA 18 — Mar publicó el draft (`activeVersionId == versionId ==
+  0e59f551-…`) y confirma que en la rama `enlace` las columnas `enlace_cv` /
+  `enlace_carta` quedan bien y los enlaces funcionan. Quedan como restos
+  menores, no bloqueantes: la rama `email`, la supervivencia a
+  `mantenimiento` y el viaje a `Archivo` al archivar — se comprueban de forma
+  oportunista, no con una prueba dedicada.
+- TAREA 16 — Mar decide el alcance: el análisis legal cubre el uso **personal**
+  actual de `Jobs` (los workflows n8n) más una sección aparte de qué cambia al
+  **comercializar**. Aclaración importante: ya existe un MVP de comercialización
+  separado, **Jobs App** (`Jobs App · ingesta`, workflow `Rw4dTNjQa5tR3Eo4`);
+  `Jobs` tal cual seguirá siendo personal. La tarea queda desbloqueada.
+- TAREA 17 — Mar no va a preparar una lista de golpe: irá enlazando ofertas mal
+  filtradas según entren. Se crea `docs/mejora-filtro-cualificacion.md` como
+  brief permanente: protocolo de registro (tabla en el propio doc), umbral de
+  acumulación (≥5 ejemplos o que Mar diga "suficientes") antes de tocar el
+  filtro, guardarraíl explícito contra rechazar `AI Engineer`/`Automation
+  Engineer`/ops-PM legítimos, y el mismo patrón de implementación aditiva +
+  draft + Publish de Mar que las tareas 9/11/15. Ya lleva las 2 ofertas
+  detectadas el 3 sep (OpenNebula, LocalStack) como hipótesis a confirmar.
+- TAREA 19 (nueva) — Mar pregunta qué son y si hacen falta `plataforma`,
+  `estado_propuesto`, `resumen_respuesta` e `id_url`. Auditoría: **las 4 están
+  vivas** (tabla completa en `tareas-pendientes.md`) — borrar cualquiera rompe
+  algo (Metricas/M4, tarea 12, seguimiento a mano, o reabre el bug de
+  duplicados de la tarea 9). APRENDIZAJE — toda la automatización mapea por
+  **cabecera**, no por posición (n8n Y el Apps Script vía
+  `cabeceras.indexOf(...)`), así que reordenar columnas es técnicamente seguro
+  para los workflows; el riesgo real es el **formato manual** de Mar (color del
+  chip de `estado`, atado a la posición de la columna E, y la banda de
+  colores). Recomendación dada: ocultar columnas en vez de borrar o reordenar
+  (coste cero, reversible, no toca el mapeo). Pendiente de que Mar elija entre
+  ocultar (cierra ya) o encargar una reordenación completa (subtarea aparte).
