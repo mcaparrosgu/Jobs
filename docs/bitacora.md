@@ -419,3 +419,44 @@ decisión cambió, se anota una entrada nueva que lo diga.
   del todo, así que la decisión de Mar viene primero.
 - CIERRE — detalle completo en `tareas-pendientes.md`, tarea 20 (movida a
   Cerradas).
+
+## 2026-09-04 · Pasos 4 y 5 del método aplicados fuera de orden (legal + spec)
+
+- QUÉ SE DECIDIÓ — Mar pidió aplicar el método de 20 pasos a `Jobs`
+  retroactivamente. Se escribieron `docs/03-legal.md` (Paso 4) y
+  `docs/04-spec.md` (Paso 5) sin los pasos 1-3 previos (el proyecto ya
+  estaba construido), reconstruyendo el contexto desde la documentación
+  real del pipeline en vez de `docs/00-problema.md` / `01-historias.md` /
+  `02-mvp.md`, que no existen. El spec incluye, marcado `[PREVISTO]`, las
+  mejoras de `jobs-evaluacion.md` aún no construidas (M1, M4, M6, mitad de
+  M7, envío autónomo) — decisión explícita de Mar de que cubriera también
+  hacia dónde va el sistema, no solo el estado actual. Se decidió además
+  el orden entre el Paso 16 (red team/seguridad, nunca hecho) y M1
+  (scoring de encaje): **M1 va primero**, red team después — aunque M1
+  añade otro punto donde texto externo llega a un generador de IA.
+- ALTERNATIVAS DESCARTADAS — Forzar el skill `paso-04-legal`/`paso-05-spec`
+  tal cual, exigiendo los docs 00-02 antes de seguir (se habría bloqueado
+  sin motivo real, el contexto ya existía en otra forma). Hacer red team
+  antes de M1 «para no acumular más superficie de ataque antes de
+  auditarla» — descartado porque Mar quiere ver primero si M1 aporta el
+  valor esperado antes de invertir en asegurar algo que podría cambiar.
+- POR QUÉ ESTA — El objetivo del método aquí es documentar mejor lo que ya
+  existe, no bloquear el proyecto por un orden que no se siguió. Verificar
+  el AI Act en fuente viva (no de memoria) cambió la conclusión de una
+  hipótesis previa de la propia tarea 16 (creía que el alto riesgo del
+  Anexo III ya aplicaba desde el 2 ago 2026; en realidad el Digital
+  Omnibus lo aplazó a dic 2027) — confirma que ese tipo de fecha nunca se
+  debe dar por buena sin buscarla ese mismo día.
+- QUÉ SE ROMPIÓ — Nada; solo documentación, ningún workflow tocado. Hubo
+  un malentendido de Mar al ver el `ls` de comprobación de los docs 00-02
+  inexistentes («¿Lo he perdido?»), aclarado en el momento: `ls` nunca
+  borra nada, era solo la comprobación de que esos ficheros nunca se
+  crearon.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Si la exención de actividad doméstica
+  del RGPD cubre de verdad el tratamiento de los emails de recruiters vía
+  la API de Anthropic, o si conviene tratarlo como no exento desde ya
+  (zona gris, ver `03-legal.md` sección 5) — no hay jurisprudencia
+  española/europea que lo resuelva de forma directa para este caso
+  concreto (un particular procesando correspondencia propia con ayuda de
+  un proveedor cloud de IA). Queda como pregunta para un abogado si
+  `Jobs` cambia de escenario.
