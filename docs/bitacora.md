@@ -392,3 +392,13 @@ decisión cambió, se anota una entrada nueva que lo diga.
   colores). Recomendación dada: ocultar columnas en vez de borrar o reordenar
   (coste cero, reversible, no toca el mapeo). Pendiente de que Mar elija entre
   ocultar (cierra ya) o encargar una reordenación completa (subtarea aparte).
+
+## 2026-09-04 · Tarea 20 (nueva) — enlaces rotos a tareas-manuales.md / index.md
+
+- QUÉ SE DECIDIÓ — No arreglar ahora los 14 enlaces internos rotos que
+  encontró Claude de paso (apuntan a `../../docs/tareas-manuales.md` y
+  `../../docs/index.md`, ficheros que no existen en este repo). Mar pide solo
+  anotarlo como tarea, sin prisa. Inventario completo (fichero, línea,
+  contexto) en `tareas-pendientes.md` tarea 20.
+- POR QUÉ ES DEUDA PREVIA — son enlaces de antes de que `Jobs` tuviera esta
+  carpeta `docs/` propia; ningún cambio de esta sesión los rompió.

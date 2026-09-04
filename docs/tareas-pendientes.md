@@ -302,6 +302,51 @@ alcance (revisar validaciones, banda y el script antes de tocar nada).
 **Criterio de cierre:** Mar decide entre ocultar (cierre inmediato) o encargar la
 reordenación completa (nueva subtarea con su propio plan).
 
+## 20. Arreglar enlaces rotos a `tareas-manuales.md` e `index.md` en los docs
+
+**Prioridad: baja. Abierta el 4 sep 2026 — detectada por Claude, anotada a
+petición de Mar. Sin empezar.** Varios docs de `docs/` tienen enlaces internos
+que apuntan a `../../docs/tareas-manuales.md` y `../../docs/index.md` —
+ficheros que **no existen** en este repo. Es deuda previa a que `Jobs` tuviera
+esta carpeta `docs/` propia (probablemente vivían en otra ubicación, del estilo
+`knowledge/workflows/…` que aún se menciona en la descripción de algunos
+workflows de n8n); no la causó ningún cambio reciente.
+
+**Inventario de enlaces rotos:**
+
+| Fichero | Línea | Enlace roto | Contexto |
+|---|---|---|---|
+| `jobs-archivado.md` | 154 | `[index.md](../../docs/index.md)` | sección Relacionados |
+| `jobs-generacion-cv.md` | 238 | `[index.md](../../docs/index.md)` | sección Relacionados |
+| `jobs-hoja-formato.md` | 140 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | «Instalación y verificación…, sección Para cerrar Jobs» |
+| `jobs-hoja-formato.md` | 429 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | Relacionados, «instalar y verificar el script» |
+| `jobs-hoja-formato.md` | 433 | `[index.md](../../docs/index.md)` | sección Relacionados |
+| `jobs-ingesta.md` | 405 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | permisos de un actor de Apify, tarea de Mar |
+| `jobs-ingesta.md` | 410 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | incidente del 15 ago (equipo suspendido) |
+| `jobs-ingesta.md` | 611 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | cierre de un incidente de credenciales Google |
+| `jobs-ingesta.md` | 750 | `[index.md](../../docs/index.md)` | sección Relacionados |
+| `jobs-revision.md` | 181 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | contingencia del actor de Glassdoor/SAP/Talent |
+| `jobs-revision.md` | 262 | `` `tareas-manuales.md` `` (sin enlace) | detalle del borrado de filas, sección «Cerradas» |
+| `jobs-revision.md` | 292 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | «Para cerrar Jobs» |
+| `jobs-archivado.md` | 143 | `[tareas-manuales.md](../../docs/tareas-manuales.md)` | hallazgo del check de Healthchecks |
+| `jobs-seguimiento.md` | 102 | `[index.md](../../docs/index.md)` | sección Relacionados |
+
+**Arreglo propuesto (sin decidir aún):** las referencias a `tareas-manuales.md`
+casi todas apuntan a incidentes/tareas que hoy viven en
+[tareas-pendientes.md](tareas-pendientes.md) (secciones Abiertas/Cerradas) — hay
+que revisar caso a caso si el contenido referenciado sigue ahí o se perdió, y
+redirigir el enlace (`tareas-pendientes.md` o la sección concreta) o borrarlo si
+ya no aplica. Las referencias a `index.md` no tienen equivalente hoy — no existe
+un índice de docs en este repo; lo más simple es quitar esas líneas o, si Mar lo
+quiere, crear un `docs/index.md` real que enlace todos los docs de `Jobs`.
+
+**Riesgo:** ninguno — son solo enlaces markdown, no afectan a ningún workflow ni
+a la hoja.
+
+**Criterio de cierre:** los 14 enlaces de la tabla resueltos (redirigidos o
+retirados) y, si se crea, `docs/index.md` enlazado desde los docs que lo
+mencionan.
+
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
 **Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
