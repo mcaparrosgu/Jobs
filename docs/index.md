@@ -24,6 +24,11 @@ timestamp: 2026-09-04T00:00:00Z
 - [Formato y mantenimiento de la hoja n8n_jobs](jobs-hoja-formato.md) — columnas,
   validaciones, chips de color y el Apps Script `mantenimiento`
 
+## Legal
+
+- [Revisión legal — AI Act y RGPD](03-legal.md) — clasificación de riesgo,
+  estado RGPD y qué cambiaría al comercializar (Jobs App)
+
 ## Evaluación y mejora
 
 - [Evaluación del pipeline y mejoras propuestas (M1–M8)](jobs-evaluacion.md)

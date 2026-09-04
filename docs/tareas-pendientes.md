@@ -127,7 +127,8 @@ natural:
 
 ## 16. Revisión de legalidad frente al AI Act de la UE
 
-**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Sin empezar.**
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Escrito el 4 sep
+2026 — pendiente de que Mar lo revise para cerrar.**
 Investigar el estado vigente del Reglamento (UE) 2024/1689 (AI Act) y comprobar
 si Jobs está dentro de la legalidad y qué habría que modificar.
 
@@ -163,6 +164,22 @@ el segundo.
 clasificación de riesgo del AI Act, el estado RGPD (exención de actividad
 doméstica), las obligaciones que aplican hoy y las que aplicarían al comercializar,
 y la lista de modificaciones necesarias (si las hay).
+
+**Escrito el 4 sep 2026** — [docs/03-legal.md](03-legal.md). Verificado en
+fuente hoy (no de memoria): el "Digital Omnibus" (Parlamento 16 jun 2026,
+Consejo 29 jun 2026) **aplazó** las obligaciones de alto riesgo del Anexo III
+del 2 ago 2026 al **2 dic 2027** — corrige lo que decía la hipótesis previa de
+esta tarea ("ya aplican desde el 2 ago 2026"). **Veredicto: riesgo mínimo** —
+Anexo III.4 (empleo) apunta a herramientas del lado del reclutador
+(publicar/filtrar/evaluar candidatos), y `Jobs` es del lado del candidato
+(Mar filtra ofertas para sí misma). Sin líneas rojas para el uso personal
+actual; sección aparte con lo que cambiaría si Jobs App (`Rw4dTNjQa5tR3Eo4`)
+llega a ofrecerse a candidatos (riesgo mínimo, pero Mar pasa a proveedora) o a
+reclutadores (alto riesgo, Anexo III.4, desde dic 2027). RGPD: exención
+doméstica clara para los datos propios de Mar; matiz conservador para los
+emails de recruiters que procesa `Jobs · seguimiento` vía Anthropic (interés
+legítimo, sin acción adicional requerida). Pendiente de que Mar lo lea para
+cerrar la tarea.
 
 ## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
 
