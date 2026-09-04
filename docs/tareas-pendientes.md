@@ -319,6 +319,47 @@ alcance (revisar validaciones, banda y el script antes de tocar nada).
 **Criterio de cierre:** Mar decide entre ocultar (cierre inmediato) o encargar la
 reordenación completa (nueva subtarea con su propio plan).
 
+## 21. Unificar el formato de todas las pestañas de `n8n_jobs`
+
+**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar, sin prisa.** Hay
+celdas y columnas sin formato en la hoja `n8n_jobs`, sobre todo en
+`Ofertas_activas`. Sin auditar todavía — Mar no especificó qué celdas
+concretas, solo que las ha visto.
+
+**Hipótesis de partida (a confirmar, no asumir):** las columnas que se
+fueron añadiendo por API a lo largo del proyecto —`id_url` (tarea 9),
+`fecha_envio` (tarea 12), `enlace_cv`/`enlace_carta` (tarea 18), y las que
+sumaría M1 (`encaje_ia`/`motivo_ia`, ver
+[jobs-evaluacion.md](jobs-evaluacion.md))— solo escribieron la **cabecera**
+en la fila 1; nunca pasaron por el formateo manual que sí tienen las
+columnas originales (fuente, tipografía, alineación, y sobre todo si caen
+dentro de la banda de colores alternos y del rango de validación de
+`estado`). El Apps Script `mantenimiento`
+([jobs-hoja-formato.md](jobs-hoja-formato.md)) cubre casilla, orden, alto de
+fila, desplegable de `estado` y la banda — pero solo si esas columnas nuevas
+ya estaban dentro de su rango de referencia; si no, quedarían visualmente
+descolgadas del resto.
+
+**Toca:** posiblemente el Apps Script `mantenimiento` (`apps-script/`, vía
+clasp) si el hueco es de rango/banda, y/o un repaso manual una sola vez en
+Google Sheets si es solo de estilo (bordes, fuente, alineación) que la API
+no puede leer ni fijar de forma fiable (mismo límite que el color del chip
+de `estado`, tarea 6).
+
+**Relacionado:** se solapa con la parte de formato de la tarea 19
+(reordenar/depurar columnas) — mismo riesgo de fondo: lo que la API no
+puede leer (bordes, color de chip, cobertura de la banda) solo se arregla a
+mano y hay que evitar romperlo con cambios automáticos.
+
+**Necesito de Mar antes de tocar nada:** qué celdas/columnas concretas ve
+sin formato (capturas o nombres de columna), en qué pestaña(s) —
+`Ofertas_activas`, `Archivo`, `Metricas`, o las tres.
+
+**Criterio de cierre:** las tres pestañas con un formato consistente
+(fuente, alineación, banda de colores, bordes donde corresponda) en todas
+sus columnas, incluidas las añadidas después de la creación de la hoja; sin
+romper el desplegable de `estado` ni la banda existente.
+
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
 **Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
