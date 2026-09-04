@@ -64,6 +64,21 @@ uno: qué es en corto, una analogía cotidiana, y dónde se usó aquí.
   aceptó como limitación porque pasa poco y la forma del embudo se registra en
   toda pasada con al menos una oferta nueva.
 
+## Prefill (turno "assistant" precompletado)
+
+- Técnica de la API de Anthropic: en vez de solo pedir por instrucción que
+  la respuesta tenga un formato concreto, se manda un último mensaje con
+  `role: "assistant"` y un contenido inicial (p. ej. `"{"`), y el modelo
+  **continúa** desde ahí en vez de empezar de cero. La API nunca devuelve
+  ese texto de arranque en la respuesta — solo la continuación.
+- Como darle a alguien la primera palabra de una frase para que no pueda
+  empezar por otro sitio: "termina esta frase: 'El resultado es...'" saca
+  una respuesta más predecible que "dame el resultado".
+- `Scoring encaje` de [Jobs · ingesta](jobs-ingesta.md) (M1, tarea 22)
+  prefilla `"{"` para forzar que `claude-haiku-4-5` responda JSON limpio sin
+  explicaciones alrededor; `Aplicar scoring` repone la llave antes de hacer
+  `JSON.parse`, porque la API no la incluye en `content[0].text`.
+
 ## Rama aislada
 
 - Un trozo de workflow que cuelga del flujo principal para hacer algo

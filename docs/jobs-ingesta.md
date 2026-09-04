@@ -23,14 +23,16 @@ nueva (`pendiente`) y su archivado.
   cambio de ID)
 - **Estado:** activo desde el 6 ago 2026 tras el split (`active: true`, 1
   trigger)
-- **Nodos:** 48 (46 hasta el 14 ago 2026 por la tarde, cuando entro
+- **Nodos:** 51 (46 hasta el 14 ago 2026 por la tarde, cuando entro
   `HTTP Request Detalle RemotoJob`; 47 desde el 15 ago con la reconexión de
   `HTTP Request All Jobs Scraper`; 42 desde el 16 ago 2026 al separar los 5
   nodos de archivado a [Jobs · archivado](jobs-archivado.md); 44 desde el 18
   ago 2026 al entrar `HTTP Request Jooble` + `Normalizador Jooble`; 46 desde el
   29 ago 2026 con el guardarraíl de huecos `Guardarraíl huecos` + `Aviso
   huecos`, ver Fallos conocidos y sección C; 48 desde el 31 ago 2026 con la
-  rama de métricas `Registrar métricas` + `Append métricas`, ver sección E)
+  rama de métricas `Registrar métricas` + `Append métricas`, ver sección E;
+  **51 desde el 4 sep 2026 (draft, sin publicar)** con `Preparar scoring` +
+  `Scoring encaje` + `Aplicar scoring`, M1, ver Flujo A.3.bis)
 - **Hoja de calculo:** `n8n_jobs`, id `1JUM8rF4UmfeUI8gQFZ4jKVxjwKWltmVwAicpwG2xm-U`
   - pestana `Ofertas_activas` (`gid=0`) — candidaturas vivas
   - pestana `Archivo` (`gid=1758745884`) — historico
@@ -135,11 +137,53 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    seccion E — `$('Filtro cualificación').all()` solo expone los items de
    salida, no las variables internas. Cambio 100 % aditivo: la decision
    pasa/descarta no se toca.
+3.bis **`Preparar scoring`** → **`Scoring encaje`** → **`Aplicar scoring`**
+   (4 sep 2026, M1 / [jobs-evaluacion.md](jobs-evaluacion.md) — **implementado
+   en draft, sin publicar ni verificar**, ver
+   [tareas-pendientes.md](tareas-pendientes.md) tarea 22). Puntúa cada oferta
+   que pasó `Filtro cualificación` de 0 a 100 según su encaje con el perfil de
+   Mar. **No descarta nada**: es solo una pista para priorizar la revisión.
+   - **`Preparar scoring`** (Code, `runOnceForAllItems`) — arma un prompt por
+     oferta con el perfil de Mar **resumido en el propio código** (no lee el
+     JSON de Drive: mismo patrón que la humanización, sin añadir una
+     dependencia de Google Drive a este workflow) más ejemplos de calibración
+     sacados de H1 ([jobs-evaluacion.md](jobs-evaluacion.md)) — ofertas
+     técnicas que colaban antes por mencionar «AI» de pasada. Mismo blindaje
+     anti-inyección que `Prompt para CV` (`limpiarTextoExterno()`, duplicado
+     aquí porque cada Code node es independiente): HTML fuera, `=` neutralizado,
+     recorte a 1.500 caracteres del resumen. Pasa la oferta completa
+     (`Object.assign`) más un campo `prompt` auxiliar.
+   - **`Scoring encaje`** (HTTP Request, `POST api.anthropic.com/v1/messages`,
+     `claude-haiku-4-5` — decisión de Mar del 30 ago 2026, reusa
+     `ANTHROPIC_API_KEY`) — el segundo mensaje es un turno de **assistant
+     prefilled con `"{"`**, para forzar que Anthropic continúe directamente en
+     JSON sin explicaciones alrededor (Anthropic no devuelve el prefill, solo
+     la continuación — hay que reponer la llave al parsear). `max_tokens: 300`,
+     `timeout: 60000`, `retryOnFail` 3×3 s, `onError: continueRegularOutput`.
+   - **`Aplicar scoring`** (Code, `runOnceForAllItems`) — empareja cada
+     respuesta con su oferta **por índice** (`Scoring encaje` hace una llamada
+     por item, en orden; no usa `$input.item` porque no hace falta el coste
+     por-item de *Each Item*). Repone la llave, `JSON.parse`, valida que
+     `encaje_ia` sea un número 0-100. Ante cualquier fallo (API caída, JSON
+     inválido, fuera de rango) deja `encaje_ia: null` y `motivo_ia: null`
+     y la oferta sigue igual — mismo patrón de fallback que `Aplicar
+     humanizacion`. Quita el campo `prompt` (auxiliar, no debe llegar a la
+     hoja) antes de pasar la oferta.
+
+   Columnas nuevas `encaje_ia` / `motivo_ia` en `Ofertas_activas!U1:V1` y
+   `Archivo!V1:W1` (cabecera añadida el 4 sep 2026 vía Google Sheets API,
+   mapeo por cabecera como siempre — ver
+   [jobs-hoja-formato.md](jobs-hoja-formato.md)). Este bloque no toca
+   `Filtro cualificación` ni la generación de CV/carta.
 4. **`Get row(s) in sheet`** + **`Leer archivo`** — leen las dos pestanas.
    `Get row(s) in sheet` tiene desde el 29 ago 2026 una segunda salida hacia
    **`Guardarraíl huecos`** (rama aislada, ver sección D); la salida a
-   `Leer archivo` no cambia.
-5. **`Filtro duplicados`** — lee de `Filtro cualificación`, calcula dos claves
+   `Leer archivo` no cambia. Desde el 4 sep 2026 recibe de `Aplicar scoring`
+   en vez de directamente de `Filtro cualificación` (M1, punto 3.bis).
+5. **`Filtro duplicados`** — lee de `Aplicar scoring` (antes leía de `Filtro
+   cualificación`; único cambio de esta sección por M1, una línea, el resto
+   del nodo intacto — las ofertas llegan con `encaje_ia`/`motivo_ia` ya
+   incluidos y viajan sin tocar), calcula dos claves
    con el mismo hash 32-bit (`hash32`, extraído a función el 31 ago 2026):
    `id_unico` sobre `empresa+titulo_puesto` normalizado, e `id_url` (desde el
    31 ago 2026) sobre la URL normalizada de `enlace_o_email` — minúsculas, sin
@@ -303,9 +347,14 @@ lo que emitió `Registrar métricas`; cuadre con el log: `Σ nuevas` = salida de
 - **Credenciales n8n:** Google Sheets OAuth2, Google Drive OAuth2, Gmail OAuth2.
 - **Variables de entorno** (via `$env`, requieren passthrough en
   `docker-compose.yml`): `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `APIFY_API_TOKEN`,
-  `HEALTHCHECKS_PING_URL`.
+  `HEALTHCHECKS_PING_URL`, y **desde el 4 sep 2026 (M1, draft)**
+  `ANTHROPIC_API_KEY` — ya presente en el contenedor desde la tarea 7 de
+  [Jobs · generación CV](jobs-generacion-cv.md), no hace falta añadirla de
+  nuevo.
 - **Servicios externos de pago:** Apify (6 actores activos desde el 15 ago
-  2026, con `agentx~all-jobs-scraper` reconectado).
+  2026, con `agentx~all-jobs-scraper` reconectado); **API de Anthropic**
+  (`claude-haiku-4-5`, ~1 llamada por oferta que pasa `Filtro cualificación`,
+  M1 draft).
 - **Fuentes sin credencial ni clave:** Himalayas, Get on Board, We Work Remotely,
   RemotoJob y Jobicy. No requieren nada en `.env` ni passthrough en
   `docker-compose.yml`.

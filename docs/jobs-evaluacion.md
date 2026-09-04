@@ -185,6 +185,21 @@ Por valor/esfuerzo. Ninguna implementada.
 
 **Resuelve H1. Es la que más tiempo ahorra a Mar.**
 
+**Estado (4 sep 2026): implementada en draft, sin publicar ni verificar.**
+Detalle completo del cambio, la implementación exacta y el estado en
+[jobs-ingesta.md](jobs-ingesta.md), Flujo A.3.bis, y en
+[tareas-pendientes.md](tareas-pendientes.md), tarea 22. Resumen: 3 nodos
+nuevos (`Preparar scoring` → `Scoring encaje` → `Aplicar scoring`) entre
+`Filtro cualificación` y `Get row(s) in sheet`; `Filtro duplicados` pasa a
+leer de `Aplicar scoring` (una línea cambiada, resto intacto). Diseño
+verificado byte a byte contra lo escrito abajo, con dos ajustes sobre el
+diseño original: el perfil de Mar se **resume en el propio código** en vez
+de leer el JSON de Drive (evita añadir una dependencia de Drive a este
+workflow, y sigue siendo fiel al espíritu "tres nodos, sin tocar nada más");
+y la llamada a Claude usa la técnica de **prefill del turno assistant con
+`"{"`** para forzar JSON limpio, en vez de confiar solo en la instrucción del
+prompt.
+
 Tres nodos entre `Filtro cualificación` y `Filtro duplicados` en
 [Jobs · ingesta](jobs-ingesta.md) (`CXCD8BZUQEQKex2a`), copiando el patrón de
 `Preparar humanizacion` / `Humanizar (OpenAI)` / `Aplicar humanizacion`:

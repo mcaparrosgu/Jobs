@@ -460,3 +460,47 @@ decisión cambió, se anota una entrada nueva que lo diga.
   concreto (un particular procesando correspondencia propia con ayuda de
   un proveedor cloud de IA). Queda como pregunta para un abogado si
   `Jobs` cambia de escenario.
+
+## 2026-09-04 · M1 implementada en draft (tarea 22): scoring de encaje con IA
+
+- QUÉ SE DECIDIÓ — Construir M1 tal como lo dejó diseñado
+  `jobs-evaluacion.md`, con dos ajustes sobre ese diseño: (1) el perfil de
+  Mar para el prompt de scoring se **resume directamente en el código** del
+  nodo `Preparar scoring`, en vez de leer
+  `perfil_estructurado_mar_cv_n8n_JSON.json` de Drive como hace `Jobs ·
+  generación CV` — evita añadir una credencial/dependencia de Drive nueva a
+  `Jobs · ingesta`, que hasta hoy no la tenía; (2) la llamada a
+  `claude-haiku-4-5` usa la técnica de **prefill del turno `assistant` con
+  `"{"`** para forzar que la respuesta sea JSON limpio, en vez de confiar
+  solo en pedirlo por instrucción en el prompt (que es lo único que hace
+  `Jobs · generación CV` con sus marcadores `===CV===`).
+- ALTERNATIVAS DESCARTADAS — Leer el perfil de Drive igualmente, para que el
+  prompt de scoring use el JSON completo en vez de un resumen — descartado
+  porque encarece el prompt sin necesidad (el scoring solo necesita el
+  resumen de alto nivel, no cada proyecto) y rompe el "tres nodos" del
+  diseño original. Confiar solo en la instrucción del prompt para el
+  formato JSON (como hace ya `Prompt para CV`) — descartado porque ahí el
+  parseo es por marcadores de texto con reintento manual si falla, y aquí
+  queríamos algo más determinista dado que corre sobre N ofertas por
+  ejecución (no 1), así que un fallo de formato es más probable que ocurra
+  alguna vez.
+- POR QUÉ ESTA — Mantener el cambio dentro del patrón ya validado del
+  proyecto (mismo blindaje anti-inyección de `Prompt para CV`, mismo
+  fallback a `null` sin bloquear que `Aplicar humanizacion`) en vez de
+  inventar un patrón nuevo. El prefill es una técnica estándar de la API de
+  Anthropic para forzar continuaciones con un formato dado; no se había
+  usado antes en este proyecto (los otros pasos con Claude devuelven texto
+  libre con marcadores, no JSON).
+- QUÉ SE ROMPIÓ — Nada durante la construcción: se verificó cada jsCode con
+  `node --check` (envuelto en una función async, ya que el Code node de n8n
+  permite `return` en la raíz) antes de enviarlo, y se releyó el workflow
+  completo byte a byte después de aplicar las 22 operaciones — los 3
+  jsCode nuevos y la línea cambiada de `Filtro duplicados` coincidieron
+  exactamente. Los 12 nodos reposicionados (+600px en X para hacer sitio a
+  los 3 nuevos) no rompieron ninguna conexión: se comprobó `connections`
+  completo tras el cambio, no solo las de los nodos nuevos.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Si el prefill `"{"` sigue funcionando
+  igual de bien con `claude-haiku-4-5` que con modelos más grandes cuando la
+  oferta trae un `resumen` ambiguo o en un idioma raro — no se ha probado
+  todavía con datos reales, solo con `node --check` de sintaxis. La
+  verificación end-to-end (tarea 22) es la que contestará esto de verdad.

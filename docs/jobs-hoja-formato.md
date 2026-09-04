@@ -60,6 +60,13 @@ la fila 1 por nombre**, no por posición. Consecuencias:
   las cabeceras **no se tocó nada más de la fila 1**; el formato lo repone
   `mantenimiento` (`enlace_cv`/`enlace_carta` quedan fuera de todo allowlist del
   Apps Script, no las mantiene ni las borra).
+- **Columnas `encaje_ia` y `motivo_ia`** (añadidas el 4 sep 2026, M1 —
+  **draft, sin publicar ni verificar**): `Ofertas_activas!U1` / `!V1` y
+  `Archivo!V1` / `!W1`, mapeo por cabecera. Las escribiría `Aplicar scoring`
+  de [jobs-ingesta.md](jobs-ingesta.md) (Flujo A.3.bis) al final del
+  filtrado, con la puntuación de encaje (0-100) y el motivo en una frase;
+  `null` en ambas si el paso falla. Fuera de todo allowlist del Apps Script
+  (no las mantiene ni las borra), mismo patrón que `enlace_cv`/`enlace_carta`.
 
 # Lo que el formato tiene que reponer
 

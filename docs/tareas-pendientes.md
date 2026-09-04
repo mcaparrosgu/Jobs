@@ -8,6 +8,66 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
+## 22. M1 — Puntuación de encaje con IA (implementada en draft)
+
+**Prioridad: alta. Abierta el 4 sep 2026 — implementación pedida por Mar
+("sigue con M1"), tras decidir el 4 sep que el paso 16 (red team) va después
+de esta mejora.** Es M1 de [jobs-evaluacion.md](jobs-evaluacion.md), la
+mejora que más tiempo ahorra a Mar (resuelve H1: ofertas técnicas fuera de
+perfil que colaban por mencionar «AI»).
+
+**Implementación (4 sep 2026), vía n8n MCP** en `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`, ahora 51 nodos, `versionId a8076aec-…`, **sin
+publicar** — `activeVersionId` sigue en `f8ac4e6b-…`):
+
+- 3 nodos nuevos entre `Filtro cualificación` y `Get row(s) in sheet`:
+  `Preparar scoring` (Code) arma el prompt con el perfil de Mar **resumido
+  en el propio código** (no lee el JSON de Drive, para no añadir esa
+  dependencia a este workflow) más ejemplos de calibración sacados de H1;
+  `Scoring encaje` (HTTP Request a `api.anthropic.com`, `claude-haiku-4-5` —
+  decisión de Mar del 30 ago 2026, reusa `ANTHROPIC_API_KEY`) usa un turno
+  `assistant` prefilled con `"{"` para forzar JSON limpio sin depender solo
+  de la instrucción del prompt; `Aplicar scoring` (Code) empareja cada
+  respuesta con su oferta por índice, valida el rango 0-100 y **ante
+  cualquier fallo deja `encaje_ia`/`motivo_ia` en `null` sin descartar la
+  oferta** (mismo patrón que `Aplicar humanizacion`).
+- `Filtro duplicados` cambia una sola línea: lee de `Aplicar scoring` en vez
+  de `Filtro cualificación` — el resto del nodo, intacto.
+- Columnas nuevas `encaje_ia` / `motivo_ia` en `Ofertas_activas!U1:V1` y
+  `Archivo!V1:W1` (mapeo por cabecera, fila 1 intacta por lo demás).
+- 12 nodos reposicionados en el lienzo (desplazados +600px en X) para hacer
+  sitio a los 3 nuevos; wiring, no visual.
+- **Verificado byte a byte tras publicar el draft**: los 3 jsCode nuevos y la
+  línea cambiada de `Filtro duplicados` coinciden carácter a carácter con lo
+  enviado; conexiones (`Filtro cualificación → Preparar scoring → Scoring
+  encaje → Aplicar scoring → Get row(s) in sheet`) y el resto del grafo
+  (fan-out a `Registrar métricas`, rama de `Guardarraíl huecos`) intactos.
+- Avisos de validación tras el cambio: los mismos 4 preexistentes (`Merge`/
+  `Unir aviso error` sin `numberInputs`, `Send a message1`/`Aviso huecos`
+  sin `operation` explícito) — ninguno nuevo, ninguno de los 3 nodos añadidos.
+
+**No incluye** (a propósito, fuera del alcance de M1 según
+[jobs-evaluacion.md](jobs-evaluacion.md)): ordenar `Ofertas_activas` por
+`encaje_ia` (iría en el Apps Script `mantenimiento`, no en n8n) ni ningún
+descarte automático por umbral — el nodo **solo puntúa**.
+
+**Pendiente:**
+1. **Publicar el draft** — `publish_workflow` lo bloquea el clasificador de
+   auto-mode de Claude Code en esta sesión, igual que en tareas anteriores;
+   pedir a Mar que lo publique desde n8n.
+2. **Verificar en una pasada real**: una ejecución de `Jobs · ingesta` deja
+   `encaje_ia`/`motivo_ia` rellenos en las ofertas nuevas de
+   `Ofertas_activas`, con puntuaciones que discriminen correctamente al
+   menos un caso de H1 (una oferta técnica tipo *Kubernetes & Cloud
+   Integration Engineer* debería puntuar bajo).
+3. Confirmar que ninguna oferta se pierde ni se descarta de más — el
+   recuento de `Filtro duplicados` antes y después de esta rama debe cuadrar
+   igual que siempre.
+
+**Criterio de cierre:** publicado, verificado en una pasada real con los
+tres puntos anteriores comprobados, y sin regresión en el recuento de
+ofertas nuevas guardadas.
+
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 
 **Prioridad: alta. Abierta el 30 ago 2026. En vigilancia desde el 31 ago 2026.**
