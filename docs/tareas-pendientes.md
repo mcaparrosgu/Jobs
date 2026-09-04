@@ -62,7 +62,9 @@ descarte automático por umbral — el nodo **solo puntúa**.
    `encaje_ia`/`motivo_ia` rellenos en las ofertas nuevas de
    `Ofertas_activas`, con puntuaciones que discriminen correctamente al
    menos un caso de H1 (una oferta técnica tipo *Kubernetes & Cloud
-   Integration Engineer* debería puntuar bajo).
+   Integration Engineer* debería puntuar bajo). **Decisión de Mar (4 sep
+   2026): esperar a la próxima pasada programada (09:00 o 17:00), sin
+   disparo manual.**
 3. Confirmar que ninguna oferta se pierde ni se descarta de más — el
    recuento de `Filtro duplicados` antes y después de esta rama debe cuadrar
    igual que siempre.
