@@ -185,9 +185,11 @@ Por valor/esfuerzo. Ninguna implementada.
 
 **Resuelve H1. Es la que más tiempo ahorra a Mar.**
 
-**Estado (4 sep 2026): publicada por Mar, pendiente de verificar en una
-pasada real.**
-Detalle completo del cambio, la implementación exacta y el estado en
+**Estado: CERRADA el 5 sep 2026 — publicada por Mar el 4 sep, verificada
+end-to-end en una pasada real disparada manualmente (discrimina el caso de
+H1, rellena `encaje_ia`/`motivo_ia`, sin regresión en el recuento de
+ofertas).**
+Detalle completo del cambio, la implementación exacta y la verificación en
 [jobs-ingesta.md](jobs-ingesta.md), Flujo A.3.bis, y en
 [tareas-pendientes.md](tareas-pendientes.md), tarea 22. Resumen: 3 nodos
 nuevos (`Preparar scoring` → `Scoring encaje` → `Aplicar scoring`) entre

@@ -8,71 +8,6 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
-## 22. M1 — Puntuación de encaje con IA (publicada, pendiente de verificar)
-
-**Prioridad: alta. Abierta el 4 sep 2026 — implementación pedida por Mar
-("sigue con M1"), tras decidir el 4 sep que el paso 16 (red team) va después
-de esta mejora. Publicada por Mar el 4 sep 2026.** Es M1 de
-[jobs-evaluacion.md](jobs-evaluacion.md), la mejora que más tiempo ahorra a
-Mar (resuelve H1: ofertas técnicas fuera de perfil que colaban por
-mencionar «AI»).
-
-**Implementación (4 sep 2026), vía n8n MCP** en `Jobs · ingesta`
-(`CXCD8BZUQEQKex2a`, 51 nodos). **Publicada por Mar el 4 sep 2026 —
-confirmado `versionId == activeVersionId == a8076aec-df56-47aa-a272-95663ea808dd`,
-`active: true`:**
-
-- 3 nodos nuevos entre `Filtro cualificación` y `Get row(s) in sheet`:
-  `Preparar scoring` (Code) arma el prompt con el perfil de Mar **resumido
-  en el propio código** (no lee el JSON de Drive, para no añadir esa
-  dependencia a este workflow) más ejemplos de calibración sacados de H1;
-  `Scoring encaje` (HTTP Request a `api.anthropic.com`, `claude-haiku-4-5` —
-  decisión de Mar del 30 ago 2026, reusa `ANTHROPIC_API_KEY`) usa un turno
-  `assistant` prefilled con `"{"` para forzar JSON limpio sin depender solo
-  de la instrucción del prompt; `Aplicar scoring` (Code) empareja cada
-  respuesta con su oferta por índice, valida el rango 0-100 y **ante
-  cualquier fallo deja `encaje_ia`/`motivo_ia` en `null` sin descartar la
-  oferta** (mismo patrón que `Aplicar humanizacion`).
-- `Filtro duplicados` cambia una sola línea: lee de `Aplicar scoring` en vez
-  de `Filtro cualificación` — el resto del nodo, intacto.
-- Columnas nuevas `encaje_ia` / `motivo_ia` en `Ofertas_activas!U1:V1` y
-  `Archivo!V1:W1` (mapeo por cabecera, fila 1 intacta por lo demás).
-- 12 nodos reposicionados en el lienzo (desplazados +600px en X) para hacer
-  sitio a los 3 nuevos; wiring, no visual.
-- **Verificado byte a byte antes de pedir a Mar que publicara**: los 3
-  jsCode nuevos y la línea cambiada de `Filtro duplicados` coinciden
-  carácter a carácter con lo enviado; conexiones (`Filtro cualificación →
-  Preparar scoring → Scoring encaje → Aplicar scoring → Get row(s) in
-  sheet`) y el resto del grafo (fan-out a `Registrar métricas`, rama de
-  `Guardarraíl huecos`) intactos.
-- Avisos de validación tras el cambio: los mismos 4 preexistentes (`Merge`/
-  `Unir aviso error` sin `numberInputs`, `Send a message1`/`Aviso huecos`
-  sin `operation` explícito) — ninguno nuevo, ninguno de los 3 nodos añadidos.
-
-**No incluye** (a propósito, fuera del alcance de M1 según
-[jobs-evaluacion.md](jobs-evaluacion.md)): ordenar `Ofertas_activas` por
-`encaje_ia` (iría en el Apps Script `mantenimiento`, no en n8n) ni ningún
-descarte automático por umbral — el nodo **solo puntúa**.
-
-**Pendiente:**
-1. ~~Publicar el draft~~ — hecho por Mar el 4 sep 2026 (`publish_workflow`
-   lo sigue bloqueando el clasificador de auto-mode de Claude Code en esta
-   sesión).
-2. **Verificar en una pasada real**: una ejecución de `Jobs · ingesta` deja
-   `encaje_ia`/`motivo_ia` rellenos en las ofertas nuevas de
-   `Ofertas_activas`, con puntuaciones que discriminen correctamente al
-   menos un caso de H1 (una oferta técnica tipo *Kubernetes & Cloud
-   Integration Engineer* debería puntuar bajo). **Decisión de Mar (4 sep
-   2026): esperar a la próxima pasada programada (09:00 o 17:00), sin
-   disparo manual.**
-3. Confirmar que ninguna oferta se pierde ni se descarta de más — el
-   recuento de `Filtro duplicados` antes y después de esta rama debe cuadrar
-   igual que siempre.
-
-**Criterio de cierre:** publicado, verificado en una pasada real con los
-tres puntos anteriores comprobados, y sin regresión en el recuento de
-ofertas nuevas guardadas.
-
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 
 **Prioridad: alta. Abierta el 30 ago 2026. En vigilancia desde el 31 ago 2026.**
@@ -391,6 +326,13 @@ celdas y columnas sin formato en la hoja `n8n_jobs`, sobre todo en
 `Ofertas_activas`. Sin auditar todavía — Mar no especificó qué celdas
 concretas, solo que las ha visto.
 
+**Alcance precisado (5 sep 2026):** Mar confirma que el diseño actual de
+`Ofertas_activas` le gusta tal cual — **es la referencia, no se toca**. Lo
+que hay que unificar es `Metricas` (y de paso `Archivo`) para que sigan el
+mismo estilo visual: banda de colores alternos, tipografía, alineación,
+alto de fila. `Metricas` es la pestaña más reciente (tarea 10, 31 ago 2026)
+y nunca pasó por ningún formateo — se creó solo con las 12 cabeceras.
+
 **Hipótesis de partida (a confirmar, no asumir):** las columnas que se
 fueron añadiendo por API a lo largo del proyecto —`id_url` (tarea 9),
 `fecha_envio` (tarea 12), `enlace_cv`/`enlace_carta` (tarea 18), y las que
@@ -416,14 +358,18 @@ de `estado`, tarea 6).
 puede leer (bordes, color de chip, cobertura de la banda) solo se arregla a
 mano y hay que evitar romperlo con cambios automáticos.
 
-**Necesito de Mar antes de tocar nada:** qué celdas/columnas concretas ve
-sin formato (capturas o nombres de columna), en qué pestaña(s) —
-`Ofertas_activas`, `Archivo`, `Metricas`, o las tres.
+**Necesito de Mar antes de tocar nada:** confirmar si el estilo de
+referencia de `Ofertas_activas` (banda, fuente, alineación) se puede leer
+de forma fiable vía API para replicarlo en `Metricas`/`Archivo`, o si hace
+falta que Mar lo describa a mano (mismo límite que el color del chip de
+`estado`, tarea 6) — Claude lo comprueba leyendo el formato actual de la
+hoja antes de tocar nada.
 
-**Criterio de cierre:** las tres pestañas con un formato consistente
-(fuente, alineación, banda de colores, bordes donde corresponda) en todas
-sus columnas, incluidas las añadidas después de la creación de la hoja; sin
-romper el desplegable de `estado` ni la banda existente.
+**Criterio de cierre:** `Metricas` y `Archivo` con un formato consistente
+con el de `Ofertas_activas` (fuente, alineación, banda de colores, bordes
+donde corresponda) en todas sus columnas, incluidas las añadidas después de
+la creación de la hoja; sin tocar el diseño actual de `Ofertas_activas` ni
+romper el desplegable de `estado` ni su banda existente.
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
@@ -440,6 +386,96 @@ guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
 Google) y los resultados reales del pipeline.
 
 # Cerradas
+
+## 22. M1 — Puntuación de encaje con IA
+
+**Prioridad: alta. Abierta el 4 sep 2026 — implementación pedida por Mar
+("sigue con M1"), tras decidir el 4 sep que el paso 16 (red team) va después
+de esta mejora. Publicada por Mar el 4 sep 2026. CERRADA el 5 sep 2026 —
+verificada end-to-end en una pasada real disparada manualmente por Mar.** Es
+M1 de [jobs-evaluacion.md](jobs-evaluacion.md), la mejora que más tiempo
+ahorra a Mar (resuelve H1: ofertas técnicas fuera de perfil que colaban por
+mencionar «AI»).
+
+**Implementación (4 sep 2026), vía n8n MCP** en `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`, 51 nodos). **Publicada por Mar el 4 sep 2026 —
+confirmado `versionId == activeVersionId == a8076aec-df56-47aa-a272-95663ea808dd`,
+`active: true`:**
+
+- 3 nodos nuevos entre `Filtro cualificación` y `Get row(s) in sheet`:
+  `Preparar scoring` (Code) arma el prompt con el perfil de Mar **resumido
+  en el propio código** (no lee el JSON de Drive, para no añadir esa
+  dependencia a este workflow) más ejemplos de calibración sacados de H1;
+  `Scoring encaje` (HTTP Request a `api.anthropic.com`, `claude-haiku-4-5` —
+  decisión de Mar del 30 ago 2026, reusa `ANTHROPIC_API_KEY`) usa un turno
+  `assistant` prefilled con `"{"` para forzar JSON limpio sin depender solo
+  de la instrucción del prompt; `Aplicar scoring` (Code) empareja cada
+  respuesta con su oferta por índice, valida el rango 0-100 y **ante
+  cualquier fallo deja `encaje_ia`/`motivo_ia` en `null` sin descartar la
+  oferta** (mismo patrón que `Aplicar humanizacion`).
+- `Filtro duplicados` cambia una sola línea: lee de `Aplicar scoring` en vez
+  de `Filtro cualificación` — el resto del nodo, intacto.
+- Columnas nuevas `encaje_ia` / `motivo_ia` en `Ofertas_activas!U1:V1` y
+  `Archivo!V1:W1` (mapeo por cabecera, fila 1 intacta por lo demás).
+- 12 nodos reposicionados en el lienzo (desplazados +600px en X) para hacer
+  sitio a los 3 nuevos; wiring, no visual.
+- **Verificado byte a byte antes de pedir a Mar que publicara**: los 3
+  jsCode nuevos y la línea cambiada de `Filtro duplicados` coinciden
+  carácter a carácter con lo enviado; conexiones (`Filtro cualificación →
+  Preparar scoring → Scoring encaje → Aplicar scoring → Get row(s) in
+  sheet`) y el resto del grafo (fan-out a `Registrar métricas`, rama de
+  `Guardarraíl huecos`) intactos.
+- Avisos de validación tras el cambio: los mismos 4 preexistentes (`Merge`/
+  `Unir aviso error` sin `numberInputs`, `Send a message1`/`Aviso huecos`
+  sin `operation` explícito) — ninguno nuevo, ninguno de los 3 nodos añadidos.
+
+**No incluye** (a propósito, fuera del alcance de M1 según
+[jobs-evaluacion.md](jobs-evaluacion.md)): ordenar `Ofertas_activas` por
+`encaje_ia` (iría en el Apps Script `mantenimiento`, no en n8n) ni ningún
+descarte automático por umbral — el nodo **solo puntúa**.
+
+**Verificación end-to-end (5 sep 2026), vía lectura directa de la hoja**
+(`n8n-mcp` seguía sin conectar — error 502 — así que la comprobación se hizo
+con `google-sheets` MCP en vez de `n8n_executions`). Mar disparó
+manualmente `Jobs · ingesta`; la pasada quedó registrada en `Metricas` como
+`2026-09-05 11:03` (`= 2026-09-05T09:03Z`, coincide con la hora de
+modificación de la hoja):
+
+1. **`encaje_ia`/`motivo_ia` rellenos en ofertas nuevas** — la única oferta
+   nueva de esa pasada (*Revenue Operations Specialist (SaaS)*, micro1,
+   `id_unico 4db9d32c`, Himalayas) quedó con `encaje_ia = 0` y `motivo_ia`
+   explicando que la descripción llegó incompleta y no permite evaluar el
+   encaje. Confirma también el camino de **descripción degradada, no
+   fallo de API**: puntúa bajo en vez de dejarlo en blanco.
+2. **Discrimina un caso real de H1** — en la pasada anterior (`RemotoJob`,
+   4 sep ~19:50) entró *«Ingeniero de IA Generativa y Sistemas de Agentes»*
+   (Synera, `id_unico 14bcf59d`): título con «IA», pero **`encaje_ia = 15`**
+   con `motivo_ia`: *"Puesto de ingeniero técnico puro (sistemas de agentes,
+   modelos de lenguaje) que exige experiencia profesional en desarrollo de
+   IA. Candidata tiene conocimientos básicos de IA en bootcamp pero NO
+   perfil de ingeniero de software, ni experiencia profesional en
+   desarrollo. No encaja."* — exactamente el escenario de H1 (título con
+   «IA» que antes rescataba el criterio 5 de `Filtro cualificación`), ahora
+   puntuado bajo en vez de colar sin más.
+3. **Ninguna oferta se pierde** — el embudo de `Metricas` para la pasada de
+   hoy (Himalayas: `crudas 20 → tras_teletrabajo 20 → tras_salario 19 →
+   tras_cualificacion 2 → nuevas 1`) es monótono y coincide con la única
+   fila nueva añadida a `Ofertas_activas`; ninguna regresión frente a
+   pasadas anteriores a M1.
+
+**Observación menor, no bloqueante:** en esa misma pasada de RemotoJob
+(4 sep ~17:01/19:50) otra oferta nueva (*Especialista en Gestión de Redes
+Sociales*, Sayonara, `id_unico 2a1fbbaa`) quedó **sin** `encaje_ia`/
+`motivo_ia` (ambos vacíos) — consistente con el diseño «ante cualquier fallo
+deja `null` sin descartar la oferta» de `Aplicar scoring`: la oferta no se
+perdió, solo se quedó sin puntuar. No se investiga la causa puntual (podría
+ser un fallo transitorio de la llamada a Claude); si se repite con
+frecuencia, vigilar `Aplicar scoring` en pasadas futuras.
+
+**Cierre:** cumplido — publicado, `encaje_ia`/`motivo_ia` se rellenan en
+ofertas nuevas, discrimina correctamente un caso real de H1 y no hay
+regresión en el recuento de ofertas guardadas. Doc
+[jobs-evaluacion.md](jobs-evaluacion.md) (M1) ya refleja el estado.
 
 ## 20. Arreglar enlaces rotos a `tareas-manuales.md` e `index.md` en los docs
 
