@@ -177,8 +177,9 @@ const COL_FECHA    = 'fecha_guardado';
 const COL_CASILLA  = 'generar_cv_ia';
 const COL_ESTADO   = 'estado';
 const HOJAS = [
-  { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true  },
-  { nombre: 'Archivo',         casilla: false, estado: false, banda: false },
+  { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true },
+  { nombre: 'Archivo',         casilla: false, estado: false, banda: true },
+  { nombre: 'Metricas',        casilla: false, estado: false, banda: true },
 ];
 
 function mantenimiento() {
@@ -420,11 +421,71 @@ Fila 1 (12 columnas, `snake_case`): `fecha_hora`, `fuente`, `crudas`,
 `descartes_encaje`. `crudas`…`descartes_*` son números; `fecha_hora` es
 `yyyy-MM-dd HH:mm` en `Europe/Madrid`.
 
-**Fuera del Apps Script a propósito.** `mantenimiento` solo itera su allowlist
-`const HOJAS = [Ofertas_activas, Archivo]` (`apps-script/Código.js`), así que
-`Metricas` no se ordena, ni se le fuerza el alto de fila, ni se le tocan
-validaciones. No hace falta excluirla explícitamente; si algún día se quisiera
-mantener, habría que añadirla a ese array.
+**Estuvo fuera del Apps Script a propósito hasta el 5 sep 2026** (tarea 21,
+ver sección siguiente): `mantenimiento` solo iteraba `Ofertas_activas` y
+`Archivo`, así que `Metricas` no se ordenaba, ni se le forzaba el alto de
+fila, ni se le tocaban validaciones. `Metricas` no tiene columna
+`fecha_guardado` (usa `fecha_hora`), así que el paso de orden nunca actuó
+sobre ella ni actuará ahora que está en el array — es un registro
+append-only y debe mantener el orden de inserción.
+
+# Unificación de formato visual (5 sep 2026, tarea 21)
+
+Hasta el 5 sep 2026 solo `Ofertas_activas` tenía un formato cuidado
+(Montserrat 10, cabecera azul marino `#0C447C` con texto blanco en negrita,
+alineación por tipo de columna, banda de colores). `Metricas` no tenía
+ningún formato (Arial 10 por defecto, sin banda, columnas a 100 px fijos) y
+`Archivo` tenía una banda de colores **naranja** (`headerColor #F46524`,
+banda `#FFE6DD`) no documentada hasta ahora, con alineación y tamaño de
+fuente inconsistentes en cabecera y datos.
+
+**Decisión de Mar:** mantener el naranja de `Archivo` como código de color
+que distingue visualmente activas (teal) de archivadas (naranja), en vez de
+unificar las tres pestañas a un único color.
+
+**Aplicado vía `google-sheets` MCP (`batch_update`), sin tocar
+`Ofertas_activas`:**
+
+- **`Metricas`** (`sheetId 1516813991`): cabecera con fondo azul marino
+  `#0C447C`, texto blanco en negrita, Montserrat 10, centrada, `wrapStrategy
+  CLIP` — igual que `Ofertas_activas`, porque no tenía identidad de color
+  propia. Banda de colores nueva (`bandedRangeId 394026057`) con la misma
+  paleta teal de `Ofertas_activas` (`headerColor #26A69A`, banda blanca /
+  `#DDF2F0`), cubriendo A1:L64 (los datos reales en ese momento). Filas de
+  datos: Montserrat 10, `wrapStrategy WRAP`; `fecha_hora` centrada, el resto
+  de columnas a la izquierda (igual que el patrón de `Ofertas_activas`, donde
+  hasta una columna numérica como `encaje_ia` va alineada a la izquierda).
+  Fila 1 congelada (`frozenRowCount: 1`).
+- **`Archivo`** (`sheetId 1758745884`): cabecera pasa a Montserrat 10,
+  negrita, blanca, centrada, `wrapStrategy CLIP` (antes: sin tamaño de fuente
+  fijo, alineación inconsistente entre columnas). Fondo de cabecera **sin
+  tocar** — lo sigue dando el naranja de la banda existente. Filas de datos
+  (2–341): Montserrat 10, `wrapStrategy WRAP`, alineación a la izquierda;
+  `fecha_guardado` y `fecha_envio` centradas (mismo criterio que
+  `Ofertas_activas`). `fecha_publicacion` se dejó a la izquierda porque es un
+  string ISO completo, no una fecha simplificada — igual que en
+  `Ofertas_activas`, donde no lleva tratamiento especial.
+- **Bordes:** no se añadieron. `Ofertas_activas` no usa bordes por celda en
+  ninguna columna revisada (cabecera ni datos), así que no hay un estilo de
+  referencia que replicar.
+- **Anchos de columna:** sin tocar en ninguna pestaña — fuera del alcance
+  pedido (tipografía, alineación, banda, alto de fila) y de bajo impacto
+  visual frente a lo demás.
+
+**Mantenimiento futuro (mismo día):** las bandas de color solo cubrían la
+extensión de datos del momento (`A1:L64` en `Metricas`, la banda de `Archivo`
+ya cubría toda la cuadrícula de 1018 filas sin ajustarse a los datos reales).
+Sin más cambios se habrían quedado cortas o descuadradas al crecer las hojas
+— el mismo tipo de descuadre que motivó este documento. Se amplió el Apps
+Script `mantenimiento` (`apps-script/Código.js`, `clasp push`ado) añadiendo
+`Metricas` y activando `banda: true` en `Archivo`, con `casilla` y `estado`
+en `false` para las dos (no tienen esas columnas). El disparador horario
+existente recoge el cambio en su próxima pasada, sin tocar nada más.
+
+**Verificado por API tras el cambio:** cabecera y banda de `Metricas` con los
+colores y alineación esperados (`effectiveFormat` confirmado celda a celda);
+cabecera de `Archivo` en blanco/negrita/centrada sobre el naranja de la
+banda, fila de datos con `fecha_guardado` centrada y el resto a la izquierda.
 
 # Relacionados
 

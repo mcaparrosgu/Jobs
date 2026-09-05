@@ -319,58 +319,6 @@ alcance (revisar validaciones, banda y el script antes de tocar nada).
 **Criterio de cierre:** Mar decide entre ocultar (cierre inmediato) o encargar la
 reordenación completa (nueva subtarea con su propio plan).
 
-## 21. Unificar el formato de todas las pestañas de `n8n_jobs`
-
-**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar, sin prisa.** Hay
-celdas y columnas sin formato en la hoja `n8n_jobs`, sobre todo en
-`Ofertas_activas`. Sin auditar todavía — Mar no especificó qué celdas
-concretas, solo que las ha visto.
-
-**Alcance precisado (5 sep 2026):** Mar confirma que el diseño actual de
-`Ofertas_activas` le gusta tal cual — **es la referencia, no se toca**. Lo
-que hay que unificar es `Metricas` (y de paso `Archivo`) para que sigan el
-mismo estilo visual: banda de colores alternos, tipografía, alineación,
-alto de fila. `Metricas` es la pestaña más reciente (tarea 10, 31 ago 2026)
-y nunca pasó por ningún formateo — se creó solo con las 12 cabeceras.
-
-**Hipótesis de partida (a confirmar, no asumir):** las columnas que se
-fueron añadiendo por API a lo largo del proyecto —`id_url` (tarea 9),
-`fecha_envio` (tarea 12), `enlace_cv`/`enlace_carta` (tarea 18), y las que
-sumaría M1 (`encaje_ia`/`motivo_ia`, ver
-[jobs-evaluacion.md](jobs-evaluacion.md))— solo escribieron la **cabecera**
-en la fila 1; nunca pasaron por el formateo manual que sí tienen las
-columnas originales (fuente, tipografía, alineación, y sobre todo si caen
-dentro de la banda de colores alternos y del rango de validación de
-`estado`). El Apps Script `mantenimiento`
-([jobs-hoja-formato.md](jobs-hoja-formato.md)) cubre casilla, orden, alto de
-fila, desplegable de `estado` y la banda — pero solo si esas columnas nuevas
-ya estaban dentro de su rango de referencia; si no, quedarían visualmente
-descolgadas del resto.
-
-**Toca:** posiblemente el Apps Script `mantenimiento` (`apps-script/`, vía
-clasp) si el hueco es de rango/banda, y/o un repaso manual una sola vez en
-Google Sheets si es solo de estilo (bordes, fuente, alineación) que la API
-no puede leer ni fijar de forma fiable (mismo límite que el color del chip
-de `estado`, tarea 6).
-
-**Relacionado:** se solapa con la parte de formato de la tarea 19
-(reordenar/depurar columnas) — mismo riesgo de fondo: lo que la API no
-puede leer (bordes, color de chip, cobertura de la banda) solo se arregla a
-mano y hay que evitar romperlo con cambios automáticos.
-
-**Necesito de Mar antes de tocar nada:** confirmar si el estilo de
-referencia de `Ofertas_activas` (banda, fuente, alineación) se puede leer
-de forma fiable vía API para replicarlo en `Metricas`/`Archivo`, o si hace
-falta que Mar lo describa a mano (mismo límite que el color del chip de
-`estado`, tarea 6) — Claude lo comprueba leyendo el formato actual de la
-hoja antes de tocar nada.
-
-**Criterio de cierre:** `Metricas` y `Archivo` con un formato consistente
-con el de `Ofertas_activas` (fuente, alineación, banda de colores, bordes
-donde corresponda) en todas sus columnas, incluidas las añadidas después de
-la creación de la hoja; sin tocar el diseño actual de `Ofertas_activas` ni
-romper el desplegable de `estado` ni su banda existente.
-
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
 **Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
@@ -386,6 +334,62 @@ guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
 Google) y los resultados reales del pipeline.
 
 # Cerradas
+
+## 21. Unificar el formato de todas las pestañas de `n8n_jobs`
+
+**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar, sin prisa.
+CERRADA el 5 sep 2026.** Hay celdas y columnas sin formato en la hoja
+`n8n_jobs`, sobre todo en `Ofertas_activas`. Sin auditar todavía — Mar no
+especificó qué celdas concretas, solo que las ha visto.
+
+**Alcance precisado (5 sep 2026):** Mar confirma que el diseño actual de
+`Ofertas_activas` le gusta tal cual — **es la referencia, no se toca**. Lo
+que hay que unificar es `Metricas` (y de paso `Archivo`) para que sigan el
+mismo estilo visual: banda de colores alternos, tipografía, alineación,
+alto de fila. `Metricas` es la pestaña más reciente (tarea 10, 31 ago 2026)
+y nunca pasó por ningún formateo — se creó solo con las 12 cabeceras.
+
+**Auditoría vía `google-sheets` MCP (`get_sheet_data` con
+`include_grid_data`), 5 sep 2026:** confirmó la hipótesis de partida y reveló
+un hallazgo no documentado — `Archivo` ya tenía su propia banda de colores,
+en **naranja** (`headerColor #F46524`, banda `#FFE6DD`), cubriendo toda la
+cuadrícula (1018 filas) sin ajustarse a los datos reales; `Metricas` no
+tenía ningún formato (Arial 10 por defecto, sin banda, columnas a 100 px).
+**Decisión de Mar:** mantener el naranja de `Archivo` como código de color
+que distingue activas (teal) de archivadas, en vez de unificar todo a un
+único color.
+
+**Implementado (5 sep 2026), vía `google-sheets` MCP (`batch_update`), sin
+tocar `Ofertas_activas`:** detalle completo en
+[jobs-hoja-formato.md](jobs-hoja-formato.md#unificación-de-formato-visual-5-sep-2026-tarea-21).
+En resumen — `Metricas`: cabecera azul marino/blanca/negrita (igual que
+`Ofertas_activas`, no tenía identidad propia) + banda teal nueva
+(`bandedRangeId 394026057`) + alineación por columna + fila 1 congelada.
+`Archivo`: cabecera pasa a Montserrat 10/negrita/blanca/centrada sin tocar
+el fondo naranja de la banda; datos con `fecha_guardado`/`fecha_envio`
+centradas y el resto a la izquierda. Sin bordes (no existen en
+`Ofertas_activas`) ni cambios de ancho de columna (fuera de alcance).
+
+**Mantenimiento futuro:** las bandas nuevas solo cubrían la extensión de
+datos del momento; sin más cambios se habrían quedado cortas al crecer las
+hojas. Se amplió el Apps Script `mantenimiento` (`apps-script/Código.js`,
+`clasp push`ado el 5 sep 2026) añadiendo `Metricas` al array `HOJAS` y
+activando `banda: true` en `Archivo` (`casilla`/`estado` en `false` para
+ambas — no tienen esas columnas). El disparador horario existente recoge el
+cambio sin más intervención; `Metricas` no tiene columna `fecha_guardado`
+(usa `fecha_hora`), así que el paso de orden del script nunca actúa sobre
+ella — sigue siendo un registro append-only.
+
+**Verificado por API tras el cambio:** cabecera y banda de `Metricas` con
+los colores y alineación esperados (`effectiveFormat` confirmado celda a
+celda); cabecera de `Archivo` en blanco/negrita/centrada sobre el naranja
+existente, `fecha_guardado` centrada en los datos.
+
+**Cierre:** cumplido — `Metricas` y `Archivo` con tipografía, alineación,
+banda de colores y alto de fila consistentes con `Ofertas_activas` (con el
+naranja de `Archivo` preservado a propósito), `Ofertas_activas` intacta, y
+el mantenimiento automático extendido para que no se descuadren al crecer.
+Cambio de `apps-script/Código.js` pendiente de commit en el repo.
 
 ## 22. M1 — Puntuación de encaje con IA
 

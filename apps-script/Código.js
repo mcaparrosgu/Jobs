@@ -3,8 +3,9 @@
   const COL_CASILLA  = 'generar_cv_ia';
   const COL_ESTADO   = 'estado';
   const HOJAS = [
-    { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true  },
-    { nombre: 'Archivo',         casilla: false, estado: false, banda: false },
+    { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true },
+    { nombre: 'Archivo',         casilla: false, estado: false, banda: true },
+    { nombre: 'Metricas',        casilla: false, estado: false, banda: true },
   ];
 
   function mantenimiento() {
