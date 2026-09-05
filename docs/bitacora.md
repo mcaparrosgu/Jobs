@@ -537,3 +537,27 @@ decisión cambió, se anota una entrada nueva que lo diga.
   pudo probar en esta sesión sin reiniciar Claude Code). Falta verificar en
   la próxima sesión que el router realmente invoca `n8n-mcp-native` antes de
   `n8n-mcp-tools-expert` cuando se trabaja en Jobs.
+
+## 2026-09-05 · Hito — el skill n8n-mcp-native pasa a nivel de usuario
+
+- QUÉ SE DECIDIÓ — Mover `n8n-mcp-native` de `.claude/skills/` dentro de este
+  repo a `~/.claude/skills/n8n-mcp-native/` (nivel de usuario), y quitarlo de
+  Jobs en vez de dejar una copia duplicada.
+- ALTERNATIVAS DESCARTADAS — Dejarlo solo en Jobs (obligaría a copiarlo a
+  mano en cada proyecto nuevo); duplicarlo en Jobs y a nivel de usuario a la
+  vez (se descartó por simplicidad — el usuario prefirió una sola fuente).
+- POR QUÉ ESTA — Al preguntar Mar si podría reusar el skill en otros
+  proyectos con n8n, se comprobó `.claude.json` y se confirmó que el
+  servidor `n8n-mcp` está configurado a **nivel global**, con la misma URL,
+  en Jobs, Jobs App, Wiki y Docker n8n (ninguno de esos cuatro tiene
+  override propio). Como todos hablan con el mismo servidor MCP nativo, el
+  contenido del skill es igual de válido en cualquiera de ellos — tenerlo
+  solo en Jobs era un alcance más estrecho de lo necesario.
+- QUÉ SE ROMPIÓ — Nada; es un reordenamiento de dónde vive un archivo de
+  configuración de Claude Code, no un cambio de comportamiento de n8n.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Igual que en la entrada anterior: no se
+  ha verificado con un reinicio real que Claude Code cargue este skill de
+  usuario antes que `n8n-mcp-tools-expert` del plugin. Además, si algún
+  proyecto futuro define su propio override de `n8n-mcp` con una URL
+  distinta, este skill podría no aplicar ahí — queda anotado en el propio
+  skill como aviso, pero no hay manera automática de detectarlo.
