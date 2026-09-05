@@ -52,6 +52,33 @@ uno: qué es en corto, una analogía cotidiana, y dónde se usó aquí.
   `Registrar métricas` (que solo las cuenta). Añadir el segundo consumidor no
   cambia en nada lo que hace el primero.
 
+## MCP (Model Context Protocol) / servidor MCP
+
+- Un protocolo estándar que deja a un asistente de IA (Claude) hablar con un
+  programa externo (n8n, Google Sheets...) a través de una lista fija de
+  "herramientas" con nombre y forma conocidos, en vez de que el asistente
+  tenga que adivinar cómo funciona el programa por dentro.
+- Como un enchufe universal: no hace falta saber cómo está construido el
+  aparato, solo que hay un enchufe con una forma conocida al que conectarse.
+- Jobs habla con n8n a través de un servidor MCP (`n8n-mcp` en la
+  configuración de Claude Code) — pero dos servidores MCP distintos pueden
+  llamarse igual y ofrecer una lista de herramientas completamente distinta,
+  como se descubrió el 5 sep 2026 (ver bitácora, hito de esa fecha).
+
+## Workflow SDK (superficie del servidor MCP nativo de n8n)
+
+- Un estilo de servidor MCP donde, en vez de mandar el JSON completo de un
+  workflow o una lista de "operaciones" para editarlo pieza a pieza, se
+  escribe un código corto contra una librería propia (`workflow()`,
+  `.add()`, `.to()`...) que arma el workflow por debajo.
+- Como pedir un mueble por catálogo dando solo las medidas, en vez de mandar
+  los planos completos del mueble entero cada vez.
+- Es la superficie real que expone el servidor MCP de la instancia n8n de
+  Mar (herramientas como `get_sdk_reference` o `create_workflow_from_code`)
+  — distinta de la que documentaba el pack de skills instalado, que
+  describía otro producto (ver bitácora 5 sep 2026 y el skill de proyecto
+  `n8n-mcp-native`).
+
 ## Pasada 100 % duplicados / nodo sin items no se ejecuta
 
 - En n8n, si un nodo recibe **0 items** de entrada, no se ejecuta, y por tanto

@@ -504,3 +504,36 @@ decisión cambió, se anota una entrada nueva que lo diga.
   oferta trae un `resumen` ambiguo o en un idioma raro — no se ha probado
   todavía con datos reales, solo con `node --check` de sintaxis. La
   verificación end-to-end (tarea 22) es la que contestará esto de verdad.
+
+## 2026-09-05 · Hito — el pack de skills n8n-mcp-skills documenta otro producto
+
+- QUÉ SE DECIDIÓ — No tocar la arquitectura del bridge de n8n (sigue apuntando
+  al servidor MCP nativo de la instancia). En su lugar se creó un skill de
+  proyecto (`.claude/skills/n8n-mcp-native/SKILL.md`) que documenta la
+  superficie real de herramientas y dice qué partes del pack instalado
+  `n8n-mcp-skills` siguen valiendo y cuáles no.
+- ALTERNATIVAS DESCARTADAS — Montar el paquete comunitario `n8n-mcp`
+  (czlonkowski) self-hosted apuntando a la Public API de la instancia, y
+  cambiar la URL en `.claude.json` para que el pack de skills encajara tal
+  cual. Descartado: el servidor nativo ya funciona bien (se usó con éxito en
+  la tarea 22), y montar un segundo servidor solo para que la documentación
+  coincida es esfuerzo sin beneficio real.
+- POR QUÉ ESTA — Actualizar el plugin no arregla nada: se confirmó que
+  `n8n-mcp-skills` ya estaba en su última versión (1.34.0) y que ninguna
+  versión futura del pack va a documentar esta superficie, porque describe
+  un producto distinto (el paquete de terceros que habla con la Public API),
+  no el servidor MCP nativo/instance-level que expone la propia n8n.
+- QUÉ SE ROMPIÓ — Nada en producción. El síntoma fue de confusión de
+  herramientas: la sesión anterior (5 sep, antes de reiniciar) había dado
+  por "arreglado" el problema solo con actualizar el plugin — la memoria del
+  usuario decía eso — y era falso. Se corrigió esa entrada de memoria tras
+  comprobar con `grep` que ningún archivo del pack instalado menciona
+  `create_workflow_from_code` ni `get_sdk_reference`, y tras revisar en
+  GitHub las releases del paquete npm `n8n-mcp` (2.73 a 2.82.1) sin
+  encontrar ninguna que introduzca ese modelo.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — No se ha confirmado si un skill dentro
+  de `.claude/skills/` de este repo realmente se carga con prioridad sobre
+  las skills del plugin genérico cuando ambas tocan el mismo tema (no se
+  pudo probar en esta sesión sin reiniciar Claude Code). Falta verificar en
+  la próxima sesión que el router realmente invoca `n8n-mcp-native` antes de
+  `n8n-mcp-tools-expert` cuando se trabaja en Jobs.
