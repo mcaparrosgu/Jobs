@@ -28,6 +28,24 @@ uno: qué es en corto, una analogía cotidiana, y dónde se usó aquí.
   dic 2027 — corrigiendo una fecha que `tareas-pendientes.md` (tarea 16)
   daba por vigente desde antes de verificarla en fuente el 4 sep 2026.
 
+## effectiveFormat vs. userEnteredFormat (Google Sheets)
+
+- Dos campos distintos que devuelve la API de Sheets para el formato de una
+  celda: `userEnteredFormat` es lo que se guardó explícitamente en esa
+  celda; `effectiveFormat` es el color/estilo que **realmente se ve**,
+  después de aplicar capas como la banda de colores alternos por encima.
+  Pueden no coincidir.
+- Como preguntar "¿qué ropa tienes en el armario?" (`userEnteredFormat`)
+  frente a "¿qué llevas puesto ahora mismo?" (`effectiveFormat`) — puedes
+  tener una camisa azul colgada que nunca te pones porque encima llevas
+  siempre una chaqueta.
+- En `Ofertas_activas` las cabeceras A–P tenían un azul marino guardado en
+  `userEnteredFormat` que nunca se veía — la banda de colores lo tapaba con
+  su teal. Al leer solo `userEnteredFormat`, Claude copió ese azul marino a
+  columnas nuevas y a `Metricas`, partiendo la cabecera en dos colores (tarea
+  21, 5 sep 2026). Lección: para saber el color real de una celda bajo una
+  banda, mirar siempre `effectiveFormat`.
+
 ## Exención de actividad doméstica (RGPD)
 
 - El RGPD no se aplica a un tratamiento de datos personales que sea

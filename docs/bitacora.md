@@ -561,3 +561,43 @@ decisión cambió, se anota una entrada nueva que lo diga.
   proyecto futuro define su propio override de `n8n-mcp` con una URL
   distinta, este skill podría no aplicar ahí — queda anotado en el propio
   skill como aviso, pero no hay manera automática de detectarlo.
+
+## 2026-09-05 · Tarea 21 — unificar el formato visual de las 3 pestañas de `n8n_jobs`
+
+- QUÉ SE DECIDIÓ — Igualar tipografía, alineación, banda de colores y alto
+  de fila de `Metricas` y `Archivo` con `Ofertas_activas` (fijada como
+  referencia por Mar), y de paso extender esa misma banda a las columnas de
+  `Ofertas_activas` que se fueron añadiendo por API (`id_url` → `motivo_ia`)
+  y que se habían quedado fuera. **Mantener el naranja de `Archivo`** en vez
+  de unificar a un único color: ya distinguía visualmente activas de
+  archivadas, aunque no estaba documentado hasta auditarlo esta sesión.
+- ALTERNATIVAS DESCARTADAS — Unificar `Archivo` al mismo teal de
+  `Ofertas_activas` (perdía la distinción visual activas/archivadas que ya
+  existía); tocar también `Ofertas_activas` a fondo (descartado de entrada,
+  Mar la fijó como referencia el mismo día).
+- POR QUÉ ESTA — El color de `Archivo` era una decisión de diseño ya tomada
+  (aunque nadie la había escrito), y deshacerla sin que nadie la hubiera
+  cuestionado habría sido un cambio no pedido.
+- QUÉ SE ROMPIÓ — Al aplicar el color de cabecera a `Metricas` y a las
+  columnas nuevas de `Ofertas_activas`, Claude copió un azul marino leyendo
+  `userEnteredFormat` de la celda de `fecha_guardado`. Ese azul marino
+  **nunca fue el color que se veía**: el color real (`effectiveFormat`) de
+  la cabecera de `Ofertas_activas` siempre fue el teal de su banda de
+  colores — el azul marino era un resto histórico que la banda tapaba desde
+  antes de esta sesión. Al extender la banda con `updateBanding` para cubrir
+  las columnas nuevas, las columnas originales (A–P) recuperaron el teal
+  visualmente, pero el color explícito que se acababa de poner en las
+  columnas nuevas quedó por encima al ser la escritura más reciente —
+  resultado: la cabecera se veía partida en dos colores. Mar lo detectó a
+  simple vista y pidió corregirlo. Arreglado quitando el `backgroundColor`
+  explícito de las celdas afectadas (Q–V de `Ofertas_activas` y la cabecera
+  de `Metricas`) para que ambas hereden el teal de su banda, verificado
+  comparando `effectiveFormat` celda a celda tras el cambio.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — La regla exacta de precedencia entre una
+  banda de colores y el formato explícito de una celda en Google Sheets no
+  está confirmada en documentación oficial de Google; se dedujo por
+  comportamiento observado (la banda parece "ganar" sobre formato antiguo,
+  pero un formato explícito aplicado *después* de tocar la banda gana sobre
+  ella). No se auditó si hay más celdas con colores "fantasma" ocultos en
+  el resto de `Ofertas_activas` (fuera de la fila de cabecera) que podrían
+  reaparecer si la banda se vuelve a tocar en el futuro.
