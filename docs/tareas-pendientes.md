@@ -362,8 +362,8 @@ que distingue activas (teal) de archivadas, en vez de unificar todo a un
 **Implementado (5 sep 2026), vía `google-sheets` MCP (`batch_update`), sin
 tocar `Ofertas_activas`:** detalle completo en
 [jobs-hoja-formato.md](jobs-hoja-formato.md#unificación-de-formato-visual-5-sep-2026-tarea-21).
-En resumen — `Metricas`: cabecera azul marino/blanca/negrita (igual que
-`Ofertas_activas`, no tenía identidad propia) + banda teal nueva
+En resumen — `Metricas`: cabecera teal/blanca/negrita heredada de la banda
+(igual que `Ofertas_activas`, no tenía identidad propia) + banda teal nueva
 (`bandedRangeId 394026057`) + alineación por columna + fila 1 congelada.
 `Archivo`: cabecera pasa a Montserrat 10/negrita/blanca/centrada sin tocar
 el fondo naranja de la banda; datos con `fecha_guardado`/`fecha_envio`
@@ -392,13 +392,24 @@ extendido para que no se descuadren al crecer.
 
 **Reapertura puntual (mismo día):** Mar detectó que las columnas de
 `Ofertas_activas` añadidas por API a lo largo del proyecto (`id_url` →
-`motivo_ia`, Q–V) se veían en blanco, sin banda de colores ni fondo azul en
-la cabecera, aunque ya tenían la tipografía y alineación correctas.
-Corregido vía `batch_update`: banda extendida de A–P a A–V
-(`bandedRangeId 56060992`) y fondo `#0C447C` + texto blanco añadido a esas 6
-cabeceras. Único cambio a `Ofertas_activas` desde que se fijó como
-referencia; acotado a estas columnas, sin tocar orden, validaciones ni el
-resto del diseño. Detalle en
+`motivo_ia`, Q–V) se veían en blanco, sin banda de colores en la cabecera,
+aunque ya tenían la tipografía y alineación correctas. Banda extendida de
+A–P a A–V (`bandedRangeId 56060992`) vía `updateBanding`.
+
+**Segunda corrección, mismo día:** el primer intento le puso además un fondo
+azul marino explícito a la cabecera de esas 6 columnas — Mar avisó de que no
+cuadraba con el resto. Causa: el color real de la cabecera de
+`Ofertas_activas` siempre fue el teal de la banda (`#26A69A`), no el azul
+marino que aparecía al leer `userEnteredFormat` (un resto histórico que la
+banda tapa; confirmado comparando contra `effectiveFormat`). Al extender la
+banda, las columnas A–P recuperaron el teal, y el fondo azul recién puesto
+en Q–V quedó por encima al ser la escritura más reciente — cabecera partida
+en dos colores. Arreglado quitando ese fondo explícito de Q–V (y de
+`Metricas`, que tenía el mismo error) para que ambas hereden el teal de su
+banda. Verificado por API: las 22 columnas de `Ofertas_activas` con
+`effectiveFormat.backgroundColor` idéntico. Único cambio a `Ofertas_activas`
+desde que se fijó como referencia; acotado a estas 6 columnas, sin tocar
+orden, validaciones ni el resto del diseño. Detalle en
 [jobs-hoja-formato.md](jobs-hoja-formato.md#unificación-de-formato-visual-5-sep-2026-tarea-21).
 
 ## 22. M1 — Puntuación de encaje con IA

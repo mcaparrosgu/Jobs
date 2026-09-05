@@ -432,8 +432,9 @@ append-only y debe mantener el orden de inserción.
 # Unificación de formato visual (5 sep 2026, tarea 21)
 
 Hasta el 5 sep 2026 solo `Ofertas_activas` tenía un formato cuidado
-(Montserrat 10, cabecera azul marino `#0C447C` con texto blanco en negrita,
-alineación por tipo de columna, banda de colores). `Metricas` no tenía
+(Montserrat 10, cabecera teal `#26A69A` con texto blanco en negrita — color
+que pone la propia banda de colores, no un fondo de celda—, alineación por
+tipo de columna). `Metricas` no tenía
 ningún formato (Arial 10 por defecto, sin banda, columnas a 100 px fijos) y
 `Archivo` tenía una banda de colores **naranja** (`headerColor #F46524`,
 banda `#FFE6DD`) no documentada hasta ahora, con alineación y tamaño de
@@ -446,16 +447,16 @@ unificar las tres pestañas a un único color.
 **Aplicado vía `google-sheets` MCP (`batch_update`), sin tocar
 `Ofertas_activas`:**
 
-- **`Metricas`** (`sheetId 1516813991`): cabecera con fondo azul marino
-  `#0C447C`, texto blanco en negrita, Montserrat 10, centrada, `wrapStrategy
-  CLIP` — igual que `Ofertas_activas`, porque no tenía identidad de color
-  propia. Banda de colores nueva (`bandedRangeId 394026057`) con la misma
-  paleta teal de `Ofertas_activas` (`headerColor #26A69A`, banda blanca /
-  `#DDF2F0`), cubriendo A1:L64 (los datos reales en ese momento). Filas de
-  datos: Montserrat 10, `wrapStrategy WRAP`; `fecha_hora` centrada, el resto
-  de columnas a la izquierda (igual que el patrón de `Ofertas_activas`, donde
-  hasta una columna numérica como `encaje_ia` va alineada a la izquierda).
-  Fila 1 congelada (`frozenRowCount: 1`).
+- **`Metricas`** (`sheetId 1516813991`): banda de colores nueva
+  (`bandedRangeId 394026057`) con la misma paleta teal de `Ofertas_activas`
+  (`headerColor #26A69A`, banda blanca / `#DDF2F0`), cubriendo A1:L64 (los
+  datos reales en ese momento) — la cabecera hereda el `headerColor` teal de
+  la banda, sin fondo explícito en la celda (ver nota de corrección más
+  abajo). Texto blanco en negrita, Montserrat 10, centrada, `wrapStrategy
+  CLIP`. Filas de datos: Montserrat 10, `wrapStrategy WRAP`; `fecha_hora`
+  centrada, el resto de columnas a la izquierda (igual que el patrón de
+  `Ofertas_activas`, donde hasta una columna numérica como `encaje_ia` va
+  alineada a la izquierda). Fila 1 congelada (`frozenRowCount: 1`).
 - **`Archivo`** (`sheetId 1758745884`): cabecera pasa a Montserrat 10,
   negrita, blanca, centrada, `wrapStrategy CLIP` (antes: sin tamaño de fuente
   fijo, alineación inconsistente entre columnas). Fondo de cabecera **sin
@@ -492,16 +493,42 @@ Mar):** las columnas añadidas por API a lo largo del proyecto —`id_url`,
 `fecha_envio`, `enlace_cv`, `enlace_carta`, `encaje_ia`, `motivo_ia`
 (columnas Q–V)— ya tenían Montserrat 10 y la alineación correcta (cabecera
 centrada, datos a la izquierda), pero se quedaron **fuera de la banda de
-colores** (`bandedRangeId 56060992` cubría solo A–P, `endColumnIndex 16`) y
-sus cabeceras nunca recibieron el fondo azul marino — quedaban en blanco con
-texto negro por defecto, sin `foregroundColor` fijado. Corregido con
-`batch_update`: `updateBanding` extiende el rango de la banda a
-`endColumnIndex 22` (A–V, mismas filas), y un `repeatCell` sobre la fila de
-cabecera de esas 6 columnas añade el mismo fondo `#0C447C` +
-`wrapStrategy CLIP` + texto blanco que ya tenía el resto de la cabecera. Es
-la única modificación a `Ofertas_activas` desde que se fijó como pestaña de
-referencia — acotada a estas 6 columnas, sin tocar orden, validaciones ni el
-resto del diseño.
+colores** (`bandedRangeId 56060992` cubría solo A–P, `endColumnIndex 16`).
+Corregido con `updateBanding`: rango extendido a `endColumnIndex 22` (A–V,
+mismas filas).
+
+**Corrección sobre la marcha — color de cabecera equivocado.** El primer
+intento añadió además un `repeatCell` con fondo azul marino
+(`#0C447C`) explícito en la cabecera de esas 6 columnas, copiado de lo que
+parecía el color de `fecha_guardado` al leer `userEnteredFormat`. Mar avisó
+de que el color no cuadraba con el resto de la tabla. Causa real, confirmada
+comparando `userEnteredFormat` contra `effectiveFormat`: **el color visible
+real de la cabecera de `Ofertas_activas` siempre fue el teal de la banda
+(`#26A69A`)**, no el azul marino — las celdas de cabecera A–P sí tienen un
+azul marino guardado en `userEnteredFormat`, pero es un resto histórico que
+la banda tapa (el `headerColor` de una banda gana sobre el formato de celda
+salvo que esa celda se haya tocado *después* de la última vez que se tocó la
+banda). Al extender la banda con `updateBanding`, las columnas A–P
+"recuperaron" la prioridad de la banda y volvieron a verse teal; el
+`repeatCell` inmediatamente posterior sobre Q–V sí quedó por encima de la
+banda (por ser la escritura más reciente), dejando esas 6 columnas en azul
+marino y partiendo la cabecera en dos colores. Arreglado quitando el fondo
+explícito de Q–V (`repeatCell` con `fields: userEnteredFormat.backgroundColor`
+y celda vacía) para que hereden el teal de la banda igual que el resto —
+verificado por API: las 22 columnas de cabecera (A–V) con
+`effectiveFormat.backgroundColor` idéntico. Por el mismo motivo se corrigió
+también la cabecera de `Metricas` (ver más abajo): se le había puesto el
+mismo azul marino por error; ahora hereda el teal de su propia banda.
+
+**Aprendizaje reusable:** para tocar la cabecera de una banda de colores en
+Google Sheets, no fijar un `backgroundColor` explícito en la celda — dejar
+que el `headerColor` de la banda la pinte, y verificar siempre contra
+`effectiveFormat` (no `userEnteredFormat`) al inspeccionar el color real de
+una celda bajo una banda.
+
+Es la única modificación a `Ofertas_activas` desde que se fijó como pestaña
+de referencia — acotada a estas 6 columnas, sin tocar orden, validaciones ni
+el resto del diseño.
 
 # Relacionados
 
