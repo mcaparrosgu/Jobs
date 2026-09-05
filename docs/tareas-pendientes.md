@@ -387,9 +387,19 @@ existente, `fecha_guardado` centrada en los datos.
 
 **Cierre:** cumplido — `Metricas` y `Archivo` con tipografía, alineación,
 banda de colores y alto de fila consistentes con `Ofertas_activas` (con el
-naranja de `Archivo` preservado a propósito), `Ofertas_activas` intacta, y
-el mantenimiento automático extendido para que no se descuadren al crecer.
-Cambio de `apps-script/Código.js` pendiente de commit en el repo.
+naranja de `Archivo` preservado a propósito), y el mantenimiento automático
+extendido para que no se descuadren al crecer.
+
+**Reapertura puntual (mismo día):** Mar detectó que las columnas de
+`Ofertas_activas` añadidas por API a lo largo del proyecto (`id_url` →
+`motivo_ia`, Q–V) se veían en blanco, sin banda de colores ni fondo azul en
+la cabecera, aunque ya tenían la tipografía y alineación correctas.
+Corregido vía `batch_update`: banda extendida de A–P a A–V
+(`bandedRangeId 56060992`) y fondo `#0C447C` + texto blanco añadido a esas 6
+cabeceras. Único cambio a `Ofertas_activas` desde que se fijó como
+referencia; acotado a estas columnas, sin tocar orden, validaciones ni el
+resto del diseño. Detalle en
+[jobs-hoja-formato.md](jobs-hoja-formato.md#unificación-de-formato-visual-5-sep-2026-tarea-21).
 
 ## 22. M1 — Puntuación de encaje con IA
 

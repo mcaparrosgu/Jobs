@@ -487,6 +487,22 @@ colores y alineación esperados (`effectiveFormat` confirmado celda a celda);
 cabecera de `Archivo` en blanco/negrita/centrada sobre el naranja de la
 banda, fila de datos con `fecha_guardado` centrada y el resto a la izquierda.
 
+**Ajuste puntual en `Ofertas_activas` (mismo día, a petición explícita de
+Mar):** las columnas añadidas por API a lo largo del proyecto —`id_url`,
+`fecha_envio`, `enlace_cv`, `enlace_carta`, `encaje_ia`, `motivo_ia`
+(columnas Q–V)— ya tenían Montserrat 10 y la alineación correcta (cabecera
+centrada, datos a la izquierda), pero se quedaron **fuera de la banda de
+colores** (`bandedRangeId 56060992` cubría solo A–P, `endColumnIndex 16`) y
+sus cabeceras nunca recibieron el fondo azul marino — quedaban en blanco con
+texto negro por defecto, sin `foregroundColor` fijado. Corregido con
+`batch_update`: `updateBanding` extiende el rango de la banda a
+`endColumnIndex 22` (A–V, mismas filas), y un `repeatCell` sobre la fila de
+cabecera de esas 6 columnas añade el mismo fondo `#0C447C` +
+`wrapStrategy CLIP` + texto blanco que ya tenía el resto de la cabecera. Es
+la única modificación a `Ofertas_activas` desde que se fijó como pestaña de
+referencia — acotada a estas 6 columnas, sin tocar orden, validaciones ni el
+resto del diseño.
+
 # Relacionados
 
 - [Jobs · ingesta](jobs-ingesta.md) — escribe `Ofertas_activas` por cabecera y
