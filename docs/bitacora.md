@@ -601,3 +601,41 @@ decisión cambió, se anota una entrada nueva que lo diga.
   ella). No se auditó si hay más celdas con colores "fantasma" ocultos en
   el resto de `Ofertas_activas` (fuera de la fila de cabecera) que podrían
   reaparecer si la banda se vuelve a tocar en el futuro.
+
+## 2026-09-06 · Tarea 17 — análisis del filtro y recogida de ejemplos (sin código todavía)
+
+- QUÉ SE DECIDIÓ — Llevar la tarea 17 al umbral de patrón: Claude sacó 4
+  candidatas más de `Ofertas_activas` y `Archivo` (IRIUM, Synera, Evaboot,
+  Inetum) y las registró en `mejora-filtro-cualificacion.md` junto a las 2
+  previas → 6 ofertas. Se leyó el `jsCode` publicado de `Filtro cualificación`
+  y se trazó, oferta por oferta, qué criterio dejó pasar cada una. Decisión
+  de diseño tomada por Mar: **«AI Engineer» sí, «ML Engineer» no** — sacar
+  `ai engineer` de `EXCLUSION_DURA` (pasa al scoring `encaje_ia`), mantener
+  `ml engineer` / `machine learning engineer`. **No se ha tocado el nodo**:
+  Mar quiere revisar ella misma los 6 motivos y fijar la lista de rescate
+  antes de que Claude escriba el draft.
+- ALTERNATIVAS DESCARTADAS — Diseñar y dejar el draft del nodo ya en esta
+  sesión (la opción que insinuaba el menú); se frenó porque 4 de los 6
+  motivos son hipótesis de Claude sin validar y la regla de oro del brief es
+  «ante la duda, se deja pasar y se pregunta». Registrar también las 5
+  «dudosas» tipo Technical Program Manager (Nebius, AffirmedRx): se dejaron
+  fuera del registro por ser gestión/PM, que el guardarraíl del punto 7
+  manda conservar — a la espera de que Mar diga si las cuenta.
+- POR QUÉ ESTA — El diagnóstico previo escrito en la tarea («el criterio 5
+  rescata por mención de IA») resultó cierto solo para 1 de las 6 ofertas al
+  trazarlas contra el código real. El patrón verdadero es más amplio: el
+  criterio 5 es una lista blanca demasiado genérica (`integration`,
+  `procesos`, `agentic`, `ia`, `ops`…) y es la última puerta, y 5 de 6
+  llevan «engineer»/«ingeniero» en el título, señal técnica que el nodo hoy
+  no usa a propósito (para no perder «Automation Engineer»). Sin trazar el
+  código se habría endurecido la palanca equivocada.
+- QUÉ SE ROMPIÓ — Nada. Solo lectura del workflow (`get_workflow_details`) y
+  de la hoja; ningún cambio en n8n. De paso se probó la conexión al MCP
+  nativo de n8n (tarea que pidió Mar con «prueba ahora») — responde bien.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Si «AI Enablement Engineer» (LocalStack)
+  se puede distinguir por el título de un «enablement» de negocio legítimo
+  (el punto 7 del protocolo dice conservar los de enablement, pero Mar marcó
+  este como que no encaja) — probablemente no por título solo, hará falta
+  mirar el `resumen`. Y si la regla nueva de «ingeniería técnica» se puede
+  calibrar sin dejar fuera «AI Engineer» legítimos, que es justo el objetivo
+  del bootcamp de Mar.

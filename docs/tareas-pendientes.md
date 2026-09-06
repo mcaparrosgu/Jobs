@@ -34,6 +34,15 @@ Auth Platform → Público → «Publicar aplicación»), sin cambios en n8n.
 la instancia. 7+ días desde la reconexión base van limpios; falta llegar al 7 sep
 para cumplir la ventana de cierre.
 
+**Chequeo intermedio (6 sep 2026):** `search_executions` `status: [error, crashed]`
+`startedAfter: 2026-08-31` → **0 resultados**. En el mismo tramo, **47 ejecuciones
+`success`** que ejercitan las 5 credenciales de Google: `Jobs App · ingesta` y
+`Jobs · ingesta` (Sheets, Sheets Trigger) hasta el 5 sep, `Jobs · generación CV`
+(Drive, Docs, Sheets, Gmail) con decenas de pasadas hasta el 4 sep, `Jobs ·
+archivado` (Sheets) hasta el 4 sep. 6 días desde la reconexión base sin un solo
+«needs to be reconnected». Falta el día 7 sep (marca exacta de los 7 días desde el
+31 ago) para cerrar la ventana.
+
 **Seguimiento pendiente por Claude — supervisión manual el 7 sep 2026 (o
 después).** El **7 sep 2026** (7+ días desde la reconexión base del 31 ago), o en
 la primera sesión posterior, comprobar vía n8n MCP que ninguna ejecución
@@ -122,6 +131,12 @@ natural:
   `DIAS_SIN_RESPUESTA` bajado temporalmente en `Jobs · archivado`, con Mar
   publicando el draft y revirtiéndolo después — el `publish_workflow` del MCP lo
   bloquea el clasificador de auto-mode de Claude Code en esta sesión).
+
+**Estado (6 sep 2026):** sin cambios. `Ofertas_activas` no tiene ni una fila
+`cv_enviado` (todo es `pendiente` / `cv_ia_creado`), `fecha_envio` (col R) vacía en
+toda la hoja; `Archivo` no tiene ninguna fila `sin_respuesta` ni con `fecha_envio`.
+Sigue bloqueada por falta de tráfico `email` o por la prueba forzada que necesita a
+Mar publicando.
 
 **Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
 
@@ -218,6 +233,20 @@ bootcamp de Mar es justo eso).
 entraron mal (título + por qué no encajan). Claude puede sacar candidatas de
 `Archivo` y de las últimas pasadas, pero el criterio de Mar manda.
 
+**Avance (6 sep 2026):** Claude registró 4 candidatas más sacadas de la hoja y de
+`Archivo` (IRIUM, Synera, Evaboot, Inetum) → **6 ofertas en el registro**, se
+alcanza el umbral de patrón. Leído el nodo publicado y trazada cada oferta: el
+diagnóstico previo («rescate por IA») solo aplica a 1 de 6; el patrón real es que
+el **criterio 5 es una lista blanca demasiado genérica** (`integration`,
+`procesos`, `agentic`, `ia`, `ops`…) y **5 de 6 llevan “engineer”/“ingeniero”**.
+Análisis completo, palancas posibles y tensiones a resolver en
+[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
+Decisión de Mar (6 sep): **AI Engineer sí, ML Engineer no** — sacar `ai engineer`
+de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
+**Bloqueada esperando a Mar:** (1) revisar ella misma los 6 motivos en
+`mejora-filtro-cualificacion.md`, (2) fijar la lista de rescate de la regla nueva
+de «ingeniería técnica».
+
 **Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
 que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
 recuento de descartes cuadra en `Metricas`.
@@ -269,6 +298,13 @@ oportunista):** confirmar en una candidatura real de tipo `email` que las mismas
 columnas se rellenan igual (el nodo corre antes del bifurcado, así que debería
 ser automático); que los enlaces sobreviven a una pasada de `mantenimiento`; y
 que al archivarse la oferta viajan a `Archivo` (cols T/U).
+
+**Chequeo (6 sep 2026):** en `Ofertas_activas` hay dos filas `cv_ia_creado` con
+`enlace_cv`/`enlace_carta` (S/T) rellenos y con enlace de edición válido
+(`323dd8ba` Blink Health, `86a496df` IRIUM) — rama `enlace`, consistente con lo ya
+verificado el 4 sep. Los tres restos siguen sin poder comprobarse: no ha entrado
+ninguna candidatura `email`, y `Archivo` no tiene todavía ninguna fila archivada
+con esas columnas rellenas (cols T/U vacías en todo el histórico).
 
 **Criterio de cierre:** publicada y verificada — cumplido en lo esencial. Se
 cierra del todo cuando se confirmen los tres restos menores.
