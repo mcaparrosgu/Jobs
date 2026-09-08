@@ -13,6 +13,16 @@ Cuarta pieza del pipeline de búsqueda de empleo de Mar: mueve las candidaturas
 resueltas o caducadas de `Ofertas_activas` a `Archivo`, para que la hoja activa
 no crezca sin límite.
 
+> **Desde el 8 sep 2026 (tarea 23) este workflow es una RED DE SEGURIDAD para
+> `descartada`/`rechazada`, no la vía principal.** Un `onEdit` en el Apps Script
+> `mantenimiento` archiva esas dos **en el instante** en que Mar cambia `estado`
+> a mano (y desarchiva de vuelta si pone `pendiente` en `Archivo`). Ver
+> [jobs-hoja-formato.md](jobs-hoja-formato.md#archivado--desarchivado-instantáneo--onedit-8-sep-2026-tarea-23).
+> Esta pasada de 09:00/17:00 sigue archivando `descartada`/`rechazada` que se le
+> hayan escapado al `onEdit` (fallo del script, cambio en varias filas a la vez),
+> más las reglas por tiempo (`pendiente` a 7 días, `cv_enviado` a 30). Si la fila
+> ya la movió el `onEdit`, aquí no aparece → no se archiva dos veces.
+
 Separado de [Jobs · ingesta](jobs-ingesta.md) el 16 ago 2026. Hasta entonces el
 archivado vivía en el mismo lienzo que la ingesta, compartiendo el
 `Schedule Trigger`: un error en cualquiera de los Code nodes de la ingesta

@@ -156,6 +156,47 @@ Apps Script → Activadores que el disparador horario corre sin error y en
 Ejecuciones que salen `Completado`. Tarea 1 de
 [tareas-pendientes.md](../../docs/tareas-pendientes.md) cerrada.
 
+## Archivado / desarchivado instantáneo — `onEdit` (8 sep 2026, tarea 23)
+
+El mismo Apps Script tiene ahora un **disparador simple `onEdit(e)`** que
+mueve una fila entre pestañas **en el instante** en que Mar cambia `estado`
+a mano en el desplegable:
+
+| Editas `estado` en… | …y lo pones a… | El script… |
+|---|---|---|
+| `Ofertas_activas` | `descartada` **o** `rechazada` | mueve la fila a `Archivo` |
+| `Archivo` | `pendiente` | mueve la fila de vuelta a `Ofertas_activas` (con `generar_cv_ia` a `false`) |
+
+Detalles:
+- **Solo se dispara con ediciones manuales en la interfaz.** No lo activan
+  las escrituras de n8n por API (`Jobs · generación CV` marcando `cv_ia_creado`/
+  `cv_enviado`, etc.) ni las del propio script — `onEdit` de Google Apps Script
+  no ve esas.
+- Mapea **por nombre de cabecera** (`registro[cabecera] = valor`), igual que
+  `Jobs · archivado`: `Archivo` tiene más columnas (`modalidad`, `salario`, la
+  `⭐` sobrante) y otro orden; cada valor cae bajo su columna, las que no
+  existen en el destino se quedan vacías o se descartan.
+- `appendRow` (gap-safe) al destino, `deleteRow` en el origen, y **`sort` por
+  `fecha_guardado` desc del destino** ahí mismo (no espera a la pasada
+  horaria). Al volver a `Ofertas_activas`, `copyTo(PASTE_DATA_VALIDATION)`
+  repone el desplegable de `estado` con su color de chip.
+- `LockService.getDocumentLock()` (15 s) evita pisarse con la pasada horaria;
+  si no consigue el lock, no hace nada y lo recoge `mantenimiento` /
+  `Jobs · archivado`.
+- **`Jobs · archivado` (09:00/17:00) sigue como red de seguridad**: cubre
+  `descartada`/`rechazada` si el `onEdit` fallara, más las reglas por tiempo
+  (`pendiente` a 7 días, `cv_enviado` a 30). Si el `onEdit` ya movió la fila,
+  la pasada programada no la encuentra → no la archiva dos veces.
+- **Límites asumidos:** (1) un cambio de `estado` en **varias filas a la vez**
+  (arrastrar / pegar) no lo procesa el `onEdit` (guarda `getNumRows() === 1`)
+  — lo recoge la pasada programada; (2) ventana de carrera de ~1 s si Mar
+  marca `descartada` justo mientras corre `Jobs · archivado` (podría duplicar
+  la fila en `Archivo`; recuperable a mano, no hay pérdida de datos).
+
+Función en `apps-script/Código.js` (`onEdit` → `moverFila_` → `ordenarPorFecha_`
+/ `aplicarDesplegableEstado_`). No necesita instalar activador: `onEdit` simple
+funciona en cuanto se hace `clasp push`.
+
 ## Copia bajo control de versiones (clasp)
 
 Desde el 30 ago 2026 el proyecto está espejado en el repo con
@@ -529,6 +570,61 @@ una celda bajo una banda.
 Es la única modificación a `Ofertas_activas` desde que se fijó como pestaña
 de referencia — acotada a estas 6 columnas, sin tocar orden, validaciones ni
 el resto del diseño.
+
+# Depuración y reordenado de columnas (8 sep 2026, tarea 19)
+
+Mar pidió depurar y optimizar la hoja. Cambios aplicados vía `google-sheets`
+MCP (`batch_update`), **sin tocar las columnas A–G** (así el desplegable de
+`estado` y sus chips de color, atados a la posición E, no se rehacen):
+
+- **Borradas** `salario` y `modalidad`. `salario` era «No especificado» en el
+  100 % de las filas (H5 de [jobs-evaluacion.md](jobs-evaluacion.md)) y
+  `modalidad` casi siempre «Remoto» (el `Filtro teletrabajo` ya quitó el
+  resto). Ninguna se lee aguas abajo: los filtros de salario/teletrabajo miran
+  el dato **en memoria durante la ingesta**, no la hoja. La ingesta
+  (`autoMapInputData`) simplemente deja de mapear esas dos claves; sin error.
+  **`Archivo` no se tocó** — conserva sus columnas `modalidad`/`salario`
+  históricas; las filas nuevas archivadas las dejarán vacías.
+- **Reordenadas** las 20 columnas restantes (9 `moveDimension`, todos con
+  índice ≥ 7). `encaje_ia`/`motivo_ia` suben junto al bloque de estado.
+- **Ocultas** (`hiddenByUser`, no borradas): `resumen` (no borrable — la lee
+  `Prompt para CV`), `plataforma` (alimenta `Metricas`), `id_unico`, `id_url`
+  (claves anti-duplicados). Ocultar no afecta al `cabeceras.indexOf(...)` del
+  Apps Script ni al mapeo por cabecera de n8n; reversible al instante.
+- La banda `bandedRangeId 56060992` encogió sola de A–V a **A–T** al borrar las
+  2 columnas (verificado: `endColumnIndex 20`).
+- Verificado por API tras el cambio: validación `ONE_OF_LIST` de `estado` (E) y
+  casilla `BOOLEAN` de `generar_cv_ia` (G) intactas; cada valor bajo su
+  cabecera; anchos de columna viajaron con cada columna.
+
+## Orden y función de las columnas (20 col., A–T)
+
+| Pos | Cabecera | Función | La escribe |
+|---|---|---|---|
+| A | `fecha_guardado` | Fecha en que la ingesta guardó la oferta (`yyyy-mm-dd`). Clave de ordenación desc del Apps Script y de la regla de archivado a 7 días. | Jobs · ingesta (`Filtro duplicados`) |
+| B | `titulo_puesto` | Título del puesto. | ingesta (normalizador) |
+| C | `empresa` | Empresa. | ingesta |
+| D | `fecha_publicacion` | Fecha de publicación de la oferta (string ISO de la fuente). Solo la lee Mar. | ingesta |
+| E | `estado` | Estado del ciclo de vida (`pendiente` → … → `rechazada`/`descartada`). Desplegable `ONE_OF_LIST` + chip de color puesto a mano, **atado a la posición E**. | ingesta (`pendiente`); Jobs · generación CV (`cv_ia_creado`, `cv_enviado`); Mar a mano |
+| F | `destacada` | ⭐ de prioridad. **Desde el 8 sep 2026** (tarea 19) se marca cuando `encaje_ia > 80` (antes: lista de ~25 palabras clave sobre el título en `Filtro cualificación`). | ingesta (`Aplicar scoring`) |
+| G | `generar_cv_ia` | Casilla booleana; Mar la marca para disparar `Jobs · generación CV` (Sheets Trigger cada 5 min). | ingesta (`false`); Mar a mano |
+| H | `encaje_ia` | Nota 0–100 del encaje con el perfil de Mar (Claude Haiku, nodo `Scoring encaje`). **Solo puntúa, no descarta.** `null` si el scoring falla. | ingesta (`Aplicar scoring`) |
+| I | `motivo_ia` | Frase que justifica `encaje_ia` (≤ 300 car.). `null` si falla. | ingesta (`Aplicar scoring`) |
+| J | `tipo_aplicacion` | `email` o `enlace`. La rama `email o enlace` de generación CV decide el camino según este valor. | ingesta |
+| K | `enlace_o_email` | Destino de la candidatura (URL o email). No se trunca. | ingesta |
+| L | `enlace_cv` | Enlace de edición del Google Doc de CV generado para la oferta. Ambas ramas (email/enlace). | Jobs · generación CV (`Actualizar estado generar_cv_ia`) |
+| M | `enlace_carta` | Ídem para la carta de presentación. | Jobs · generación CV (mismo nodo) |
+| N | `fecha_envio` | Fecha (`yyyy-MM-dd`) de envío del CV. Solo rama `email`. La consume la Regla 3 de [jobs-archivado.md](jobs-archivado.md) (archiva `cv_enviado` sin respuesta a 30 días como `sin_respuesta`). | Jobs · generación CV (`Actualizar estado cv_enviado`) |
+| O | `estado_propuesto` | Estado que **propone** la IA de [jobs-seguimiento.md](jobs-seguimiento.md) al leer un email de respuesta de la empresa. **No cambia `estado`**: Mar lo valida a mano. Consumido por la Regla 3 de archivado. | Jobs · seguimiento (`Guardar propuesta de la IA`) |
+| P | `resumen_respuesta` | Resumen en 1–2 frases de lo que respondió la empresa. Solo lo lee Mar. | Jobs · seguimiento |
+| Q | `resumen` | Resumen de la descripción, truncado a ~800 car. al guardar (tarea 11 / M8). **Oculta.** No borrable: la lee `Prompt para CV`. | ingesta (`Filtro duplicados` / `truncarResumen`) |
+| R | `plataforma` | Fuente de origen (LinkedIn, We Work Remotely…). **Oculta.** Base del desglose por fuente de `Metricas` (tarea 10) y de la decisión M4. | ingesta (13 normalizadores) |
+| S | `id_unico` | Hash 32-bit de `empresa+titulo_puesto` normalizado. **Oculta.** Clave de deduplicación y de cruce con `Jobs · seguimiento`/`Jobs · generación CV` (`matchingColumns`). Sin significado para Mar. | ingesta (`Filtro duplicados`) |
+| T | `id_url` | Hash 32-bit de la URL normalizada de `enlace_o_email`. **Oculta.** 2ª clave de dedup (tarea 9 / M2); vacía en filas antiguas y ofertas por email. | ingesta (`Filtro duplicados`) |
+
+`Archivo` mantiene su propio orden (más columnas: conserva `modalidad`,
+`salario`, y añade `sin_respuesta` como estado). El mapeo por cabecera hace
+que el desajuste de orden entre pestañas no importe.
 
 # Relacionados
 

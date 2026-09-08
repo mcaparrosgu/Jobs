@@ -247,6 +247,15 @@ de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
 `mejora-filtro-cualificacion.md`, (2) fijar la lista de rescate de la regla nueva
 de «ingeniería técnica».
 
+**Nota (8 sep 2026, tarea 19):** la marca `destacada` (⭐) **ya no depende de
+`SENALES_DESTACADA`** — desde el 8 sep se calcula en `Aplicar scoring` como
+`encaje_ia > 80`. Consecuencia para esta tarea: cualquier título que hoy
+descarta el criterio 4/5 (p. ej. los `ai engineer` que Mar quiere dejar pasar)
+**tampoco recibiría ⭐**, pero si se saca de `EXCLUSION_DURA` llega a
+`Aplicar scoring` y ahí obtiene su nota y, si `> 80`, su estrella. `SENALES_DESTACADA`
+sigue en el `jsCode` de `Filtro cualificación` pero su salida se pisa; se puede
+borrar como limpieza opcional cuando se toque el nodo para el endurecimiento.
+
 **Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
 que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
 recuento de descartes cuadra en `Metricas`.
@@ -311,7 +320,49 @@ cierra del todo cuando se confirmen los tres restos menores.
 
 ## 19. Reorganizar/depurar las columnas de `Ofertas_activas` y `Archivo`
 
-**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar.** La hoja se ha ido
+**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar. CERRADA el 8 sep
+2026** (parte de hoja hecha y verificada por API; parte de workflow en draft,
+la publica Mar).
+
+**Decisiones de Mar (8 sep 2026):** borrar `salario` y `modalidad`; mantener
+`fecha_publicacion` visible; ocultar (no borrar) lo demás que no consulta;
+reordenar para un entorno optimizado; **mantener la columna `destacada` pero
+que la ⭐ se encienda cuando `encaje_ia > 80`** (deja de depender de la lista
+de palabras clave de `Filtro cualificación`).
+
+**Hecho (8 sep 2026):**
+- **Hoja `Ofertas_activas`**, vía `google-sheets` MCP, **sin tocar A–G** (para
+  no rehacer los chips de `estado`): `salario` y `modalidad` **borradas**; 20
+  columnas restantes **reordenadas** (9 `moveDimension`, todos índice ≥ 7);
+  `resumen`, `plataforma`, `id_unico`, `id_url` **ocultas** (`hiddenByUser`).
+  Verificado por API: validación de `estado` (E) y casilla de `generar_cv_ia`
+  (G) intactas, banda `56060992` encogida sola a A–T, cada valor bajo su
+  cabecera. Orden y función final de las 20 columnas documentados en
+  [jobs-hoja-formato.md](jobs-hoja-formato.md#orden-y-función-de-las-columnas-20-col-a-t).
+- **`Jobs · ingesta`** (`CXCD8BZUQEQKex2a`), nodo **`Aplicar scoring`**: añade
+  `destacada = (typeof encaje_ia === 'number' && encaje_ia > 80) ? '⭐' : ''`
+  al `Object.assign` del `return`. Cambio 100 % aditivo, releído byte a byte,
+  `node --check` OK. **Draft** (`versionId ab56a2c3-…` != `activeVersionId
+  a8076aec-…`) — **lo publica Mar**. `Filtro cualificación` no se tocó (su ⭐
+  por palabras clave queda sobrescrita por este nodo, que corre después).
+- **`Archivo` no se tocó** (sigue con `modalidad`/`salario` históricas).
+
+**Pendiente para cerrar del todo:** (1) Mar pulsa Publish en `Jobs · ingesta`;
+(2) primera pasada real → confirmar que en filas nuevas `destacada` = ⭐ ⇔
+`encaje_ia > 80` y que cada valor cae bajo su cabecera pese al nuevo orden;
+(3) opcional — backfill de `destacada` en las filas ya existentes desde la
+columna `encaje_ia` (Mar decide si lo quiere).
+
+**Candidata a investigar aparte (sin abrir tarea):** la columna **`⭐`** de
+`Archivo` (distinta de `destacada`), señalada como «sobrante» en
+[jobs-hoja-formato.md](jobs-hoja-formato.md).
+
+---
+
+<details>
+<summary>Contexto original de la tarea (4 sep 2026)</summary>
+
+La hoja se ha ido
 llenando de columnas (18 en `Ofertas_activas`, 20 en `Archivo` tras la tarea 18)
 y Mar no tiene claro para qué sirven algunas ni si hacen falta. Preguntó en
 concreto por `plataforma`, `estado_propuesto`, `resumen_respuesta` e `id_url`.
@@ -354,6 +405,39 @@ alcance (revisar validaciones, banda y el script antes de tocar nada).
 
 **Criterio de cierre:** Mar decide entre ocultar (cierre inmediato) o encargar la
 reordenación completa (nueva subtarea con su propio plan).
+
+</details>
+
+## 23. Archivado / desarchivado instantáneo al cambiar `estado` a mano
+
+**Prioridad: media. Abierta y desarrollada el 8 sep 2026 — pedida por Mar.
+Pendiente de `clasp push` y verificación.** Mar quiere que al seleccionar
+`descartada` (o `rechazada`) en el desplegable de `estado` la oferta pase a
+`Archivo` **en el instante**, sin esperar a la pasada de `Jobs · archivado`
+(09:00/17:00), manteniendo el orden por fecha para poder consultarla o
+recuperarla; y que si en `Archivo` pone `estado: pendiente`, la fila vuelva a
+`Ofertas_activas`.
+
+**Decisiones de Mar (8 sep 2026):** (1) instantáneo para `descartada` **y**
+`rechazada`; (2) orden por `fecha_guardado` desc, sin columna nueva; (3)
+desarchivar poniendo `pendiente` en `Archivo`.
+
+**Implementado (8 sep 2026) en `apps-script/Código.js`:** disparador simple
+`onEdit(e)` → `moverFila_` → `ordenarPorFecha_` / `aplicarDesplegableEstado_`.
+Mapea por cabecera, `appendRow` + `deleteRow` + `sort`, `LockService` de 15 s.
+Solo reacciona a ediciones manuales en la interfaz (no a las escrituras de n8n
+ni del propio script). `Jobs · archivado` queda como **red de seguridad** para
+`descartada`/`rechazada` + las reglas por tiempo. Detalle y límites asumidos
+(cambio en varias filas a la vez, ventana de carrera de ~1 s) en
+[jobs-hoja-formato.md](jobs-hoja-formato.md#archivado--desarchivado-instantáneo--onedit-8-sep-2026-tarea-23).
+`node --check` OK. **`clasp push` lo bloquea el clasificador de auto-mode de
+Claude Code** (igual que `publish_workflow`) → lo hace Mar.
+
+**Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
+en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de
+`Ofertas_activas`; ídem `rechazada`; y poniendo `pendiente` en una fila de
+`Archivo` vuelve a `Ofertas_activas` con su desplegable y `generar_cv_ia` sin
+marcar. Ninguna regresión en la pasada de `Jobs · archivado`.
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 

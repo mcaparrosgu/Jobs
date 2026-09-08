@@ -127,8 +127,12 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
       menciona ninguna **familia objetivo** (operaciones, automatizacion, IA,
       procesos, coordinacion, administracion), se descarta.
 
-   Despues marca `destacada: ⭐`, buscando las señales fuertes **solo en el
-   titulo**. Deja en el log de la ejecucion el recuento de descartes por
+   Despues calcula `destacada: ⭐` buscando las señales fuertes (`SENALES_DESTACADA`)
+   **solo en el titulo**. **Desde el 8 sep 2026 (tarea 19) ese valor lo pisa
+   `Aplicar scoring`** (§A.3.bis): `destacada` pasa a marcarse cuando
+   `encaje_ia > 80`, no por palabras clave. La linea de `Filtro cualificación`
+   se deja tal cual (inofensiva, la sobrescribe el nodo posterior). Deja en el
+   log de la ejecucion el recuento de descartes por
    criterio (`idioma` / `contrato` / `nivel` / `perfil` / `encaje`) y la lista
    de titulos descartados. **Desde el 31 ago 2026** (tarea 10 / M3): el
    criterio 5 se etiqueta `encaje:` (antes iba mezclado dentro de `perfil:`), y
@@ -169,13 +173,16 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
      inválido, fuera de rango) deja `encaje_ia: null` y `motivo_ia: null`
      y la oferta sigue igual — mismo patrón de fallback que `Aplicar
      humanizacion`. Quita el campo `prompt` (auxiliar, no debe llegar a la
-     hoja) antes de pasar la oferta.
+     hoja) antes de pasar la oferta. **Desde el 8 sep 2026 (tarea 19)** el
+     nodo escribe también `destacada`: `⭐` si `encaje_ia > 80`, `''` en
+     cualquier otro caso (incluido `encaje_ia: null`). Sobrescribe el valor
+     que puso `Filtro cualificación` por palabras clave. Cambio aditivo: una
+     constante y una clave más en el `Object.assign` del `return`.
 
-   Columnas nuevas `encaje_ia` / `motivo_ia` en `Ofertas_activas!U1:V1` y
-   `Archivo!V1:W1` (cabecera añadida el 4 sep 2026 vía Google Sheets API,
-   mapeo por cabecera como siempre — ver
-   [jobs-hoja-formato.md](jobs-hoja-formato.md)). Este bloque no toca
-   `Filtro cualificación` ni la generación de CV/carta.
+   Columnas `encaje_ia` / `motivo_ia` añadidas el 4 sep 2026 (M1); mapeo por
+   cabecera como siempre — ver [jobs-hoja-formato.md](jobs-hoja-formato.md),
+   donde está el orden y la función actual de las 20 columnas. La columna
+   `destacada` (F) ya existía. Este bloque no toca la generación de CV/carta.
 4. **`Get row(s) in sheet`** + **`Leer archivo`** — leen las dos pestanas.
    `Get row(s) in sheet` tiene desde el 29 ago 2026 una segunda salida hacia
    **`Guardarraíl huecos`** (rama aislada, ver sección D); la salida a

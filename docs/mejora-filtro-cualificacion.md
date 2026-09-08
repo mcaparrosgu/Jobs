@@ -187,7 +187,10 @@ cuyo título roce una de esas palabras entra. Y **5 de 6 llevan “engineer” /
   engineering`) de `EXCLUSION_DURA` → esos títulos pasan al scoring `encaje_ia`,
   que ya discrimina. **Mantener** `ml engineer` y `machine learning engineer` en
   `EXCLUSION_DURA` (más de investigación/modelado, fuera del objetivo del
-  bootcamp). `SENALES_DESTACADA` ya tiene ambos, no se toca.
+  bootcamp). `SENALES_DESTACADA` ya tiene ambos, no se toca. **(8 sep 2026,
+  tarea 19: `SENALES_DESTACADA` ya no importa para la hoja — `destacada` ahora
+  se calcula en `Aplicar scoring` como `encaje_ia > 80`. La lista sigue en el
+  `jsCode` pero su salida se pisa; se puede borrar al endurecer el nodo.)**
 - **Validación de los 6 motivos:** Mar los revisa ella misma en este documento
   antes de que Claude diseñe el endurecimiento. Hasta entonces, no se escribe
   draft del nodo.

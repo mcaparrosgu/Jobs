@@ -96,6 +96,100 @@
     return null;
   }
 
+  // ---------------------------------------------------------------------------
+  // Archivado / desarchivado instantaneo al cambiar `estado` a mano (8 sep 2026)
+  // ---------------------------------------------------------------------------
+  // onEdit simple: se dispara SOLO con ediciones manuales en la interfaz, nunca
+  // con lo que escribe n8n por API ni con lo que hace este mismo script.
+  //   Ofertas_activas · estado -> "descartada" / "rechazada"  => mover a Archivo
+  //   Archivo         · estado -> "pendiente"                  => mover a Ofertas_activas
+  // Mapea por nombre de cabecera (las dos pestanas tienen distinto orden y
+  // distintas columnas) y reordena el destino por fecha_guardado desc.
+  // `Jobs · archivado` (09:00/17:00) sigue como red de seguridad.
+
+  const MOVER_POR_ESTADO = {
+    'Ofertas_activas': { destino: 'Archivo',         valores: ['descartada', 'rechazada'] },
+    'Archivo':         { destino: 'Ofertas_activas', valores: ['pendiente'] },
+  };
+
+  function onEdit(e) {
+    if (!e || !e.range) return;
+    const rango = e.range;
+    if (rango.getNumRows() !== 1 || rango.getNumColumns() !== 1) return; // no pegados/multi
+
+    const hoja = rango.getSheet();
+    const cfg = MOVER_POR_ESTADO[hoja.getName()];
+    if (!cfg) return;
+
+    const fila = rango.getRow();
+    if (fila < 2) return;
+
+    const cabeceras = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+    const idxEstado = cabeceras.indexOf(COL_ESTADO);
+    if (idxEstado === -1 || rango.getColumn() !== idxEstado + 1) return;
+
+    const valor = String(rango.getValue()).trim().toLowerCase();
+    if (cfg.valores.indexOf(valor) === -1) return;
+
+    const lock = LockService.getDocumentLock();
+    if (!lock.tryLock(15000)) return; // ocupado: lo recoge la pasada programada/horaria
+    try {
+      moverFila_(hoja, cabeceras, fila, cfg.destino, valor);
+    } finally {
+      lock.releaseLock();
+    }
+  }
+
+  function moverFila_(hojaOrigen, cabecerasOrigen, fila, nombreDestino, estadoFinal) {
+    const hojaDestino = hojaOrigen.getParent().getSheetByName(nombreDestino);
+    if (!hojaDestino) return;
+
+    const valores = hojaOrigen.getRange(fila, 1, 1, cabecerasOrigen.length).getValues()[0];
+    const registro = {};
+    for (let i = 0; i < cabecerasOrigen.length; i++) registro[cabecerasOrigen[i]] = valores[i];
+    registro[COL_ESTADO] = estadoFinal;                    // normalizado a minusculas
+    if (nombreDestino === 'Ofertas_activas') registro[COL_CASILLA] = false;
+
+    const cabecerasDestino = hojaDestino.getRange(1, 1, 1, hojaDestino.getLastColumn())
+                                        .getValues()[0];
+    const filaNueva = cabecerasDestino.map(function (c) {
+      return Object.prototype.hasOwnProperty.call(registro, c) ? registro[c] : '';
+    });
+
+    hojaDestino.appendRow(filaNueva);   // gap-safe: va tras la ultima fila con contenido
+    hojaOrigen.deleteRow(fila);
+
+    ordenarPorFecha_(hojaDestino);
+    if (nombreDestino === 'Ofertas_activas') aplicarDesplegableEstado_(hojaDestino);
+  }
+
+  function ordenarPorFecha_(hoja) {
+    const ultimaFila = hoja.getLastRow();
+    const ultimaCol  = hoja.getLastColumn();
+    if (ultimaFila < 3) return;
+    const idxFecha = hoja.getRange(1, 1, 1, ultimaCol).getValues()[0].indexOf(COL_FECHA);
+    if (idxFecha === -1) return;
+    hoja.getRange(2, 1, ultimaFila - 1, ultimaCol)
+        .sort({ column: idxFecha + 1, ascending: false });
+  }
+
+  // Repone el desplegable de `estado` (con su color de chip) copiandolo de una
+  // fila que ya lo tenga -- mismo metodo que procesarHoja_ paso 4.
+  function aplicarDesplegableEstado_(hoja) {
+    const ultimaFila = hoja.getLastRow();
+    if (ultimaFila < 2) return;
+    const idxEstado = hoja.getRange(1, 1, 1, hoja.getLastColumn())
+                          .getValues()[0].indexOf(COL_ESTADO);
+    if (idxEstado === -1) return;
+    const colE = idxEstado + 1;
+    const nFilas = ultimaFila - 1;
+    const fuente = filaConValidacionLista_(hoja, colE, nFilas);
+    if (!fuente) return;
+    hoja.getRange(fuente, colE).copyTo(
+      hoja.getRange(2, colE, nFilas, 1),
+      SpreadsheetApp.CopyPasteType.PASTE_DATA_VALIDATION, false);
+  }
+
   function crearDisparador() {
     ScriptApp.getProjectTriggers().forEach(function (t) {
       if (t.getHandlerFunction() === 'mantenimiento') ScriptApp.deleteTrigger(t);

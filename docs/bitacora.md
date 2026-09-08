@@ -639,3 +639,79 @@ decisión cambió, se anota una entrada nueva que lo diga.
   mirar el `resumen`. Y si la regla nueva de «ingeniería técnica» se puede
   calibrar sin dejar fuera «AI Engineer» legítimos, que es justo el objetivo
   del bootcamp de Mar.
+
+## 2026-09-08 · Tarea 19 — depuración y reordenado de columnas + `destacada` = `encaje_ia > 80`
+
+- QUÉ SE DECIDIÓ — Mar respondió las 4 preguntas de la sesión: (1) explicación
+  `/profesora` de 8 columnas (`estado_propuesto`, `resumen_respuesta`, `id_url`,
+  `fecha_envio`, `enlace_cv`, `enlace_carta`, `encaje_ia`, `motivo_ia`); (2/3)
+  **borrar `salario` y `modalidad`**, mantener `fecha_publicacion` visible,
+  ocultar el resto que no consulta, reordenar; (4) `destacada` **sí funciona**
+  pero es un semáforo tosco (lista fija de ~25 palabras clave sobre el título,
+  calculado una vez en la ingesta, sin relación con `encaje_ia`) → Mar decide
+  **mantener la columna pero encender la ⭐ cuando `encaje_ia > 80`**.
+- QUÉ SE HIZO — Hoja `Ofertas_activas` vía `google-sheets` MCP: 2
+  `deleteDimension` (`salario`, `modalidad`), 9 `moveDimension` (reordenado),
+  1 `updateDimensionProperties` (ocultar `resumen`/`plataforma`/`id_unico`/
+  `id_url`). 20 columnas, orden nuevo en
+  [jobs-hoja-formato.md](jobs-hoja-formato.md). Workflow `Jobs · ingesta`, nodo
+  `Aplicar scoring`: `updateNodeParameters` con `replace:true` añadiendo
+  `const destacada = (typeof encaje_ia === 'number' && encaje_ia > 80) ? '⭐' :
+  ''` y la clave al `Object.assign` del `return`. **Draft** — lo publica Mar.
+- APRENDIZAJE — El reordenado de columnas es seguro para toda la automatización
+  (mapea por cabecera; el Apps Script por `indexOf`), pero **los colores de los
+  chips de `estado` no los expone ni repone la API** (tarea 6). Solución:
+  diseñar el reordenado **congelando las columnas A–G** (donde viven `estado`,
+  `destacada`, `generar_cv_ia`) y permutar solo de la H en adelante — así los
+  9 `moveDimension` no rozan la validación de E. Verificado por API tras el
+  cambio: validación `ONE_OF_LIST` de E y casilla `BOOLEAN` de G intactas,
+  banda `56060992` encogida sola de A–V a A–T. Sin necesidad de que Mar
+  repintara nada.
+- APRENDIZAJE 2 — `salario`/`modalidad` eran borrables sin romper nada porque
+  **ningún nodo las lee de la hoja**: los filtros de salario y teletrabajo
+  miran el dato en memoria durante la ingesta, antes del `append`. Regla
+  general para «¿se puede borrar esta columna?»: no basta con que ningún nodo
+  la escriba — hay que confirmar que ningún nodo la **lee de una fila** (los
+  `update` por `id_unico` y los prompts que reconstruyen la oferta desde
+  `Get row(s)` son los consumidores fáciles de pasar por alto).
+- QUÉ SE ROMPIÓ — Nada. Cambios de hoja verificados por API celda a celda;
+  workflow en draft con `node --check` OK y byte a byte contra el borrador.
+- QUÉ QUEDA — Mar pulsa Publish; primera pasada real confirma `destacada` = ⭐
+  ⇔ `encaje_ia > 80` y el mapeo por cabecera con el orden nuevo; opcional,
+  backfill de `destacada` en filas viejas desde `encaje_ia`.
+
+## 2026-09-08 · Tarea 23 — archivado/desarchivado instantáneo al cambiar `estado` a mano
+
+- QUÉ SE DECIDIÓ — Mar quiere que seleccionar `descartada` (o `rechazada`) en el
+  desplegable de `estado` mueva la oferta a `Archivo` **al instante**, sin
+  esperar a `Jobs · archivado` (09:00/17:00), manteniendo orden por fecha; y que
+  poner `pendiente` en `Archivo` la devuelva a `Ofertas_activas`. Decisiones:
+  (1) instantáneo para `descartada` **y** `rechazada`; (2) orden por
+  `fecha_guardado` desc, sin columna nueva; (3) desarchivar con `pendiente`.
+- QUÉ SE HIZO — Disparador simple **`onEdit(e)`** en `apps-script/Código.js`
+  (mismo proyecto que `mantenimiento`, versionado con clasp): `onEdit` →
+  `moverFila_` (mapea por cabecera, `appendRow` + `deleteRow`) → `ordenarPorFecha_`
+  + `aplicarDesplegableEstado_` (repone el chip al volver). `LockService` de 15 s
+  contra la pasada horaria. `MOVER_POR_ESTADO` tabla-dato con las dos direcciones.
+  `node --check` OK, llaves balanceadas.
+- POR QUÉ ESTA VÍA — `onEdit` de Apps Script se dispara **solo con ediciones
+  manuales en la interfaz**, nunca con las escrituras de n8n por API ni las del
+  propio script → no hay que filtrar «¿lo cambió Mar o un workflow?». El trigger
+  de Sheets de n8n, en cambio, sondea cada 5 min (no es instantáneo) y vería
+  también los cambios de `estado` que hace `Jobs · generación CV`. Y mover filas
+  dentro de la misma hoja no pide permisos extra → `onEdit` **simple**, sin
+  instalar activador: funciona en cuanto se hace `clasp push`.
+- DISEÑO — `Jobs · archivado` (09:00/17:00) **se deja como red de seguridad**
+  (cubre `descartada`/`rechazada` que se escapen al `onEdit` + las reglas por
+  tiempo). No se le quita `descartada`/`rechazada` a `Decisión archivar`: si el
+  `onEdit` fallara en silencio (script deshabilitado, bug), sin backstop las
+  descartadas se acumularían en la hoja activa — peor que una fila duplicada
+  rara y recuperable. Límites asumidos y anotados: cambio de `estado` en varias
+  filas a la vez (guard `getNumRows() === 1`) y ventana de carrera de ~1 s si se
+  marca justo mientras corre `Jobs · archivado`.
+- QUÉ SE ROMPIÓ — Nada. Solo cambio local + `node --check`. `clasp push` lo
+  bloquea el clasificador de auto-mode de Claude Code (mismo patrón que
+  `publish_workflow`) → lo hace Mar.
+- QUÉ QUEDA — `clasp push`; Mar verifica las 3 transiciones (`descartada` →
+  Archivo, `rechazada` → Archivo, `pendiente` en Archivo → Ofertas_activas) con
+  filas reales.
