@@ -127,6 +127,11 @@ por diseño, así que hoy no descarta prácticamente nada. No es un fallo, pero
 conviene saber que la barrera real del embudo es `Filtro cualificación`, no el
 salario: subir o bajar ese umbral no cambiaría nada.
 
+**8 sep 2026 (tarea 19):** por eso Mar decidió **borrar la columna `salario`**
+(y `modalidad`, casi siempre «Remoto») de `Ofertas_activas` — dato muerto que no
+consulta. El `Filtro salario` sigue igual: mira el dato de la oferta en memoria
+durante la ingesta, no la hoja. `Archivo` conserva ambas columnas históricas.
+
 ## H6 — Solo ~6 % de las ofertas son de aplicación por email
 
 Recuento de `Archivo!J` (`tipo_aplicacion`) sobre 289 filas: unas **17 `email`**

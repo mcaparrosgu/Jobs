@@ -71,15 +71,20 @@ listado de ofertas activas.
 ## 3.2 Revisión y selección de ofertas
 
 1. Mar abre el listado de ofertas activas cuando quiere.
-2. Para cada oferta ve: puesto, empresa, salario (si se conoce), modalidad,
-   resumen de la descripción, fuente, fecha de publicación y de guardado, y
-   el estado actual de la candidatura.
+2. Para cada oferta ve: puesto, empresa, fecha de publicación y de guardado,
+   el estado actual de la candidatura, la puntuación de encaje con su motivo,
+   la marca de destacada, y los enlaces de aplicación y de los documentos
+   generados. Otros datos (resumen de la descripción, fuente, identificadores
+   internos) existen en el registro pero están ocultos por defecto porque Mar
+   no los consulta; el salario y la modalidad se usan para filtrar en la
+   ingesta y **no se guardan** en el listado activo.
 3. Mar marca las ofertas que quiere trabajar activando una casilla de
    "generar CV".
-4. **[PREVISTO — M1]** Cada oferta llevará además una puntuación de encaje
-   (0-100) y un motivo en una frase, calculados automáticamente, para que
-   Mar priorice la revisión por las mejor puntuadas. Al principio la
-   puntuación **solo informa, no descarta ninguna oferta**.
+4. Cada oferta lleva una puntuación de encaje (0-100) y un motivo en una
+   frase, calculados automáticamente al entrar, para que Mar priorice la
+   revisión por las mejor puntuadas. La puntuación **solo informa, no descarta
+   ninguna oferta**. Las ofertas con encaje muy alto se marcan además con una
+   estrella ("destacada").
 
 ## 3.3 Generación de CV y carta adaptados
 
@@ -128,10 +133,15 @@ candidatura a mano cuando termina.
 
 ## 3.6 Archivado automático
 
-Dos veces al día, tras la ingesta, el sistema mueve del listado activo al
-archivo histórico:
+**Inmediato:** en cuanto Mar marca una candidatura como "descartada" o
+"rechazada" en el listado activo, pasa **al momento** al archivo histórico,
+manteniendo el orden por fecha. Si Mar cambia de opinión, poniendo el estado
+"pendiente" a una candidatura del archivo, esta vuelve al listado activo.
 
-1. Toda candidatura marcada "descartada" o "rechazada", siempre.
+**Dos veces al día, tras la ingesta,** una pasada programada archiva además
+(y sirve de red de seguridad para las dos anteriores):
+
+1. Toda candidatura marcada "descartada" o "rechazada" que quede en el listado.
 2. Toda candidatura "pendiente" con más de 7 días desde que se guardó, sin
    que Mar haya actuado.
 3. Toda candidatura "CV enviado" con 30 días o más sin respuesta y sin
@@ -160,13 +170,14 @@ si una fuente merece seguir activa y para calibrar los filtros.
 **Oferta de empleo** — el registro central. Se agrupa en cuatro bloques:
 
 - *Datos de la oferta* (los describe la empresa, no cambian): puesto,
-  empresa, salario, modalidad de trabajo, resumen de la descripción, tipo de
-  aplicación (correo o enlace), destino de aplicación (email o URL),
-  plataforma de origen, fecha de publicación.
+  empresa, resumen de la descripción, tipo de aplicación (correo o enlace),
+  destino de aplicación (email o URL), plataforma de origen, fecha de
+  publicación. El salario y la modalidad de trabajo se capturan para filtrar
+  en la ingesta pero **no se guardan** en el listado activo (tarea 19).
 - *Estado del proceso* (los gestiona el sistema o Mar): estado actual de la
   candidatura (ver ciclo de vida en la sección 5), fecha en la que se
-  guardó, si está marcada como destacada, si está marcada para generar CV,
-  fecha en la que se envió el CV (si aplica).
+  guardó, si está marcada como destacada (encaje con IA muy alto), si está
+  marcada para generar CV, fecha en la que se envió el CV (si aplica).
 - *Trazabilidad de la propuesta de la IA*: el nuevo estado que la IA propone
   al detectar una respuesta de empresa, y un resumen de esa respuesta, ambos
   pendientes de validación por Mar hasta que ella los confirma.
@@ -175,7 +186,8 @@ si una fuente merece seguir activa y para calibrar los filtros.
   para detectar duplicados (uno por identidad empresa+puesto, otro por URL
   de destino) — no tienen significado para Mar y no se muestran como
   información relevante.
-- *[PREVISTO — M1]* puntuación de encaje (0-100) y motivo en una frase.
+- *Encaje con IA*: puntuación de 0-100 y motivo en una frase, calculados al
+  entrar la oferta. La marca de destacada se deriva de esta puntuación.
 
 Una oferta vive primero en el **listado activo** y, cuando se archiva, pasa
 al **archivo histórico** con los mismos datos — es el mismo tipo de
@@ -206,8 +218,11 @@ lectura para Mar, nadie lo edita a mano.
   sistema no salta estados por su cuenta salvo en esa transición automática
   de archivado.
 - **Ninguna candidatura con conversación viva se archiva automáticamente.**
-  Solo se archivan en automático: descartada/rechazada (siempre), pendiente
-  sin actividad tras 7 días, y CV enviado sin respuesta tras 30 días.
+  Solo se archivan en automático: descartada/rechazada (siempre — de forma
+  **inmediata** al marcar el estado, o en la pasada programada si algo falla),
+  pendiente sin actividad tras 7 días, y CV enviado sin respuesta tras 30 días.
+- **El archivado por "descartada"/"rechazada" es reversible:** poner el estado
+  "pendiente" a una candidatura del archivo la devuelve al listado activo.
 - **El sistema nunca decide en solitario si una respuesta de empresa
   significa avance o rechazo** — siempre dejar la propuesta en un campo
   aparte, pendiente de que Mar la valide, nunca sobrescribir el estado

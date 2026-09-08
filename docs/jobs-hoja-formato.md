@@ -34,6 +34,14 @@ la fila 1 por nombre**, no por posición. Consecuencias:
 - Verificado el 27 ago 2026 metiendo 2 filas de prueba que imitaban el
   `append` de la ingesta: cada valor cayó en su columna y `generar_cv_ia`
   recibió la casilla sola. Filas de prueba borradas después.
+
+> ⚠️ Las letras de columna (`Q1`, `R1`, `!U1`…) de los siguientes bullets y de
+> la sección de la tarea 21 son **anteriores al reordenado del 8 sep 2026**
+> (tarea 19). Para el orden y la función actuales de las 20 columnas, ver
+> [«Orden y función de las columnas»](#orden-y-función-de-las-columnas-20-col-a-t)
+> más abajo. El mapeo por cabecera hace que la posición dé igual para la
+> automatización.
+
 - **Columna `id_url`** (añadida el 31 ago 2026, tarea 9 / M2): `Ofertas_activas!Q1`
   y `Archivo!R1` — posiciones distintas, pero da igual porque el mapeo es por
   cabecera. La escribe `Filtro duplicados` de la ingesta (hash de la URL

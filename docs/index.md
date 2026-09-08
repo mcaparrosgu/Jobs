@@ -17,12 +17,14 @@ timestamp: 2026-09-04T00:00:00Z
 - [Jobs · seguimiento](jobs-seguimiento.md) — lectura de respuestas por Gmail y
   propuesta de la IA para actualizar `estado`
 - [Jobs · archivado](jobs-archivado.md) — mueve ofertas descartadas/gestionadas
-  de `Ofertas_activas` a `Archivo`
+  de `Ofertas_activas` a `Archivo` (red de seguridad; el archivado de
+  `descartada`/`rechazada` es instantáneo vía Apps Script, tarea 23)
 
 ## Hoja y mantenimiento
 
-- [Formato y mantenimiento de la hoja n8n_jobs](jobs-hoja-formato.md) — columnas,
-  validaciones, chips de color y el Apps Script `mantenimiento`
+- [Formato y mantenimiento de la hoja n8n_jobs](jobs-hoja-formato.md) — columnas
+  (orden y función actuales), validaciones, chips de color, el Apps Script
+  `mantenimiento` y el `onEdit` de archivado/desarchivado instantáneo
 
 ## Legal y especificación
 
