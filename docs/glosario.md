@@ -34,6 +34,53 @@ uno: qué es en corto, una analogía cotidiana, y dónde se usó aquí.
   sobre el repo: ninguno (git normaliza a LF igual al commitear); el riesgo
   era solo ensuciar el diff de la sesión.
 
+## Cuantificador greedy vs. lazy (expresiones regulares)
+
+- En una expresión regular, un cuantificador (`*`, `+`, `{n,}`) es **greedy**
+  por defecto: consume **todo** lo que puede y luego devuelve caracteres si el
+  resto del patrón no encaja. Añadiéndole `?` (`*?`, `+?`) se vuelve **lazy**:
+  consume lo **mínimo** y va ampliando. No son opuestos exactos: un lazy que se
+  ve obligado a crecer prefiere **añadir repeticiones** antes que hacer que un
+  greedy interior "suelte" caracteres.
+- Como servir comida: el greedy llena el plato hasta arriba y luego quita si
+  sobra; el lazy pone una cucharada y añade solo si le piden más.
+- El 10 sep 2026 mordió aquí: `\*\*Prioridad:[^\n]*(?:\n[^\n]*)*?\*\*` tenía un
+  `[^\n]*` **greedy dentro** de un grupo **lazy**. El greedy se tragaba el `**`
+  de cierre de la línea de prioridad, y el grupo lazy, en vez de hacerlo
+  retroceder, añadía líneas hasta el siguiente `**…**` del bloque — corrompiendo
+  4 negritas en `tareas-pendientes.md`. Para "captura una negrita `**X**`" lo
+  correcto es `\*\*[^*]+\*\*` (sin `.` ni `[^\n]` con lazy).
+
+## Desplegable de `estado` / validación de datos (Google Sheets)
+
+- Una **regla de validación de datos** `ONE_OF_LIST` (en la API REST;
+  `VALUE_IN_LIST` en Apps Script) hace que una celda solo acepte valores de una
+  lista y muestre una flechita para elegir. Con `strict: true` rechaza lo que no
+  esté en la lista; con `strict: false` solo avisa (triángulo). El "chip" de
+  color de cada valor **no se puede poner ni leer por la API** — solo a mano en
+  la UI, y el script lo conserva porque **copia** la regla de una fila buena
+  (`copyTo` con `PASTE_DATA_VALIDATION`) en vez de reconstruirla.
+- Como el desplegable de un formulario de papel con casillas ya impresas: eliges
+  una, no escribes libre.
+- `Ofertas_activas!estado` (col E) lo lleva desde el principio con chips de
+  color; **`Archivo!estado` lo lleva desde el 10 sep 2026** (tarea 23), sin
+  color, para poder desarchivar eligiendo `pendiente` de un clic.
+
+## Disparador simple vs. instalable (`onEdit`, Apps Script)
+
+- Un **disparador simple** es una función con un nombre reservado (`onEdit`,
+  `onOpen`…) que Google ejecuta sola, sin configurar nada, en cuanto el código
+  está en el proyecto. Solo reacciona a **acciones de una persona en la
+  interfaz** y corre con permisos limitados. Un **disparador instalable** se da
+  de alta a mano (o por código) y puede reaccionar a más cosas y con más
+  permisos, pero hay que crearlo.
+- Como la luz del frigorífico (simple: se enciende sola al abrir la puerta, y
+  solo entonces) frente a un temporizador que programas tú (instalable).
+- La tarea 23 usa `onEdit` **simple** justo por eso: se dispara cuando Mar cambia
+  `estado` a mano, pero **nunca** con lo que escribe n8n por API ni el propio
+  script — así no hace falta distinguir quién hizo el cambio. Funciona en cuanto
+  se hace `clasp push`, sin instalar nada.
+
 ## Digital Omnibus
 
 - Un paquete de reformas de la UE (aprobado jun 2026) que simplifica y

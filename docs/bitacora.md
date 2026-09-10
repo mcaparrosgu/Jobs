@@ -808,3 +808,41 @@ decisión cambió, se anota una entrada nueva que lo diga.
   vivo como cuaderno de iteración. Cuando entre otra oferta mal filtrada, Mar la
   enlaza y se abre la iteración 2. Limpieza opcional de `SENALES_DESTACADA` sigue
   aparcada.
+
+## 2026-09-10 · Hito — Claude ya puede publicar; gran limpieza de tareas; desplegable en Archivo
+
+- QUÉ SE DESCUBRIÓ — **El clasificador de auto-mode de Claude Code NO bloquea
+  `publish_workflow` ni `clasp push` de forma absoluta.** Con una autorización
+  explícita de Mar en la conversación («puedes publicar», «hazlo tú»),
+  `publish_workflow` de la tarea 17 devolvió `success` y `clasp push` de la
+  tarea 23 subió los 2 ficheros. Hasta ahora (tareas ≤ 15) el patrón era
+  siempre «dejar draft y pedir a Mar que pulse Publish». Cambia el flujo: Claude
+  publica, pero **releyendo byte a byte antes y comprobando
+  `versionId == activeVersionId` después**. Recogido en la memoria
+  `n8n-mcp-quirks` y en `docs/tareas-pendientes.md` (tarea 23).
+- QUÉ SE DECIDIÓ (Mar, en sesión) — Cerrar de golpe **16** (legal: leída y
+  aprobada, riesgo mínimo para uso personal), **18** (enlace_cv/carta: «funciona
+  perfectamente»), **19** (columnas + ⭐: «no es importante», sin backfill),
+  **12** (archivar cv_enviado 30d: no verificable porque Mar no enviará CVs por
+  email — a `# Cerradas` + recordatorio en `# Sugerencias pendientes`).
+  `# Abiertas` queda con 23 y 14. Restricción que Mar dejó clara al cerrar la
+  19: **las filas de `Ofertas_activas` siempre en orden cronológico.**
+- QUÉ SE ROMPIÓ — El script en lote que movía los 4 bloques a `# Cerradas` tenía
+  un bug de regex: `\*\*Prioridad:[^\n]*(?:\n[^\n]*)*?\*\*` — el `[^\n]*` greedy
+  *dentro* del grupo con cuantificador lazy `*?` se come el `**` de cierre de la
+  línea de prioridad y el match se estira hasta el siguiente `**…**` del bloque
+  (`**Veredicto…**`, `**Criterio de cierre:**`). Corrompió 4 negritas. Detectado
+  en la verificación (comparar cada bloque contra `git show HEAD:`), revertido a
+  mano, y las líneas de prioridad se marcaron con `Edit` una a una. Lección: para
+  «captura una negrita `**X**`» usar `\*\*[^*]+\*\*`, no `.*?`/`[^\n]*` con lazy.
+- QUÉ SE HIZO (tarea 23) — Mar probó el `onEdit`: `descartada`/`rechazada` se
+  archivan bien, pero en `Archivo` el `estado` era texto plano y desarchivar
+  obligaba a teclear `pendiente`. Se sembró un desplegable en `Archivo!E2:E348`
+  vía `google-sheets` MCP (`ONE_OF_LIST`, 10 valores, `strict:false`, sin color
+  de chip) y el Apps Script pasa a mantenerlo (`HOJAS` → `Archivo` `estado:true`;
+  `moverFila_` repone el desplegable en ambos destinos). `clasp push` hecho.
+- QUÉ QUEDA PENDIENTE DE ENTENDER / DE VIGILAR — Al leer `Archivo` apareció que
+  **~250 de sus ~347 filas ya tienen `estado: pendiente`** (heredado de cuando la
+  columna no tenía validación). El `onEdit` no las mueve (solo edita-celda-a-
+  celda), pero es un campo minado: si Mar tocara esa columna en bloque, esas
+  filas volverían a `Ofertas_activas`. Sin decidir si conviene sanearlas.
