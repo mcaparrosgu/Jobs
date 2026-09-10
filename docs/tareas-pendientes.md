@@ -1250,9 +1250,6 @@ aquí para no perderlas.
 - **M6 — sacar n8n del portátil a un servidor.** Interesa cuando llegue el
   momento de monetizar/comercializar Jobs, no antes: mientras sea uso personal,
   perder una pasada por el portátil apagado no tiene coste real.
-- **M1 — puntuación de encaje con IA** (proveedor ya fijado: `claude-haiku-4-5`,
-  ver jobs-evaluacion.md). Explicada y con la duda de la decisión resuelta
-  (no descarta nada por sí sola), pero aún sin aprobar para implementar.
 - **M4 — podar Wellfound y FlexJobs.** Depende de los datos de la tarea 10
   (`Metricas`): decidir con dos semanas de datos reales, no antes.
 
