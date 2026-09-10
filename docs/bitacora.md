@@ -752,3 +752,39 @@ decisión cambió, se anota una entrada nueva que lo diga.
   en el glosario: el lío CRLF / LF / `core.autocrlf`, y que la única forma de
   saber si una credencial OAuth sigue viva es mirar si hay ejecuciones fallidas
   (no se le puede "preguntar" a n8n directamente).
+
+## 2026-09-10 · Tarea 17 — criterio 4c «ingeniería técnica» en `Filtro cualificación`
+
+- QUÉ SE DECIDIÓ — Mar revisó las 6 ofertas mal filtradas acumuladas desde el 3
+  sep. La #3 (*AI Data Ops Engineer*, IRIUM) **sí encaja** — falso positivo,
+  retirada del patrón; quedan 5. Regla nueva: un título con `engineer`/`ingeniero`
+  a secas se descarta salvo palabra de rescate (`automation`, `n8n`, `operations`/
+  `ops`, `ai engineer`, `prompt engineer`…). **`AI`/`IA` a secas NO rescata** —
+  era la causa raíz. Dos matices de Mar: `data` + `ops` juntos descartan aunque
+  lleve `ops`, salvo que el título mencione IA aplicada (por eso la #3 pasa); y un
+  marcador de investigación/modelado (`IA generativa`, `sistemas de agentes`,
+  `machine learning`…) descarta aunque haya rescate.
+- ALTERNATIVAS DESCARTADAS — (a) solo rellenar `EXCLUSION_DURA` palabra a palabra
+  (palanca 2): «jugar al gato y al ratón», no ataca el patrón. (b) `ops`/
+  `operations` como rescate sin más: reintroducía la #3 y la #6 de tipo data-ops
+  → Mar pidió el matiz «Data + ops». (c) hard-reject de todo lo que lleve `ai
+  engineer`: choca con su decisión del 6 sep («AI Engineer sí»). (d) dejar
+  «enablement» siempre a salvo (punto 7 del protocolo): Mar dijo que la #2 no
+  encaja, así que `enablement engineer` va a `EXCLUSION_DURA`.
+- POR QUÉ ESTA — combina las tres palancas del análisis del 6 sep. El criterio 4c
+  es aditivo (va entre 4b y 5, no toca la decisión pasa/descarta del resto) y su
+  motivo es `perfil:`, así que no añade columna a `Metricas` ni descuadra el
+  autochequeo del embudo. `ai engineer` / `ingeniero de inteligencia artificial`
+  salen de `EXCLUSION_DURA` y pasan al scoring `encaje_ia`, que ya discrimina.
+- QUÉ SE ROMPIÓ — Nada. Verificado con 25 casos de prueba (replay del `jsCode`
+  publicado con `$input` simulado, `scratchpad/test_filtro.js`): las 5 del patrón
+  fuera, la #3 pasa, y siguen pasando *AI Engineer*, *Automation/Operations
+  Engineer*, *Prompt Engineer*, *Technical Program Manager*. `node --check` OK.
+  Releído el nodo publicado byte a byte contra el fichero probado: idéntico.
+- QUÉ QUEDA — **Claude publicó** esta vez (Mar dio vía libre explícita en la
+  sesión; el clasificador de auto-mode no lo bloqueó): `versionId ==
+  activeVersionId == de9ae329-…`. Falta una **pasada real de `Jobs · ingesta`**
+  que confirme el comportamiento y que el recuento `perfil` cuadra en `Metricas`.
+  Limpieza opcional aparcada: quitar `SENALES_DESTACADA` (muerto desde tarea 19).
+  Casos límite a vigilar: `monitoring` en inglés y `RevOps Engineer` sin
+  `automation`.

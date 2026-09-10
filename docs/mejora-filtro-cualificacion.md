@@ -6,34 +6,23 @@ tags: [n8n, empleo, tarea-17, filtro-cualificacion]
 timestamp: 2026-09-04T13:00:00Z
 ---
 
-# ⏭️ Punto de retomada (actualizado 6 sep 2026)
+# ⏭️ Punto de retomada (actualizado 10 sep 2026)
 
-**Dónde está la tarea:** 6 ofertas registradas (umbral de patrón alcanzado), nodo
-analizado y trazado. **Bloqueada esperando 2 cosas de Mar:**
+**Iteración 1 IMPLEMENTADA Y PUBLICADA el 10 sep 2026.** Mar revisó los 6 motivos
+y fijó la regla en la sesión; el nodo `Filtro cualificación` de `Jobs · ingesta`
+tiene el criterio 4c nuevo, publicado (`activeVersionId de9ae329-52d4-4925-b5f8-39149c4d2db6`).
+Detalle en [Iteración 1 — implementada (10 sep 2026)](#iteración-1--implementada-10-sep-2026).
 
-1. **Mar revisa los 6 motivos** de la tabla [Registro de ofertas mal
-   filtradas](#registro-de-ofertas-mal-filtradas) — 4 están como *hipótesis de
-   Claude a validar* (IRIUM, Synera, Evaboot, Inetum) y 2 son de antes (OpenNebula,
-   LocalStack). Que confirme o corrija. Ojo al caso «AI Enablement Engineer»
-   (LocalStack): choca con el guardarraíl del punto 7 (conservar *enablement*).
-2. **Mar fija la lista de rescate** de la regla nueva «ingeniería técnica dura»:
-   qué palabras en el título salvan a un rol aunque lleve «engineer». Propuesta de
-   Claude: `automation` / `automatizacion`, `n8n`, `zapier`, `make`, `rpa`,
-   `workflow`, `no code` / `low code`, `ops` / `operations`.
+**Pendiente para cerrar la tarea 17:** una **pasada real de `Jobs · ingesta`**
+que confirme que las ofertas del tipo señalado quedan fuera, que los roles
+legítimos (AI Engineer, Automation/Operations Engineer, Prompt Engineer) siguen
+pasando, y que el recuento de descartes `perfil` cuadra en `Metricas` sin que
+salte el autochequeo del embudo.
 
-**Ya decidido por Mar (6 sep 2026):** *AI Engineer sí, ML Engineer no* — sacar
-`ai engineer` de `EXCLUSION_DURA` y añadir `ai engineering`; mantener `ml engineer`
-y `machine learning engineer`. Detalle en [Decisiones de Mar](#decisiones-de-mar-6-sep-2026).
-
-**Siguiente paso del agente (cuando Mar responda 1 y 2):** diseñar el
-endurecimiento siguiendo [Cuando hay suficientes ejemplos](#cuando-hay-suficientes-ejemplos)
-(pasos 4-10). Combinar palanca 1 (regla nueva de «ingeniería técnica» antes del
-criterio 5) + palanca 2 (rellenar huecos de `EXCLUSION_DURA`: `kubernetes`,
-`python`, `ingeniero de ia`, `cloud integration`, `data ops`, `enablement
-engineer`, `integration engineer`, `monitorizacion`). Dejar el `jsCode` en draft
-vía `update_workflow` + `updateNodeParameters`, releído byte a byte, `node --check`
-si se puede. **No publicar** — lo publica Mar. Valorar el contador
-`descartes_tecnico` en `Metricas` (paso 10).
+**Para futuras ofertas mal filtradas:** este documento sigue vivo. Cuando entre
+una nueva, Mar la enlaza, se registra en la tabla de abajo, y cuando haya patrón
+(≥ 5 nuevas o «ya tienes suficientes») se abre una **iteración 2** del nodo con el
+mismo protocolo.
 
 # Para qué es este documento
 
@@ -126,12 +115,12 @@ un umbral mal puesto la dejaría fuera de su propio objetivo.
 
 | Fecha | Título | Empresa | Plataforma | id_unico / id_url | URL | Por qué no encaja (Mar) | Estado |
 |---|---|---|---|---|---|---|---|
-| 2026-09-03 | Kubernetes & Cloud Integration Engineer | OpenNebula Systems | Himalayas | `id_unico 4d13f46f` | — | *Hipótesis de Claude (a validar):* rol de infraestructura/cloud puro sobre OpenNebula, sin componente de producto ni de IA aplicada. | registrada |
-| 2026-09-03 | AI Enablement Engineer | LocalStack | Himalayas | `id_unico fac88e75` | — | *Hipótesis de Claude (a validar):* «AI Enablement» aquí es tooling/infra para desarrolladores, no producto ni operaciones/PM. | registrada |
-| 2026-09-06 | AI DATA OPS ENGINEER – INGLÉS – REMOTO | IRIUM | Himalayas | `id_unico 86a496df` / `id_url d2814a13` | https://himalayas.app/companies/irium/jobs/ai-data-ops-engineer-ingles-remoto | *Hipótesis de Claude (a validar):* rol de Data Ops / ingeniería de datos; entró por «AI» en el título pese a ser ingeniería técnica. Llegó a generar CV + carta (gasto de llamadas Sonnet). | registrada |
-| 2026-09-06 | Ingeniero de IA Generativa y Sistemas de Agentes | Synera | RemotoJob | `id_unico 14bcf59d` / `id_url e63ca1c7` | https://remotojob.com/oferta/ingeniero-de-ia-generativa-y-sistemas-de-agentes/ | *Refuerzo del propio `motivo_ia` (encaje_ia = 15):* «ingeniero técnico puro (sistemas de agentes, modelos de lenguaje) que exige experiencia profesional en desarrollo de IA… NO perfil de ingeniero de software, ni experiencia profesional en desarrollo». | registrada |
-| 2026-09-06 | Agentic Python Engineer | Evaboot | We Work Remotely | `id_unico 19335468` / `id_url 5eadab6b` | https://weworkremotely.com/remote-jobs/evaboot-agentic-python-engineer | *Hipótesis de Claude (a validar):* ingeniería de software pura — «strong Python engineering, power user of agentic coding»; entró por «Agentic». Ya archivada como `descartada`. | registrada |
-| 2026-09-06 | Especialista en Monitorización, Soporte y Procesos de Datos en Entorno Azure | Inetum | RemotoJob | `id_unico ebc8ba8f` / `id_url 282a8f80` | https://remotojob.com/oferta/especialista-en-monitorizacion-soporte-y-procesos-de-datos-en-entorno-azure/ | *Hipótesis de Claude (a validar):* monitorización/soporte de infraestructura de datos en Azure; sin componente de producto ni IA aplicada. Ya archivada como `descartada`. | registrada |
+| 2026-09-03 | Kubernetes & Cloud Integration Engineer | OpenNebula Systems | Himalayas | `id_unico 4d13f46f` | — | *Hipótesis de Claude (a validar):* rol de infraestructura/cloud puro sobre OpenNebula, sin componente de producto ni de IA aplicada. | **confirmada** (Mar 10 sep) · corregida en `de9ae329` (4a `kubernetes`) |
+| 2026-09-03 | AI Enablement Engineer | LocalStack | Himalayas | `id_unico fac88e75` | — | *Hipótesis de Claude (a validar):* «AI Enablement» aquí es tooling/infra para desarrolladores, no producto ni operaciones/PM. | **confirmada** (Mar 10 sep) · corregida en `de9ae329` (4a `enablement engineer`) |
+| 2026-09-06 | AI DATA OPS ENGINEER – INGLÉS – REMOTO | IRIUM | Himalayas | `id_unico 86a496df` / `id_url d2814a13` | https://himalayas.app/companies/irium/jobs/ai-data-ops-engineer-ingles-remoto | *Hipótesis de Claude (a validar):* rol de Data Ops / ingeniería de datos; entró por «AI» en el título pese a ser ingeniería técnica. Llegó a generar CV + carta (gasto de llamadas Sonnet). | **Mar 10 sep: SÍ encaja** — falso positivo, retirada del patrón. `de9ae329` la deja pasar (4c: `data ops` + `ai` → excepción) |
+| 2026-09-06 | Ingeniero de IA Generativa y Sistemas de Agentes | Synera | RemotoJob | `id_unico 14bcf59d` / `id_url e63ca1c7` | https://remotojob.com/oferta/ingeniero-de-ia-generativa-y-sistemas-de-agentes/ | *Refuerzo del propio `motivo_ia` (encaje_ia = 15):* «ingeniero técnico puro (sistemas de agentes, modelos de lenguaje) que exige experiencia profesional en desarrollo de IA… NO perfil de ingeniero de software, ni experiencia profesional en desarrollo». | **confirmada** (Mar 10 sep) · corregida en `de9ae329` (4c investigación: `generativa` / `sistemas de agentes`) |
+| 2026-09-06 | Agentic Python Engineer | Evaboot | We Work Remotely | `id_unico 19335468` / `id_url 5eadab6b` | https://weworkremotely.com/remote-jobs/evaboot-agentic-python-engineer | *Hipótesis de Claude (a validar):* ingeniería de software pura — «strong Python engineering, power user of agentic coding»; entró por «Agentic». Ya archivada como `descartada`. | **confirmada** (Mar 10 sep) · corregida en `de9ae329` (4a `python engineer`) |
+| 2026-09-06 | Especialista en Monitorización, Soporte y Procesos de Datos en Entorno Azure | Inetum | RemotoJob | `id_unico ebc8ba8f` / `id_url 282a8f80` | https://remotojob.com/oferta/especialista-en-monitorizacion-soporte-y-procesos-de-datos-en-entorno-azure/ | *Hipótesis de Claude (a validar):* monitorización/soporte de infraestructura de datos en Azure; sin componente de producto ni IA aplicada. Ya archivada como `descartada`. | **confirmada** (Mar 10 sep) · corregida en `de9ae329` (4a `monitorizacion`) |
 
 **Dudosas — NO registradas** (más bien gestión/PM, que el guardarraíl del punto 7
 manda conservar; a la espera de que Mar diga si las cuenta): *Technical Program
@@ -141,6 +130,13 @@ Analyst, Data Operations* en AffirmedRx (`d8c2c57a`, `fd86aacf`).
 **Recuento (6 sep 2026):** 6 ofertas registradas → se alcanza el umbral de patrón
 (≥ 5). Pendiente: Mar valida/corrige los motivos marcados como hipótesis y da luz
 verde a diseñar el endurecimiento del nodo.
+
+**Actualización (10 sep 2026):** Mar revisó las 6. **La #3 (IRIUM, AI Data Ops
+Engineer) SÍ encaja** — falso positivo, se retira: quedan **5** ofertas del
+patrón, todas confirmadas y corregidas en la iteración 1 (`de9ae329`). Las
+*Dudosas* (Technical Program Manager, Manager/Data Operations) **siguen pasando**
+a propósito: no llevan `engineer`/`ingeniero` y el punto 7 manda conservar
+gestión/PM; se revisarán si Mar enlaza más.
 
 # Análisis del nodo (6 sep 2026) — por qué pasó cada una
 
@@ -195,12 +191,76 @@ cuyo título roce una de esas palabras entra. Y **5 de 6 llevan “engineer” /
   antes de que Claude diseñe el endurecimiento. Hasta entonces, no se escribe
   draft del nodo.
 
-## Tensión pendiente
+## Decisiones de Mar (10 sep 2026)
 
-- «AI Enablement Engineer» (LocalStack) — el punto 7 del protocolo dice conservar
-  roles de *enablement*; Mar lo marcó como que NO encaja. Manda el caso concreto,
-  pero conviene una regla que distinga «enablement» de dev-tooling de «enablement»
-  de negocio (difícil por título solo). A ver qué dice Mar al revisar.
+- **La #3 (AI Data Ops Engineer, IRIUM) SÍ encaja.** Falso positivo — el filtro
+  no debe descartarla. Las otras 5 (#1, #2, #4, #5, #6): fuera.
+- **`engineer`/`ingeniero` a secas descarta**, salvo palabra de rescate.
+- **`operations`/`operaciones`/`ops` es palabra de rescate** — «Operations» es el
+  título del puesto de Mar en LinkedIn. Pero **`data` + `ops` juntos** en un
+  título de ingeniería vuelven a descartar, **salvo que el título mencione IA**
+  aplicada (por eso la #3, «**AI** Data Ops Engineer», pasa).
+- **`AI`/`IA` a secas NO rescata** — era la causa raíz (colaba #1, #2, #4).
+- **`Prompt Engineer`** entra en la lista de «pasan siempre», junto a
+  `AI Engineer` / `AI Engineering`.
+- Vía libre para publicar (Mar: «puedes publicar y actualizar la documentación»).
+
+## Iteración 1 — implementada (10 sep 2026)
+
+**Nodo:** `Filtro cualificación` de [Jobs · ingesta](jobs-ingesta.md)
+(`CXCD8BZUQEQKex2a`, nodo id `5e6da0a2-…`). Publicado por Claude tras verificación
+byte a byte: **`versionId == activeVersionId == de9ae329-52d4-4925-b5f8-39149c4d2db6`**.
+Cambio **aditivo** — la lógica pasa/descarta del resto de criterios no cambia; el
+motivo del nuevo criterio es `perfil: …`, así que **no añade clave a `Metricas`**
+(cuenta en el bucket `perfil` que ya existe) y el autochequeo del embudo sigue
+cuadrando.
+
+Combinación de palanca 1 + palanca 2 + parte de la 3:
+
+1. **Criterio 4c nuevo** (entre 4b y 5). Si el título trae
+   `engineer`/`ingeniero`/`ingeniera`/`ingenieria`:
+   - marcador de **investigación/modelado** (`generativa`, `sistemas de agentes`,
+     `deep learning`, `machine learning`, `nlp`, `research`, `phd`…) → descarta
+     aunque haya rescate;
+   - **`data ops` / `data engineer` / `mlops`** sin señal de IA aplicada
+     (`ai`, `ia`, `genai`, `llm`, `agentic`) → descarta aunque lleve `ops`;
+   - si no hay **rescate** (`automation*`, `n8n`, `zapier`, `rpa`, `workflow`,
+     `no code`/`low code`, `citizen developer`, `operations`/`operaciones`/`ops`,
+     `ai engineer`/`ai engineering`/`ingeniero de ia`, `prompt engineer`) →
+     descarta.
+2. **`EXCLUSION_DURA`**: fuera `ai engineer` e `ingeniero de inteligencia
+   artificial` (van al scoring `encaje_ia`); dentro `kubernetes`, `k8s`,
+   `cloud integration`, `integration engineer`, `python engineer`,
+   `python developer`, `programmer`, `enablement engineer`, `site reliability`,
+   `monitorizacion`, `monitoring`, `observability`, `observabilidad`,
+   `infraestructura`. `ml engineer` / `machine learning engineer` se quedan.
+3. **`FAMILIAS_OBJETIVO`**: fuera `integration` / `integraciones` sueltos
+   (colaban «Cloud Integration Engineer»). `procesos` se queda (roles de
+   coordinación legítimos); #6 la corta ya `monitorizacion` en 4a.
+
+**Prueba unitaria** (25 casos, `scratchpad/test_filtro.js`, replay del `jsCode`
+publicado con `$input` simulado): las 5 ofertas del patrón quedan fuera, la #3
+pasa, y siguen pasando *AI Engineer*, *AI Engineering*, *Ingeniero de IA*,
+*Automation Engineer*, *AI Automation Engineer*, *Prompt Engineer*,
+*Operations Coordinator*, *Business Operations Engineer*, *AI Operations Manager*,
+*Workflow Automation Engineer*, *Technical Program Manager*, *Manager, Data
+Operations*. Siguen cayendo *Backend/ML/DevOps/Data Engineer*, *Full Stack
+Developer*.
+
+**Limpieza no hecha (opcional):** `SENALES_DESTACADA` y la línea
+`oferta.destacada = …` siguen en el `jsCode`; su salida la pisa `Aplicar scoring`
+(tarea 19). Se puede borrar en una iteración futura.
+
+**Casos límite conocidos, a vigilar:** `monitoring` (inglés) en `EXCLUSION_DURA`
+podría cortar algún «… Operations & Monitoring …» legítimo; `RevOps Engineer`
+sin `automation` cae por 4c (abreviatura no cubierta). Si aparecen, se relajan.
+
+## Tensión pendiente — resuelta el 10 sep 2026
+
+- «AI Enablement Engineer» (LocalStack): Mar confirmó que **no encaja**. No se
+  intenta distinguir «enablement» de dev-tooling de «enablement» de negocio por
+  título; se descarta vía `enablement engineer` en `EXCLUSION_DURA`. Si en el
+  futuro entra un «… Enablement …» de negocio legítimo y cae, se revisa.
 
 # Relacionados
 

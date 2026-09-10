@@ -10,9 +10,10 @@ timestamp: 2026-08-29T09:00:00Z
 
 ## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
 
-**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. En recogida de
-ejemplos.** A Mar le entran ofertas para las que obviamente no está cualificada
-(roles técnicos, de ingeniería informática, infraestructura…).
+**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. Iteración 1
+IMPLEMENTADA Y PUBLICADA el 10 sep 2026; en observación hasta una pasada real.**
+A Mar le entran ofertas para las que obviamente no está cualificada (roles
+técnicos, de ingeniería informática, infraestructura…).
 
 **Método acordado (4 sep 2026):** Mar **no** prepara una lista de golpe. Cada vez
 que entre una oferta mal filtrada la enlazará en la sesión; el agente la registra
@@ -55,9 +56,23 @@ Análisis completo, palancas posibles y tensiones a resolver en
 [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
 Decisión de Mar (6 sep): **AI Engineer sí, ML Engineer no** — sacar `ai engineer`
 de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
-**Bloqueada esperando a Mar:** (1) revisar ella misma los 6 motivos en
-`mejora-filtro-cualificacion.md`, (2) fijar la lista de rescate de la regla nueva
-de «ingeniería técnica».
+
+**Implementada y publicada (10 sep 2026), vía n8n MCP:** Mar revisó las 6 ofertas
+en la sesión (la #3 IRIUM **sí encaja** → falso positivo; las otras 5 fuera) y
+fijó la regla. `Filtro cualificación` de `Jobs · ingesta` (`CXCD8BZUQEQKex2a`,
+nodo `5e6da0a2-…`) gana un **criterio 4c «ingeniería técnica»** entre 4b y 5:
+`engineer`/`ingeniero` a secas descarta salvo señal de automatización/operaciones
+(`AI`/`IA` a secas **no** rescata); `data ops`/`data engineer` sin IA descarta
+aunque lleve `ops`; un marcador de investigación/modelado descarta aunque haya
+rescate. Además: `ai engineer` e `ingeniero de inteligencia artificial` salen de
+`EXCLUSION_DURA` (van al scoring `encaje_ia`); entran `kubernetes`,
+`python engineer`, `enablement engineer`, `monitorizacion`… ; `integration`
+suelto sale de `FAMILIAS_OBJETIVO`. Cambio **100 % aditivo** (`updateNodeParameters`,
+`replace: true`, releído byte a byte, `node --check` + 25 casos de prueba OK);
+el motivo es `perfil:`, no añade clave a `Metricas`. **Publicado por Claude**
+(Mar dio vía libre en la sesión): `versionId == activeVersionId ==
+de9ae329-52d4-4925-b5f8-39149c4d2db6`. Decisiones e implementación en
+[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
 
 **Nota (8 sep 2026, tarea 19):** la marca `destacada` (⭐) **ya no depende de
 `SENALES_DESTACADA`** — desde el 8 sep se calcula en `Aplicar scoring` como

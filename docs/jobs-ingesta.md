@@ -104,10 +104,10 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
 2. **`Filtro salario`** — umbral 33.000 €/ano, con deteccion de divisa (USD,
    GBP con tasas fijas aproximadas; sin divisa explicita se asume EUR). Las
    ofertas sin salario pasan.
-3. **`Filtro cualificación`** — cinco criterios en cascada sobre cada oferta;
-   gana el primero que dispare. Salvo el de idioma, todos miran **solo el
-   titulo**: mirar tambien el resumen descarta ofertas buenas (ver la nota de
-   RemotoJob mas abajo).
+3. **`Filtro cualificación`** — seis criterios en cascada sobre cada oferta
+   (1, 2, 3, 4a, 4b, **4c**, 5); gana el primero que dispare. Salvo el de
+   idioma, todos miran **solo el titulo**: mirar tambien el resumen descarta
+   ofertas buenas (ver la nota de RemotoJob mas abajo).
    1. **idioma** — descarta si exige un idioma que Mar no habla (habla ES, CA
       y EN). Solo cuenta si el idioma aparece a menos de 40 caracteres de una
       marca de requisito (`fluent`, `native`, `imprescindible`, `C1`…), para
@@ -118,14 +118,32 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
       `director`, `VP`, `chief`… con excepcion para `semi senior` y `junior`.
       Ademas descarta si pide mas de 4 años de experiencia, salvo que sean
       años de operaciones (donde Mar tiene 7).
-   4. **perfil** — profesion fuera de perfil, en dos listas: **dura** (nunca
-      rescatable: desarrollo, QA, diseño, sanidad, legal, docencia, logistica,
-      construccion…) y **blanda** (ventas, marketing, finanzas, atencion al
-      cliente, RRHH), que la lista de **rescate** anula para dejar pasar los
-      compuestos legitimos tipo `Marketing Operations`.
+   4. **perfil** — profesion fuera de perfil, en tres pasos:
+      - **4a dura** (nunca rescatable: desarrollo, QA, diseño, sanidad, legal,
+        docencia, logistica, construccion…). **Desde el 10 sep 2026 (tarea 17)**
+        incluye `kubernetes`, `python engineer`, `enablement engineer`,
+        `monitorizacion`/`observability`, `integration engineer`… y **ya no**
+        `ai engineer` / `ingeniero de inteligencia artificial` (esos pasan al
+        scoring `encaje_ia`; `ml engineer` / `machine learning engineer` se
+        quedan).
+      - **4b blanda** (ventas, marketing, finanzas, atencion al cliente, RRHH),
+        que la lista de **rescate** anula para dejar pasar los compuestos
+        legitimos tipo `Marketing Operations`.
+      - **4c ingenieria tecnica** (tarea 17, 10 sep 2026) — si el titulo trae
+        `engineer`/`ingeniero` a secas se descarta, **salvo** una señal de
+        automatizacion u operaciones (`automation`, `n8n`, `zapier`, `rpa`,
+        `workflow`, `no code`, `operations`/`ops`, `ai engineer`,
+        `prompt engineer`…). **`AI`/`IA` a secas NO rescata** (era lo que colaba
+        roles de infra que solo mencionan «AI»). Dos matices: `data ops` /
+        `data engineer` sin señal de IA aplicada descarta aunque lleve `ops`
+        (por eso «AI Data Ops Engineer» pasa y «Data Operations Engineer» no); y
+        un marcador de investigacion/modelado (`IA generativa`, `sistemas de
+        agentes`, `machine learning`, `nlp`, `research`…) descarta aunque haya
+        rescate.
    5. **encaje** — la oferta tiene que ganarse la entrada: si el titulo no
       menciona ninguna **familia objetivo** (operaciones, automatizacion, IA,
-      procesos, coordinacion, administracion), se descarta.
+      procesos, coordinacion, administracion), se descarta. **Desde el 10 sep
+      2026 (tarea 17)** fuera `integration`/`integraciones` sueltos.
 
    Despues calcula `destacada: ⭐` buscando las señales fuertes (`SENALES_DESTACADA`)
    **solo en el titulo**. **Desde el 8 sep 2026 (tarea 19) ese valor lo pisa
@@ -628,9 +646,25 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
     `Marketing Operations` sin dejar pasar `Marketing Manager`.
   - **`engineer` va por compuestos concretos** (`software engineer`,
     `ai engineer`, `data engineer`…), nunca suelto, para no descartar
-    `Automation Engineer`, que si es el perfil.
+    `Automation Engineer`, que si es el perfil. **(Matizado el 10 sep 2026,
+    tarea 17: el criterio 4c nuevo sí descarta `engineer`/`ingeniero` suelto,
+    pero con una lista de rescate — `automation`, `operations`/`ops`, `n8n`… —
+    que salva `Automation Engineer`. Ver A.3, criterio 4c.)**
   - **Los plurales hay que ponerlos a mano.** `Outbound & Automations Manager`
     se caia porque `automations` no casa con `\bautomation\b`.
+- ~~**Se colaban roles técnicos que solo mencionan «AI» en el título**~~
+  **Corregido el 10 sep 2026 (tarea 17).** *Kubernetes & Cloud Integration
+  Engineer*, *AI Enablement Engineer*, *Agentic Python Engineer*, *Ingeniero de
+  IA Generativa y Sistemas de Agentes*, *Especialista en Monitorización… de
+  Datos en Azure* pasaban porque el criterio 5 (lista blanca) los rescataba por
+  `integration`/`ai`/`agentic`/`procesos` y `engineer` suelto no descartaba. Se
+  añadió el **criterio 4c «ingeniería técnica»** (ver A.3) y se rellenaron
+  huecos de `EXCLUSION_DURA`. Publicado: `activeVersionId
+  de9ae329-52d4-4925-b5f8-39149c4d2db6`. Registro y decisiones de Mar en
+  [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md). *AI Data Ops
+  Engineer* (IRIUM) resultó ser un falso positivo — Mar confirmó que sí encaja,
+  y el criterio 4c la deja pasar (lleva «AI»). Pendiente de confirmar en una
+  pasada real que el recuento `perfil` cuadra en `Metricas`.
 - ~~**La marca ⭐ nunca ha llegado a la hoja**~~ **Corregido el 15 ago 2026.**
   `Append row in sheet` usa `mappingMode: autoMapInputData`, que mapea contra
   las cabeceras reales de `Ofertas_activas`; hasta el 15 ago no existía ahí la
