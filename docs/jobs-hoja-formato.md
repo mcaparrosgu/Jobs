@@ -599,6 +599,9 @@ MCP (`batch_update`), **sin tocar las columnas A–G** (así el desplegable de
   `Prompt para CV`), `plataforma` (alimenta `Metricas`), `id_unico`, `id_url`
   (claves anti-duplicados). Ocultar no afecta al `cabeceras.indexOf(...)` del
   Apps Script ni al mapeo por cabecera de n8n; reversible al instante.
+  **Ampliado el 8 sep 2026 (petición de Mar):** también ocultas `fecha_publicacion`
+  (D) y `tipo_aplicacion` (J) — mismo criterio, solo lo lee Mar (D) o solo n8n
+  por cabecera (J). Total: 6 columnas ocultas (D, J, Q, R, S, T).
 - La banda `bandedRangeId 56060992` encogió sola de A–V a **A–T** al borrar las
   2 columnas (verificado: `endColumnIndex 20`).
 - Verificado por API tras el cambio: validación `ONE_OF_LIST` de `estado` (E) y
@@ -612,13 +615,13 @@ MCP (`batch_update`), **sin tocar las columnas A–G** (así el desplegable de
 | A | `fecha_guardado` | Fecha en que la ingesta guardó la oferta (`yyyy-mm-dd`). Clave de ordenación desc del Apps Script y de la regla de archivado a 7 días. | Jobs · ingesta (`Filtro duplicados`) |
 | B | `titulo_puesto` | Título del puesto. | ingesta (normalizador) |
 | C | `empresa` | Empresa. | ingesta |
-| D | `fecha_publicacion` | Fecha de publicación de la oferta (string ISO de la fuente). Solo la lee Mar. | ingesta |
+| D | `fecha_publicacion` | Fecha de publicación de la oferta (string ISO de la fuente). Solo la lee Mar. **Oculta** (8 sep 2026). | ingesta |
 | E | `estado` | Estado del ciclo de vida (`pendiente` → … → `rechazada`/`descartada`). Desplegable `ONE_OF_LIST` + chip de color puesto a mano, **atado a la posición E**. | ingesta (`pendiente`); Jobs · generación CV (`cv_ia_creado`, `cv_enviado`); Mar a mano |
 | F | `destacada` | ⭐ de prioridad. **Desde el 8 sep 2026** (tarea 19) se marca cuando `encaje_ia > 80` (antes: lista de ~25 palabras clave sobre el título en `Filtro cualificación`). | ingesta (`Aplicar scoring`) |
 | G | `generar_cv_ia` | Casilla booleana; Mar la marca para disparar `Jobs · generación CV` (Sheets Trigger cada 5 min). | ingesta (`false`); Mar a mano |
 | H | `encaje_ia` | Nota 0–100 del encaje con el perfil de Mar (Claude Haiku, nodo `Scoring encaje`). **Solo puntúa, no descarta.** `null` si el scoring falla. | ingesta (`Aplicar scoring`) |
 | I | `motivo_ia` | Frase que justifica `encaje_ia` (≤ 300 car.). `null` si falla. | ingesta (`Aplicar scoring`) |
-| J | `tipo_aplicacion` | `email` o `enlace`. La rama `email o enlace` de generación CV decide el camino según este valor. | ingesta |
+| J | `tipo_aplicacion` | `email` o `enlace`. La rama `email o enlace` de generación CV decide el camino según este valor. **Oculta** (8 sep 2026): n8n la lee por cabecera, ocultarla no le afecta. | ingesta |
 | K | `enlace_o_email` | Destino de la candidatura (URL o email). No se trunca. | ingesta |
 | L | `enlace_cv` | Enlace de edición del Google Doc de CV generado para la oferta. Ambas ramas (email/enlace). | Jobs · generación CV (`Actualizar estado generar_cv_ia`) |
 | M | `enlace_carta` | Ídem para la carta de presentación. | Jobs · generación CV (mismo nodo) |
