@@ -8,85 +8,6 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
-## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
-
-**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. Iteración 1
-IMPLEMENTADA Y PUBLICADA el 10 sep 2026; en observación hasta una pasada real.**
-A Mar le entran ofertas para las que obviamente no está cualificada (roles
-técnicos, de ingeniería informática, infraestructura…).
-
-**Método acordado (4 sep 2026):** Mar **no** prepara una lista de golpe. Cada vez
-que entre una oferta mal filtrada la enlazará en la sesión; el agente la registra
-en [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md) (brief
-permanente de esta tarea) y, cuando haya patrón (≥ 5 ofertas o Mar dice
-«suficientes»), endurece el nodo `Filtro cualificación` siguiendo el protocolo de
-ese documento. La corrección se deja en draft y la publica Mar.
-
-**Toca:** el Code node `Filtro cualificación` de `Jobs · ingesta`
-(`CXCD8BZUQEQKex2a`) — nodo caliente. Posiblemente una columna nueva en la pestaña
-`Metricas` (o reusar `descartes_perfil` / `descartes_encaje`).
-
-**Causa probable (a confirmar leyendo el nodo):** el criterio 5 «encaje» *rescata*
-cualquier oferta cuyo título mencione la familia `IA`. Así entran roles de
-infraestructura que solo mencionan «AI»: en la hoja el 3 sep están *Kubernetes &
-Cloud Integration Engineer* (OpenNebula, `id_unico 4d13f46f`) y *AI Enablement
-Engineer* (LocalStack, `fac88e75`), **ambas con CV ya generado**. La lista «dura»
-del criterio 4 no cubre `kubernetes`, `cloud`, `backend`, `infra`…, y `engineer`
-suelto no descarta a propósito (para no perder *Automation Engineer*).
-
-**Diseño tentativo:** lista de rechazo «ingeniería técnica dura» (`kubernetes`,
-`devops`, `sre`, `backend`, `frontend`, `full-stack`, `software engineer`,
-`data engineer`, `cloud engineer`, `platform engineer`, `firmware`…) que corte
-**antes** del rescate por familia `IA`, salvo enmarcado claro de ops/PM/enablement.
-
-**Riesgo:** medio — un umbral mal puesto deja fuera *AI Engineer* legítimos (el
-bootcamp de Mar es justo eso).
-
-**Necesito de Mar antes de diseñar:** la **lista concreta** de ofertas que
-entraron mal (título + por qué no encajan). Claude puede sacar candidatas de
-`Archivo` y de las últimas pasadas, pero el criterio de Mar manda.
-
-**Avance (6 sep 2026):** Claude registró 4 candidatas más sacadas de la hoja y de
-`Archivo` (IRIUM, Synera, Evaboot, Inetum) → **6 ofertas en el registro**, se
-alcanza el umbral de patrón. Leído el nodo publicado y trazada cada oferta: el
-diagnóstico previo («rescate por IA») solo aplica a 1 de 6; el patrón real es que
-el **criterio 5 es una lista blanca demasiado genérica** (`integration`,
-`procesos`, `agentic`, `ia`, `ops`…) y **5 de 6 llevan “engineer”/“ingeniero”**.
-Análisis completo, palancas posibles y tensiones a resolver en
-[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
-Decisión de Mar (6 sep): **AI Engineer sí, ML Engineer no** — sacar `ai engineer`
-de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
-
-**Implementada y publicada (10 sep 2026), vía n8n MCP:** Mar revisó las 6 ofertas
-en la sesión (la #3 IRIUM **sí encaja** → falso positivo; las otras 5 fuera) y
-fijó la regla. `Filtro cualificación` de `Jobs · ingesta` (`CXCD8BZUQEQKex2a`,
-nodo `5e6da0a2-…`) gana un **criterio 4c «ingeniería técnica»** entre 4b y 5:
-`engineer`/`ingeniero` a secas descarta salvo señal de automatización/operaciones
-(`AI`/`IA` a secas **no** rescata); `data ops`/`data engineer` sin IA descarta
-aunque lleve `ops`; un marcador de investigación/modelado descarta aunque haya
-rescate. Además: `ai engineer` e `ingeniero de inteligencia artificial` salen de
-`EXCLUSION_DURA` (van al scoring `encaje_ia`); entran `kubernetes`,
-`python engineer`, `enablement engineer`, `monitorizacion`… ; `integration`
-suelto sale de `FAMILIAS_OBJETIVO`. Cambio **100 % aditivo** (`updateNodeParameters`,
-`replace: true`, releído byte a byte, `node --check` + 25 casos de prueba OK);
-el motivo es `perfil:`, no añade clave a `Metricas`. **Publicado por Claude**
-(Mar dio vía libre en la sesión): `versionId == activeVersionId ==
-de9ae329-52d4-4925-b5f8-39149c4d2db6`. Decisiones e implementación en
-[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
-
-**Nota (8 sep 2026, tarea 19):** la marca `destacada` (⭐) **ya no depende de
-`SENALES_DESTACADA`** — desde el 8 sep se calcula en `Aplicar scoring` como
-`encaje_ia > 80`. Consecuencia para esta tarea: cualquier título que hoy
-descarta el criterio 4/5 (p. ej. los `ai engineer` que Mar quiere dejar pasar)
-**tampoco recibiría ⭐**, pero si se saca de `EXCLUSION_DURA` llega a
-`Aplicar scoring` y ahí obtiene su nota y, si `> 80`, su estrella. `SENALES_DESTACADA`
-sigue en el `jsCode` de `Filtro cualificación` pero su salida se pisa; se puede
-borrar como limpieza opcional cuando se toque el nodo para el endurecimiento.
-
-**Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
-que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
-recuento de descartes cuadra en `Metricas`.
-
 ## 16. Revisión de legalidad frente al AI Act de la UE
 
 **Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Escrito el 4 sep
@@ -415,6 +336,98 @@ reordenación completa (nueva subtarea con su propio plan).
 </details>
 
 # Cerradas
+
+## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
+
+**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. Iteración 1
+IMPLEMENTADA, PUBLICADA y VERIFICADA en pasada real el 10 sep 2026. CERRADA el
+10 sep 2026.**
+A Mar le entran ofertas para las que obviamente no está cualificada (roles
+técnicos, de ingeniería informática, infraestructura…).
+
+**Método acordado (4 sep 2026):** Mar **no** prepara una lista de golpe. Cada vez
+que entre una oferta mal filtrada la enlazará en la sesión; el agente la registra
+en [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md) (brief
+permanente de esta tarea) y, cuando haya patrón (≥ 5 ofertas o Mar dice
+«suficientes»), endurece el nodo `Filtro cualificación` siguiendo el protocolo de
+ese documento. La corrección se deja en draft y la publica Mar.
+
+**Toca:** el Code node `Filtro cualificación` de `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`) — nodo caliente. Posiblemente una columna nueva en la pestaña
+`Metricas` (o reusar `descartes_perfil` / `descartes_encaje`).
+
+**Causa probable (a confirmar leyendo el nodo):** el criterio 5 «encaje» *rescata*
+cualquier oferta cuyo título mencione la familia `IA`. Así entran roles de
+infraestructura que solo mencionan «AI»: en la hoja el 3 sep están *Kubernetes &
+Cloud Integration Engineer* (OpenNebula, `id_unico 4d13f46f`) y *AI Enablement
+Engineer* (LocalStack, `fac88e75`), **ambas con CV ya generado**. La lista «dura»
+del criterio 4 no cubre `kubernetes`, `cloud`, `backend`, `infra`…, y `engineer`
+suelto no descarta a propósito (para no perder *Automation Engineer*).
+
+**Diseño tentativo:** lista de rechazo «ingeniería técnica dura» (`kubernetes`,
+`devops`, `sre`, `backend`, `frontend`, `full-stack`, `software engineer`,
+`data engineer`, `cloud engineer`, `platform engineer`, `firmware`…) que corte
+**antes** del rescate por familia `IA`, salvo enmarcado claro de ops/PM/enablement.
+
+**Riesgo:** medio — un umbral mal puesto deja fuera *AI Engineer* legítimos (el
+bootcamp de Mar es justo eso).
+
+**Necesito de Mar antes de diseñar:** la **lista concreta** de ofertas que
+entraron mal (título + por qué no encajan). Claude puede sacar candidatas de
+`Archivo` y de las últimas pasadas, pero el criterio de Mar manda.
+
+**Avance (6 sep 2026):** Claude registró 4 candidatas más sacadas de la hoja y de
+`Archivo` (IRIUM, Synera, Evaboot, Inetum) → **6 ofertas en el registro**, se
+alcanza el umbral de patrón. Leído el nodo publicado y trazada cada oferta: el
+diagnóstico previo («rescate por IA») solo aplica a 1 de 6; el patrón real es que
+el **criterio 5 es una lista blanca demasiado genérica** (`integration`,
+`procesos`, `agentic`, `ia`, `ops`…) y **5 de 6 llevan “engineer”/“ingeniero”**.
+Análisis completo, palancas posibles y tensiones a resolver en
+[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
+Decisión de Mar (6 sep): **AI Engineer sí, ML Engineer no** — sacar `ai engineer`
+de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
+
+**Implementada y publicada (10 sep 2026), vía n8n MCP:** Mar revisó las 6 ofertas
+en la sesión (la #3 IRIUM **sí encaja** → falso positivo; las otras 5 fuera) y
+fijó la regla. `Filtro cualificación` de `Jobs · ingesta` (`CXCD8BZUQEQKex2a`,
+nodo `5e6da0a2-…`) gana un **criterio 4c «ingeniería técnica»** entre 4b y 5:
+`engineer`/`ingeniero` a secas descarta salvo señal de automatización/operaciones
+(`AI`/`IA` a secas **no** rescata); `data ops`/`data engineer` sin IA descarta
+aunque lleve `ops`; un marcador de investigación/modelado descarta aunque haya
+rescate. Además: `ai engineer` e `ingeniero de inteligencia artificial` salen de
+`EXCLUSION_DURA` (van al scoring `encaje_ia`); entran `kubernetes`,
+`python engineer`, `enablement engineer`, `monitorizacion`… ; `integration`
+suelto sale de `FAMILIAS_OBJETIVO`. Cambio **100 % aditivo** (`updateNodeParameters`,
+`replace: true`, releído byte a byte, `node --check` + 25 casos de prueba OK);
+el motivo es `perfil:`, no añade clave a `Metricas`. **Publicado por Claude**
+(Mar dio vía libre en la sesión): `versionId == activeVersionId ==
+de9ae329-52d4-4925-b5f8-39149c4d2db6`. Decisiones e implementación en
+[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
+
+**Nota (8 sep 2026, tarea 19):** la marca `destacada` (⭐) **ya no depende de
+`SENALES_DESTACADA`** — desde el 8 sep se calcula en `Aplicar scoring` como
+`encaje_ia > 80`. Consecuencia para esta tarea: cualquier título que hoy
+descarta el criterio 4/5 (p. ej. los `ai engineer` que Mar quiere dejar pasar)
+**tampoco recibiría ⭐**, pero si se saca de `EXCLUSION_DURA` llega a
+`Aplicar scoring` y ahí obtiene su nota y, si `> 80`, su estrella. `SENALES_DESTACADA`
+sigue en el `jsCode` de `Filtro cualificación` pero su salida se pisa; se puede
+borrar como limpieza opcional cuando se toque el nodo para el endurecimiento.
+
+**Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
+que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
+recuento de descartes cuadra en `Metricas`.
+
+**Cierre (10 sep 2026):** verificada en la pasada real #777 de `Jobs · ingesta`
+(`success`, sin error). `Filtro salario` → 60 items; `Filtro cualificación` → 21.
+Mar revisó las 21 que pasaron: «ofertas que no son perfectas pero son pasables»,
+ninguna claramente fuera de perfil. **Autochequeo del embudo cuadra fuente a
+fuente** en `Metricas` (7 filas): para cada fuente, `descartes_idioma +
+descartes_contrato + descartes_nivel + descartes_perfil + descartes_encaje +
+tras_cualificacion == tras_salario` (Σ descartes_perfil = 83, el criterio 4c
+cuenta ahí sin clave nueva). El documento
+[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md) sigue vivo:
+cuando entre otra oferta mal filtrada, Mar la enlaza y se abre una iteración 2.
+Limpieza opcional pendiente: quitar `SENALES_DESTACADA` (muerto desde la tarea 19).
 
 ## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
 

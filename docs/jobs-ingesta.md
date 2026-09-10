@@ -663,8 +663,10 @@ Ver el detalle en [jobs-revision.md](jobs-revision.md). Actualizado 29 ago 2026:
   de9ae329-52d4-4925-b5f8-39149c4d2db6`. Registro y decisiones de Mar en
   [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md). *AI Data Ops
   Engineer* (IRIUM) resultó ser un falso positivo — Mar confirmó que sí encaja,
-  y el criterio 4c la deja pasar (lleva «AI»). Pendiente de confirmar en una
-  pasada real que el recuento `perfil` cuadra en `Metricas`.
+  y el criterio 4c la deja pasar (lleva «AI»). **Verificado en la pasada real
+  #777 (10 sep 2026):** `Filtro salario` 60 → `Filtro cualificación` 21, Mar
+  revisó las 21 («pasables»), y el autochequeo del embudo cuadra fuente a fuente
+  en `Metricas` (Σ `descartes_perfil` = 83). Tarea 17 cerrada.
 - ~~**La marca ⭐ nunca ha llegado a la hoja**~~ **Corregido el 15 ago 2026.**
   `Append row in sheet` usa `mappingMode: autoMapInputData`, que mapea contra
   las cabeceras reales de `Ofertas_activas`; hasta el 15 ago no existía ahí la

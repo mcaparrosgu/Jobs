@@ -82,13 +82,14 @@ La calibración conocida es que de 248 ofertas reales pasan 15. El problema no e
 el volumen: es que de esas 15, buena parte son ruido que Mar tiene que descartar a
 mano una por una.
 
-**Estado (10 sep 2026):** dos frentes en marcha. **M1** (scoring `encaje_ia`,
-tarea 22) puntúa las que pasan y ordena la revisión. **Tarea 17** ataca la
-entrada: iteración 1 del `Filtro cualificación` publicada el 10 sep con un
-**criterio 4c «ingeniería técnica»** que corta los roles técnicos que solo
-mencionan «AI» en el título (`activeVersionId de9ae329-…`; decisiones de Mar en
-[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md)). Pendiente de
-verlo en una pasada real.
+**Estado (10 sep 2026):** dos frentes. **M1** (scoring `encaje_ia`, tarea 22)
+puntúa las que pasan y ordena la revisión. **Tarea 17** atacó la entrada:
+iteración 1 del `Filtro cualificación` con un **criterio 4c «ingeniería
+técnica»** que corta los roles técnicos que solo mencionan «AI» en el título,
+publicada y **verificada en la pasada real #777** (`activeVersionId de9ae329-…`;
+21 ofertas pasaron, Mar las dio por «pasables», embudo cuadra en `Metricas`).
+Tarea 17 cerrada; el filtro se seguirá afinando por iteraciones conforme Mar
+enlace ofertas mal filtradas ([mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md)).
 
 ## H2 — Duplicado real en producción: la dedup falla si cambia `empresa`
 

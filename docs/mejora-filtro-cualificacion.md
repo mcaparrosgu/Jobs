@@ -8,21 +8,20 @@ timestamp: 2026-09-04T13:00:00Z
 
 # ⏭️ Punto de retomada (actualizado 10 sep 2026)
 
-**Iteración 1 IMPLEMENTADA Y PUBLICADA el 10 sep 2026.** Mar revisó los 6 motivos
-y fijó la regla en la sesión; el nodo `Filtro cualificación` de `Jobs · ingesta`
-tiene el criterio 4c nuevo, publicado (`activeVersionId de9ae329-52d4-4925-b5f8-39149c4d2db6`).
-Detalle en [Iteración 1 — implementada (10 sep 2026)](#iteración-1--implementada-10-sep-2026).
+**Iteración 1 IMPLEMENTADA, PUBLICADA y VERIFICADA. Tarea 17 CERRADA el 10 sep
+2026.** Mar revisó los 6 motivos y fijó la regla en la sesión; el criterio 4c
+nuevo está publicado en `Filtro cualificación` de `Jobs · ingesta`
+(`activeVersionId de9ae329-52d4-4925-b5f8-39149c4d2db6`) y **verificado en la
+pasada real #777**: `success`, `Filtro salario` 60 → `Filtro cualificación` 21;
+Mar revisó las 21 («no perfectas pero pasables», ninguna claramente fuera de
+perfil); el autochequeo del embudo cuadra fuente a fuente en `Metricas`
+(Σ `descartes_perfil` = 83, el 4c cuenta ahí sin clave nueva). Detalle en
+[Iteración 1 — implementada (10 sep 2026)](#iteración-1--implementada-10-sep-2026).
 
-**Pendiente para cerrar la tarea 17:** una **pasada real de `Jobs · ingesta`**
-que confirme que las ofertas del tipo señalado quedan fuera, que los roles
-legítimos (AI Engineer, Automation/Operations Engineer, Prompt Engineer) siguen
-pasando, y que el recuento de descartes `perfil` cuadra en `Metricas` sin que
-salte el autochequeo del embudo.
-
-**Para futuras ofertas mal filtradas:** este documento sigue vivo. Cuando entre
-una nueva, Mar la enlaza, se registra en la tabla de abajo, y cuando haya patrón
-(≥ 5 nuevas o «ya tienes suficientes») se abre una **iteración 2** del nodo con el
-mismo protocolo.
+**Este documento sigue vivo.** Cuando entre otra oferta mal filtrada, Mar la
+enlaza, se registra en la tabla de abajo, y cuando haya patrón (≥ 5 nuevas o
+«ya tienes suficientes») se abre una **iteración 2** del nodo con el mismo
+protocolo, y se reabre la tarea 17 (o se abre una nueva).
 
 # Para qué es este documento
 

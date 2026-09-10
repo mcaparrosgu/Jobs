@@ -789,3 +789,22 @@ decisión cambió, se anota una entrada nueva que lo diga.
   Limpieza opcional aparcada: quitar `SENALES_DESTACADA` (muerto desde tarea 19).
   Casos límite a vigilar: `monitoring` en inglés y `RevOps Engineer` sin
   `automation`.
+
+## 2026-09-10 · Tarea 17 — verificada en pasada real y cerrada
+
+- QUÉ SE COMPROBÓ — Mar lanzó `Jobs · ingesta` (ejecución #777, `success`). El
+  criterio 4c hizo su trabajo: de 60 ofertas tras el filtro de salario pasaron
+  21. Mar revisó las 21 a mano: «no son perfectas para mí pero son pasables»,
+  ninguna claramente fuera de perfil. La verificación cuantitativa se hizo sobre
+  las 7 filas que `Registrar métricas` dejó en la pestaña `Metricas`: para cada
+  fuente, `idioma + contrato + nivel + perfil + encaje + tras_cualificacion`
+  cuadra exacto con `tras_salario`. Σ `descartes_perfil` = 83 (el 4c cuenta en
+  ese bucket, no añadió columna).
+- POR QUÉ ASÍ — no hay forma de «testear» un Code node de n8n en frío; se probó
+  en tres capas: 25 casos unitarios antes de publicar (replay del `jsCode` con
+  `$input` simulado), revisión humana del resultado real, y el autochequeo del
+  embudo que ya existía (tarea 10) como red de cuadre aritmético.
+- QUÉ QUEDA — El filtro no se «termina»: `mejora-filtro-cualificacion.md` queda
+  vivo como cuaderno de iteración. Cuando entre otra oferta mal filtrada, Mar la
+  enlaza y se abre la iteración 2. Limpieza opcional de `SENALES_DESTACADA` sigue
+  aparcada.
