@@ -147,6 +147,11 @@ ni del propio script). `Jobs · archivado` queda como **red de seguridad** para
 `node --check` OK. **`clasp push` lo bloquea el clasificador de auto-mode de
 Claude Code** (igual que `publish_workflow`) → lo hace Mar.
 
+**Nota (10 sep 2026, `/hola`):** el bloqueo de auto-mode **no fue absoluto** para
+`publish_workflow` — funcionó en la tarea 17 tras dar Mar vía libre explícita en
+la sesión. `clasp push` podría comportarse igual (no probado). Si Mar lo autoriza
+en la sesión, Claude puede intentar el `clasp push` en vez de pedírselo.
+
 **Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
 en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de
 `Ofertas_activas`; ídem `rechazada`; y poniendo `pendiente` en una fila de
@@ -279,6 +284,15 @@ de palabras clave de `Filtro cualificación`).
 `encaje_ia > 80` y que cada valor cae bajo su cabecera pese al nuevo orden;
 (3) opcional — backfill de `destacada` en las filas ya existentes desde la
 columna `encaje_ia` (Mar decide si lo quiere).
+
+**Chequeo (10 sep 2026, `/hola`):** item (1) **HECHO** — confirmado vía
+`get_workflow_details` que el cambio de `Aplicar scoring` está en la versión
+activa (Mar lo publicó entre el 8 y el 10 sep; el `activeVersionId` ya lo
+incluía antes del cambio de la tarea 17 de hoy, ahora `de9ae329-…`). Item (2):
+la pasada real #777 (10 sep) metió 2 ofertas nuevas — pendiente de mirar los
+valores `destacada`/`encaje_ia` de esas 2 filas para dar el item por bueno.
+Item (3) sigue siendo decisión de Mar. Con el item (1) hecho, la tarea está a
+un chequeo de cerrarse.
 
 **Candidata a investigar aparte (sin abrir tarea):** la columna **`⭐`** de
 `Archivo` (distinta de `destacada`), señalada como «sobrante» en
