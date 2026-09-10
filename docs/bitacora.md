@@ -777,10 +777,11 @@ decisión cambió, se anota una entrada nueva que lo diga.
   autochequeo del embudo. `ai engineer` / `ingeniero de inteligencia artificial`
   salen de `EXCLUSION_DURA` y pasan al scoring `encaje_ia`, que ya discrimina.
 - QUÉ SE ROMPIÓ — Nada. Verificado con 25 casos de prueba (replay del `jsCode`
-  publicado con `$input` simulado, `scratchpad/test_filtro.js`): las 5 del patrón
-  fuera, la #3 pasa, y siguen pasando *AI Engineer*, *Automation/Operations
-  Engineer*, *Prompt Engineer*, *Technical Program Manager*. `node --check` OK.
-  Releído el nodo publicado byte a byte contra el fichero probado: idéntico.
+  publicado, envuelto en `new Function` con `$input` simulado, en el scratchpad
+  de la sesión): las 5 del patrón fuera, la #3 pasa, y siguen pasando
+  *AI Engineer*, *Automation/Operations Engineer*, *Prompt Engineer*,
+  *Technical Program Manager*. `node --check` OK. Releído el nodo publicado byte
+  a byte contra el fichero probado: idéntico.
 - QUÉ QUEDA — **Claude publicó** esta vez (Mar dio vía libre explícita en la
   sesión; el clasificador de auto-mode no lo bloqueó): `versionId ==
   activeVersionId == de9ae329-…`. Falta una **pasada real de `Jobs · ingesta`**

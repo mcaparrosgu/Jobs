@@ -238,8 +238,9 @@ Combinación de palanca 1 + palanca 2 + parte de la 3:
    (colaban «Cloud Integration Engineer»). `procesos` se queda (roles de
    coordinación legítimos); #6 la corta ya `monitorizacion` en 4a.
 
-**Prueba unitaria** (25 casos, `scratchpad/test_filtro.js`, replay del `jsCode`
-publicado con `$input` simulado): las 5 ofertas del patrón quedan fuera, la #3
+**Prueba unitaria** (25 casos — replay del `jsCode` publicado envuelto en
+`new Function` con `$input` simulado, hecho en el scratchpad de la sesión): las
+5 ofertas del patrón quedan fuera, la #3
 pasa, y siguen pasando *AI Engineer*, *AI Engineering*, *Ingeniero de IA*,
 *Automation Engineer*, *AI Automation Engineer*, *Prompt Engineer*,
 *Operations Coordinator*, *Business Operations Engineer*, *AI Operations Manager*,
