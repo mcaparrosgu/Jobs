@@ -41,8 +41,26 @@ Claude ejecutó `clasp push -f` desde `apps-script/` → «Pushed 2 files»
 **simple** — no hace falta instalar activador, ya está vivo. `Código.js` local ==
 lo empujado (`node --check` OK antes).
 
+**Desplegable de `estado` en `Archivo` (10 sep 2026, tras el primer feedback de
+Mar):** `descartada`/`rechazada` se archivan bien, pero en `Archivo` el `estado`
+era texto plano — para desarchivar había que teclear `pendiente`. Añadido un
+desplegable a `Archivo!E2:E348` vía `google-sheets` MCP (`ONE_OF_LIST`, los 9
+valores de `Ofertas_activas` + `sin_respuesta`, `strict: false`, sin color de
+chip) y **el Apps Script lo mantiene** desde ahora: `HOJAS` → `Archivo`
+`estado: true`, y `moverFila_` repone el desplegable en **ambos** destinos (no
+solo al volver a `Ofertas_activas`). `node --check` OK, `clasp push` hecho.
+
+**Ojo para la verificación:** `Archivo` tiene **~250 filas históricas ya con
+`estado: pendiente`** (de cuando la columna no tenía validación). El `onEdit` no
+las mueve (solo reacciona a ediciones manuales celda a celda), pero Mar no debe
+tocar esa columna en bloque.
+
 **Falta la verificación manual de Mar** (un `onEdit` simple solo se dispara con
-ediciones en la interfaz, no por API — no se puede automatizar la prueba).
+ediciones en la interfaz, no por API — no se puede automatizar la prueba):
+`descartada`/`rechazada` en `Ofertas_activas` → salto instantáneo a `Archivo`;
+elegir `pendiente` en el nuevo desplegable de una fila de `Archivo` → vuelta a
+`Ofertas_activas` con `generar_cv_ia` sin marcar; sin regresión en `Jobs ·
+archivado`.
 
 **Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
 en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de

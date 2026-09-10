@@ -4,7 +4,11 @@
   const COL_ESTADO   = 'estado';
   const HOJAS = [
     { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true },
-    { nombre: 'Archivo',         casilla: false, estado: false, banda: true },
+    // 10 sep 2026 (tarea 23): Archivo tambien lleva desplegable de `estado`, para
+    // que desarchivar (poner `pendiente`) sea un clic. La regla la sembro la API
+    // (lista de 10 valores, sin color de chip); a partir de aqui el script la
+    // propaga a las filas nuevas copiandola de una fila que ya la tenga.
+    { nombre: 'Archivo',         casilla: false, estado: true,  banda: true },
     { nombre: 'Metricas',        casilla: false, estado: false, banda: true },
   ];
 
@@ -160,7 +164,9 @@
     hojaOrigen.deleteRow(fila);
 
     ordenarPorFecha_(hojaDestino);
-    if (nombreDestino === 'Ofertas_activas') aplicarDesplegableEstado_(hojaDestino);
+    // Repone el desplegable de `estado` en el destino (Ofertas_activas y Archivo
+    // lo llevan; en Archivo, desde la tarea 23 del 10 sep 2026).
+    aplicarDesplegableEstado_(hojaDestino);
   }
 
   function ordenarPorFecha_(hoja) {

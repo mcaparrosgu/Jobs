@@ -96,11 +96,18 @@ un poco desordenada:
 4. En `Archivo`, `generar_cv_ia` **no** lleva casilla: son ofertas ya
    descartadas y el campo no sirve. Pero `Jobs · archivado` sigue copiando el
    `false` (mapeo por cabecera), así que hay que vaciarlo.
-5. **Desplegable de `estado` (columna E).** Validación `ONE_OF_LIST` estricta,
-   orden de ciclo de vida: `pendiente`, `crear_cv_ia`, `cv_ia_creado`,
-   `cv_enviado`, `respuesta_recibida`, `entrevista`, `oferta_recibida`,
-   `rechazada`, `descartada`. La ingesta escribe `pendiente` como texto plano
-   sin la validación, así que las filas nuevas se quedan sin el desplegable.
+5. **Desplegable de `estado` (columna E).** En `Ofertas_activas`: validación
+   `ONE_OF_LIST` **estricta**, orden de ciclo de vida: `pendiente`,
+   `crear_cv_ia`, `cv_ia_creado`, `cv_enviado`, `respuesta_recibida`,
+   `entrevista`, `oferta_recibida`, `rechazada`, `descartada`. La ingesta escribe
+   `pendiente` como texto plano sin la validación, así que las filas nuevas se
+   quedan sin el desplegable.
+   **Desde el 10 sep 2026 (tarea 23) `Archivo` también lleva desplegable de
+   `estado`** — para que desarchivar (poner `pendiente`) sea un clic. Es la misma
+   lista más `sin_respuesta` (10 valores), **no estricta** (`strict: false`, para
+   no marcar en rojo los `sin_respuesta` que escribe `Jobs · archivado` ni los
+   valores históricos) y **sin color de chip** (se sembró por API). El script la
+   propaga a las filas nuevas igual que en `Ofertas_activas`.
 6. **Color por estado = chip nativo del desplegable.** Cada valor se muestra
    dentro de un óvalo de color (letra oscura para contraste), no como fondo de
    celda. El color del chip **no se puede poner por API** (Sheets no lo expone);
@@ -112,9 +119,11 @@ un poco desordenada:
    solo: si su `endRowIndex` se queda corto, las filas nuevas salen en blanco.
 
 El Apps Script de más abajo cubre los puntos 1–5 y 7 (casilla, orden, alto,
-`Archivo`, desplegable de `estado`, banda). El punto **6 (color del chip) se
-pone una sola vez a mano** — la API no lo expone — y luego el script lo conserva
-porque **copia** la validación de una fila buena en vez de reconstruirla.
+`Archivo`, desplegable de `estado` en **ambas** pestañas, banda). El punto **6
+(color del chip) se pone una sola vez a mano** — la API no lo expone — y luego el
+script lo conserva porque **copia** la validación de una fila buena en vez de
+reconstruirla. En `Archivo` el chip no tiene color (se sembró por API); si se
+quisiera, bastaría con pintarlo a mano en una fila y el script lo propagaría.
 
 Estado dejado el 27 ago 2026: casilla reaplicada en `Ofertas_activas` (solo
 filas con datos), las dos pestañas ordenadas por `fecha_guardado` descendente,
@@ -146,9 +155,11 @@ horario. No toca n8n. Cada hora, en `Ofertas_activas` y `Archivo`:
   datos; `Archivo`: quita la casilla y vacía la columna;
 - limpia casillas/valores sueltos en las filas vacías de debajo, para no
   descuadrar el `append`;
-- `Ofertas_activas`: propaga el desplegable de `estado` a todas las filas de
-  datos **copiándolo** de una fila que ya lo tenga (así conserva el color del
-  chip) y estira la banda de colores hasta la última fila.
+- `Ofertas_activas` **y `Archivo`** (Archivo desde el 10 sep 2026, tarea 23):
+  propaga el desplegable de `estado` a todas las filas de datos **copiándolo**
+  de una fila que ya lo tenga (en `Ofertas_activas` así conserva el color del
+  chip; en `Archivo` no hay color) y estira la banda de colores hasta la última
+  fila.
 
 **No borra filas** — eso es deliberado (auto-borrar sería arriesgado). Las
 filas sobrantes se quitan a mano si hiciera falta.
@@ -175,6 +186,15 @@ a mano en el desplegable:
 | `Ofertas_activas` | `descartada` **o** `rechazada` | mueve la fila a `Archivo` |
 | `Archivo` | `pendiente` | mueve la fila de vuelta a `Ofertas_activas` (con `generar_cv_ia` a `false`) |
 
+**Desde el 10 sep 2026, `Archivo` tiene desplegable de `estado`** (ver punto 5 de
+formato): desarchivar es elegir `pendiente` en el desplegable, no teclearlo.
+**Aviso:** `Archivo` arrastra ~250 filas históricas ya con `estado: pendiente`
+(de cuando la columna era texto plano). El `onEdit` **no las mueve** — solo
+reacciona a una edición manual celda a celda. Pero **no toques esa columna en
+bloque** (arrastrar el tirador, pegar una columna): un cambio multi-fila lo
+ignora el `onEdit` (`getNumRows() === 1`), pero si editas esas celdas una a una
+irían saliendo a `Ofertas_activas`.
+
 Detalles:
 - **Solo se dispara con ediciones manuales en la interfaz.** No lo activan
   las escrituras de n8n por API (`Jobs · generación CV` marcando `cv_ia_creado`/
@@ -186,8 +206,10 @@ Detalles:
   existen en el destino se quedan vacías o se descartan.
 - `appendRow` (gap-safe) al destino, `deleteRow` en el origen, y **`sort` por
   `fecha_guardado` desc del destino** ahí mismo (no espera a la pasada
-  horaria). Al volver a `Ofertas_activas`, `copyTo(PASTE_DATA_VALIDATION)`
-  repone el desplegable de `estado` con su color de chip.
+  horaria). En el destino, `copyTo(PASTE_DATA_VALIDATION)` repone el desplegable
+  de `estado` (con color de chip en `Ofertas_activas`, sin color en `Archivo`) —
+  desde el 10 sep 2026 esto se hace en **ambos** destinos, no solo al volver a
+  `Ofertas_activas`.
 - `LockService.getDocumentLock()` (15 s) evita pisarse con la pasada horaria;
   si no consigue el lock, no hace nada y lo recoge `mantenimiento` /
   `Jobs · archivado`.
@@ -203,7 +225,13 @@ Detalles:
 
 Función en `apps-script/Código.js` (`onEdit` → `moverFila_` → `ordenarPorFecha_`
 / `aplicarDesplegableEstado_`). No necesita instalar activador: `onEdit` simple
-funciona en cuanto se hace `clasp push`.
+funciona en cuanto se hace `clasp push`. **`clasp push` de la tarea 23 hecho el
+10 sep 2026** (por Claude, con vía libre de Mar); pendiente de la verificación
+manual de Mar.
+
+> El bloque de código de abajo es solo la mitad de `mantenimiento`; la parte
+> `onEdit` / `moverFila_` / `MOVER_POR_ESTADO` vive en `apps-script/Código.js`
+> (fuente canónica) y no está transcrita aquí.
 
 ## Copia bajo control de versiones (clasp)
 
@@ -227,7 +255,7 @@ const COL_CASILLA  = 'generar_cv_ia';
 const COL_ESTADO   = 'estado';
 const HOJAS = [
   { nombre: 'Ofertas_activas', casilla: true,  estado: true,  banda: true },
-  { nombre: 'Archivo',         casilla: false, estado: false, banda: true },
+  { nombre: 'Archivo',         casilla: false, estado: true,  banda: true }, // estado: true desde el 10 sep 2026 (tarea 23)
   { nombre: 'Metricas',        casilla: false, estado: false, banda: true },
 ];
 
