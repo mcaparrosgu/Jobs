@@ -17,6 +17,23 @@ uno: qué es en corto, una analogía cotidiana, y dónde se usó aquí.
   III.4 (empleo) apunta a herramientas del lado del reclutador (filtrar
   candidatos), y `Jobs` es del lado del candidato (filtra ofertas para Mar).
 
+## CRLF / LF (finales de línea) y `core.autocrlf`
+
+- Cada línea de un fichero de texto termina con una marca invisible: en
+  Windows son dos caracteres (CR + LF, "\r\n"), en Linux/Mac uno solo (LF,
+  "\n"). Git guarda internamente LF y, con `core.autocrlf=true` (el ajuste
+  de esta máquina), **expande a CRLF al sacar el fichero al disco y vuelve a
+  LF al hacer commit**. Sin `.gitattributes` que diga otra cosa, el fichero
+  guardado en git siempre queda en LF aunque en tu carpeta se vea en CRLF.
+- Como un enchufe con adaptador de viaje: el aparato (git) trabaja siempre a
+  230 V (LF), y el adaptador convierte a la clavija del país (CRLF en
+  Windows) solo mientras está enchufado en la pared.
+- El 10 sep 2026 un script de Python que reordenaba `tareas-pendientes.md`
+  reescribió todo el fichero en LF; se detectó por `git diff` (todas las
+  líneas "cambiadas") y se rehízo leyendo/escribiendo en binario. Efecto real
+  sobre el repo: ninguno (git normaliza a LF igual al commitear); el riesgo
+  era solo ensuciar el diff de la sesión.
+
 ## Digital Omnibus
 
 - Un paquete de reformas de la UE (aprobado jun 2026) que simplifica y
@@ -135,6 +152,23 @@ uno: qué es en corto, una analogía cotidiana, y dónde se usó aquí.
 - `Guardarráil huecos` → `Aviso huecos` (avisa si la hoja tiene huecos) y
   `Registrar métricas` → `Append métricas` (mide el embudo) son ramas aisladas
   de [Jobs · ingesta](jobs-ingesta.md).
+
+## Refresh token (OAuth) y su vigilancia
+
+- Cuando conectas una cuenta de Google a n8n, Google no da la contraseña:
+  da un **refresh token**, una llave de larga duración que n8n usa para
+  pedir "tokens de acceso" cortos cada vez que necesita entrar. Si la app
+  OAuth está en modo *Testing*, Google **caduca ese refresh token a los 7
+  días** y n8n empieza a fallar con «needs to be reconnected»; publicando la
+  app (*In production*) deja de caducar.
+- Como el carné de socio de un gimnasio: con él te dan una pulsera de acceso
+  cada día; si el carné es "de prueba" caduca en una semana y te quedas
+  fuera aunque la pulsera de ayer pareciera válida.
+- No hay forma directa de "preguntar" a n8n si un token sigue vivo. Se
+  comprueba **por sus consecuencias**: `search_executions` con
+  `status:[error,crashed]` desde una fecha — si no hay ni una ejecución
+  fallida en toda la instancia, ninguna credencial ha caducado. Así se cerró
+  la tarea 13 el 10 sep 2026 (10 días sin fallos tras publicar la app OAuth).
 
 ## Responsable del despliegue vs. proveedor (AI Act)
 

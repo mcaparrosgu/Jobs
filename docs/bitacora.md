@@ -715,3 +715,40 @@ decisión cambió, se anota una entrada nueva que lo diga.
 - QUÉ QUEDA — `clasp push`; Mar verifica las 3 transiciones (`descartada` →
   Archivo, `rechazada` → Archivo, `pendiente` en Archivo → Ofertas_activas) con
   filas reales.
+
+## 2026-09-10 · Hito — skill `/hola` + cierre de la tarea 13 (OAuth de Google / M5)
+
+- QUÉ SE DECIDIÓ — Crear `/hola`, una skill **global** (`~/.claude/skills/`, vale
+  para cualquier proyecto con `docs/tareas-pendientes.md`) que al arrancar sesión
+  reconcilia el fichero de tareas con la realidad y luego lista las abiertas por
+  prioridad en el chat. Reparto de autonomía: aplica sola los cambios seguros
+  (reordenar por prioridad, marcar checkboxes, anotar vigilancias vencidas);
+  propone y espera el OK de Mar para los dudosos (mover Abiertas↔Cerradas, cambiar
+  prioridad, añadir tarea). Commit automático de los docs tocados; no escribe la
+  bitácora, solo avisa de lanzarla.
+- ALTERNATIVAS DESCARTADAS — (a) que solo informara sin tocar los docs → deja el
+  desfase sin resolver, que es el problema; (b) que aplicara todo sin preguntar,
+  como `/bitacora` → cerrar una tarea por error es caro y poco visible; (c) que
+  escribiera también la bitácora → entradas de relleno, y el "qué no entendí"
+  solo lo sabe Mar.
+- POR QUÉ ESTA — mecaniza la norma "actualizar los docs antes de seguir" justo en
+  el momento en que más suelen estar desfasados (el arranque), sin quitarle a Mar
+  el control de los cambios de fondo.
+- QUÉ SE HIZO EN LA PRIMERA PASADA — reorden de las 8 tareas abiertas por
+  prioridad; **tarea 13 cerrada** (publicar la app OAuth de Google, = M5): del 31
+  ago al 10 sep (marca de 7 días superada el 7 sep) sin una sola ejecución
+  `error`/`crashed` en toda la instancia ni un «needs to be reconnected» → la
+  caducidad de 7 días del modo *Testing* desapareció al publicar la app. M5
+  marcado HECHO en `jobs-evaluacion.md`, memoria sincronizada; de paso, quitada
+  una viñeta obsoleta de M1 en "Sugerencias pendientes" (M1 ya está hecho como
+  tarea 22) y documentadas 2 columnas más ocultas de la hoja (tarea 19).
+- QUÉ SE ROMPIÓ — el primer script de reordenación reescribió
+  `tareas-pendientes.md` entero de CRLF a LF; se vio en `git diff` (todas las
+  líneas "cambiadas") y se rehízo leyendo/escribiendo en binario y conservando el
+  final de línea. Efecto real sobre el repo: ninguno — git normaliza a LF al
+  commitear igual (`core.autocrlf=true`, sin `.gitattributes`); solo ensuciaba el
+  diff de la sesión. La precaución quedó anotada en el `SKILL.md` de `/hola`.
+- QUÉ QUEDA PENDIENTE DE ENTENDER (Mar) — dos cosas que sonaron a chino y están ya
+  en el glosario: el lío CRLF / LF / `core.autocrlf`, y que la única forma de
+  saber si una credencial OAuth sigue viva es mirar si hay ejecuciones fallidas
+  (no se le puede "preguntar" a n8n directamente).
