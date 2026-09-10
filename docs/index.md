@@ -44,5 +44,6 @@ timestamp: 2026-09-04T00:00:00Z
 
 ## Otros
 
+- [Case study](case-study.md) — el proyecto contado hacia fuera (Paso 19 del método)
 - [Glosario](glosario.md)
 - [Bitácora](bitacora.md) — cuaderno de decisiones del proyecto

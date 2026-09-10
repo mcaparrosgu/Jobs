@@ -11,16 +11,34 @@ timestamp: 2026-08-29T09:00:00Z
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
 **Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
-proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
-que cambien la arquitectura), redactar el case study estructurado del proyecto
-para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
-del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
-… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
+proyecto esté acabado. Borrador escrito el 10 sep 2026 — PENDIENTE DE REVISIÓN
+DE MAR.** Cuando Jobs se dé por terminado (sin tareas abiertas que cambien la
+arquitectura), redactar el case study estructurado del proyecto para poder
+enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19 del método:
+invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md` …
+`docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
 
-**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
-problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
-guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
-Google) y los resultados reales del pipeline.
+**Hecho (10 sep 2026):** `docs/case-study.md` escrito con el skill
+`paso-19-case-study` a partir de `04-spec.md`, `03-legal.md`,
+`jobs-evaluacion.md`, `bitacora.md` y los docs de los 4 workflows (los pasos
+1–3, 14 y la prueba con usuarios no existen — el case study lo dice de forma
+explícita en cada sección afectada, sin inventar cifras). 10 secciones: en una
+frase, problema, usuario, qué se construyó, decisiones clave (hoja como BD +
+interfaz, 4 workflows aislados, la IA propone/la persona decide, doble modelo
+para el CV), arquitectura con diagrama, papel de la IA y contención deliberada,
+seguridad y cumplimiento (riesgo mínimo AI Act, red team pendiente), resultados
+(embudo medido; coste por interacción y evals **pendientes de medición**), y
+lecciones. Enlazado en `docs/index.md`.
+
+**Secciones flojas por falta de datos, a completar cuando se midan:** coste por
+interacción (gasto por API sin instrumentar), latencia real agregada, tasa de
+éxito de ejecuciones más allá del tramo 31 ago–10 sep, resultados de evals (no
+hay sistema de evals), hallazgos del red team (Paso 16 sin hacer).
+
+**Criterio de cierre:** `docs/case-study.md` revisado por Mar, con el problema,
+la solución, las decisiones clave (aislamiento ingesta/archivado, guardarraíl de
+huecos, humanización con OpenAI, dedup por `id_url`, OAuth de Google) y los
+resultados reales del pipeline. **Falta el OK de Mar para mover a `# Cerradas`.**
 
 # Cerradas
 
