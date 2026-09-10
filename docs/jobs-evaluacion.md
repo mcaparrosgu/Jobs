@@ -392,8 +392,13 @@ para desplegarlo end-to-end (Docker Compose + Caddy + HTTPS automático).
   `cv_enviado` + `estado_propuesto` vacío + `fecha_envio` ≥ 30 días → copia con
   `estado: sin_respuesta` directa a `Archivo`). `sin_respuesta` **no pasa por
   `Ofertas_activas`**, así que no hubo que tocar la validación del desplegable ni
-  colorear el chip (lo que este doc daba por necesario). En vigilancia hasta ver
-  los dos pasos en pasadas reales.
+  colorear el chip (lo que este doc daba por necesario). **Tarea 12 CERRADA el
+  10 sep 2026 sin verificación en pasada real:** Mar decidió que no va a enviar
+  CVs por email a corto plazo, así que la Regla 3 no puede dispararse de forma
+  natural. El mecanismo queda en producción; hay un recordatorio en «Sugerencias
+  pendientes» de [tareas-pendientes.md](tareas-pendientes.md) para verificar el
+  primer archivado a 30 días si Mar retoma el envío por email. La otra mitad de
+  M7 (email de seguimiento a 7-10 días) sigue sin pedirse.
 
 Requiere una columna **`fecha_envio`** (añadida el 31 ago 2026 a
 `Ofertas_activas` y `Archivo`): la escribe
