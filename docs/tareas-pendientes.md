@@ -43,6 +43,14 @@ archivado` (Sheets) hasta el 4 sep. 6 días desde la reconexión base sin un sol
 «needs to be reconnected». Falta el día 7 sep (marca exacta de los 7 días desde el
 31 ago) para cerrar la ventana.
 
+**Chequeo (10 sep 2026, `/hola`):** `search_executions` `status: [error, crashed]`
+`startedAfter: 2026-08-31` → **0 resultados** en toda la instancia. La ventana de
+cierre (7+ días desde la reconexión base del 31 ago) se cumplió el 7 sep; hoy son
++10 días sin un solo «needs to be reconnected». Última ejecución `success`
+registrada: #774 (`Jobs · generación CV`, 8 sep 11:35Z); sin pasadas el 9–10 sep,
+coherente con el portátil apagado, no con un fallo. **Criterio de cierre cumplido**
+— propuesta de cierre a la espera del OK de Mar.
+
 **Seguimiento pendiente por Claude — supervisión manual el 7 sep 2026 (o
 después).** El **7 sep 2026** (7+ días desde la reconexión base del 31 ago), o en
 la primera sesión posterior, comprobar vía n8n MCP que ninguna ejecución
@@ -61,6 +69,215 @@ que Claude lo haga a mano.
 **Criterio de cierre:** 7+ días (hasta el 7 sep 2026) sin ningún aviso de «needs
 to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail tras la
 reconexión base del 31 ago.
+
+## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
+
+**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. En recogida de
+ejemplos.** A Mar le entran ofertas para las que obviamente no está cualificada
+(roles técnicos, de ingeniería informática, infraestructura…).
+
+**Método acordado (4 sep 2026):** Mar **no** prepara una lista de golpe. Cada vez
+que entre una oferta mal filtrada la enlazará en la sesión; el agente la registra
+en [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md) (brief
+permanente de esta tarea) y, cuando haya patrón (≥ 5 ofertas o Mar dice
+«suficientes»), endurece el nodo `Filtro cualificación` siguiendo el protocolo de
+ese documento. La corrección se deja en draft y la publica Mar.
+
+**Toca:** el Code node `Filtro cualificación` de `Jobs · ingesta`
+(`CXCD8BZUQEQKex2a`) — nodo caliente. Posiblemente una columna nueva en la pestaña
+`Metricas` (o reusar `descartes_perfil` / `descartes_encaje`).
+
+**Causa probable (a confirmar leyendo el nodo):** el criterio 5 «encaje» *rescata*
+cualquier oferta cuyo título mencione la familia `IA`. Así entran roles de
+infraestructura que solo mencionan «AI»: en la hoja el 3 sep están *Kubernetes &
+Cloud Integration Engineer* (OpenNebula, `id_unico 4d13f46f`) y *AI Enablement
+Engineer* (LocalStack, `fac88e75`), **ambas con CV ya generado**. La lista «dura»
+del criterio 4 no cubre `kubernetes`, `cloud`, `backend`, `infra`…, y `engineer`
+suelto no descarta a propósito (para no perder *Automation Engineer*).
+
+**Diseño tentativo:** lista de rechazo «ingeniería técnica dura» (`kubernetes`,
+`devops`, `sre`, `backend`, `frontend`, `full-stack`, `software engineer`,
+`data engineer`, `cloud engineer`, `platform engineer`, `firmware`…) que corte
+**antes** del rescate por familia `IA`, salvo enmarcado claro de ops/PM/enablement.
+
+**Riesgo:** medio — un umbral mal puesto deja fuera *AI Engineer* legítimos (el
+bootcamp de Mar es justo eso).
+
+**Necesito de Mar antes de diseñar:** la **lista concreta** de ofertas que
+entraron mal (título + por qué no encajan). Claude puede sacar candidatas de
+`Archivo` y de las últimas pasadas, pero el criterio de Mar manda.
+
+**Avance (6 sep 2026):** Claude registró 4 candidatas más sacadas de la hoja y de
+`Archivo` (IRIUM, Synera, Evaboot, Inetum) → **6 ofertas en el registro**, se
+alcanza el umbral de patrón. Leído el nodo publicado y trazada cada oferta: el
+diagnóstico previo («rescate por IA») solo aplica a 1 de 6; el patrón real es que
+el **criterio 5 es una lista blanca demasiado genérica** (`integration`,
+`procesos`, `agentic`, `ia`, `ops`…) y **5 de 6 llevan “engineer”/“ingeniero”**.
+Análisis completo, palancas posibles y tensiones a resolver en
+[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
+Decisión de Mar (6 sep): **AI Engineer sí, ML Engineer no** — sacar `ai engineer`
+de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
+**Bloqueada esperando a Mar:** (1) revisar ella misma los 6 motivos en
+`mejora-filtro-cualificacion.md`, (2) fijar la lista de rescate de la regla nueva
+de «ingeniería técnica».
+
+**Nota (8 sep 2026, tarea 19):** la marca `destacada` (⭐) **ya no depende de
+`SENALES_DESTACADA`** — desde el 8 sep se calcula en `Aplicar scoring` como
+`encaje_ia > 80`. Consecuencia para esta tarea: cualquier título que hoy
+descarta el criterio 4/5 (p. ej. los `ai engineer` que Mar quiere dejar pasar)
+**tampoco recibiría ⭐**, pero si se saca de `EXCLUSION_DURA` llega a
+`Aplicar scoring` y ahí obtiene su nota y, si `> 80`, su estrella. `SENALES_DESTACADA`
+sigue en el `jsCode` de `Filtro cualificación` pero su salida se pisa; se puede
+borrar como limpieza opcional cuando se toque el nodo para el endurecimiento.
+
+**Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
+que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
+recuento de descartes cuadra en `Metricas`.
+
+## 16. Revisión de legalidad frente al AI Act de la UE
+
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Escrito el 4 sep
+2026 — pendiente de que Mar lo revise para cerrar.**
+Investigar el estado vigente del Reglamento (UE) 2024/1689 (AI Act) y comprobar
+si Jobs está dentro de la legalidad y qué habría que modificar.
+
+**Contexto y alcance:**
+- Este proyecto se construyó **sin el paso 4 del método** — no existe
+  `docs/03-legal.md`. La tarea crea ese doc con la clasificación y el veredicto.
+- Solo toca documentación. Ningún cambio en workflows previsto (salvo que la
+  investigación encuentre algo ilegal, poco probable).
+- A fecha de hoy (3 sep 2026) **ya aplican las obligaciones de alto riesgo del
+  2 ago 2026**. Hay que mirar además, vía `WebSearch`, el «Digital Omnibus» de
+  simplificación que se movió a finales de 2025 y cualquier retoque posterior
+  (el conocimiento del modelo llega a ene 2026).
+
+**Hipótesis previa (NO conclusión, a validar en la investigación):** Jobs es una
+herramienta **personal y del lado del candidato** — filtra *ofertas* para Mar, no
+*candidaturas* de terceros. El Anexo III.4 (alto riesgo en empleo) apunta a
+sistemas usados por **reclutadores**, no a un asistente de búsqueda propio. Lo
+más probable: categoría de **riesgo mínimo**, con obligaciones ligeras de
+alfabetización en IA (art. 4, vigente desde feb 2025) y transparencia. **El
+cuadro cambia si se comercializa** (M6 / plan de comercialización) → ahí sí
+entraría el Anexo III.4. Es también un gate útil antes de construir M1
+(scoring de encaje con IA).
+
+**Alcance decidido (4 sep 2026):** el análisis se hace **para el uso personal
+actual** de `Jobs` (los workflows n8n que Mar usa para sí misma) **y** con una
+sección aparte, claramente marcada, de **qué cambiaría al comercializar**. Mar
+confirma que quiere comercializar en el futuro y que ya tiene un MVP aparte,
+**Jobs App** (`Jobs App · ingesta`, `Rw4dTNjQa5tR3Eo4`), pero `Jobs` tal cual
+seguirá siendo de uso personal. El doc cubre los dos escenarios sin bloquearse en
+el segundo.
+
+**Criterio de cierre:** `docs/03-legal.md` escrito y revisado por Mar, con la
+clasificación de riesgo del AI Act, el estado RGPD (exención de actividad
+doméstica), las obligaciones que aplican hoy y las que aplicarían al comercializar,
+y la lista de modificaciones necesarias (si las hay).
+
+**Escrito el 4 sep 2026** — [docs/03-legal.md](03-legal.md). Verificado en
+fuente hoy (no de memoria): el "Digital Omnibus" (Parlamento 16 jun 2026,
+Consejo 29 jun 2026) **aplazó** las obligaciones de alto riesgo del Anexo III
+del 2 ago 2026 al **2 dic 2027** — corrige lo que decía la hipótesis previa de
+esta tarea ("ya aplican desde el 2 ago 2026"). **Veredicto: riesgo mínimo** —
+Anexo III.4 (empleo) apunta a herramientas del lado del reclutador
+(publicar/filtrar/evaluar candidatos), y `Jobs` es del lado del candidato
+(Mar filtra ofertas para sí misma). Sin líneas rojas para el uso personal
+actual; sección aparte con lo que cambiaría si Jobs App (`Rw4dTNjQa5tR3Eo4`)
+llega a ofrecerse a candidatos (riesgo mínimo, pero Mar pasa a proveedora) o a
+reclutadores (alto riesgo, Anexo III.4, desde dic 2027). RGPD: exención
+doméstica clara para los datos propios de Mar; matiz conservador para los
+emails de recruiters que procesa `Jobs · seguimiento` vía Anthropic (interés
+legítimo, sin acción adicional requerida). Pendiente de que Mar lo lea para
+cerrar la tarea.
+
+## 18. Columnas `enlace_cv` y `enlace_carta` en `Ofertas_activas`
+
+**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Implementada y
+publicada por Mar el 4 sep 2026. Verificada en la rama `enlace`; restos menores en
+observación.** Añadir al sheet dos columnas con el enlace del Doc de CV y el del
+Doc de carta generados para cada oferta, para reducir confusiones al enviar.
+
+**Decisiones de Mar (4 sep 2026):**
+- Formato del enlace: **enlace de edición** `https://docs.google.com/document/d/<id>/edit`.
+- Ramas: **ambas** (email y enlace). El nodo que las escribe corre antes del
+  bifurcado, así que cubrir las dos sale gratis (un solo nodo tocado).
+
+**Implementación (4 sep 2026), vía n8n MCP:**
+- **Hoja `n8n_jobs`:** cabeceras nuevas `enlace_cv` / `enlace_carta` en
+  `Ofertas_activas!S1:T1` y `Archivo!T1:U1` (mapeo por cabecera, la posición da
+  igual). Fila 1 intacta por lo demás; el formato lo repone `mantenimiento`
+  (ambas columnas quedan fuera de todo allowlist del Apps Script).
+- **`Jobs · generación CV`** (`morsS0M2folmXWhS`): el nodo
+  `Actualizar estado generar_cv_ia` (Google Sheets `update`, corre **antes** del
+  `email o enlace`) suma a `columns.value` dos claves:
+  `enlace_cv = {{ 'https://docs.google.com/document/d/' + $('Crear doc cv').item.json.id + '/edit' }}`
+  y `enlace_carta` con la misma forma sobre `Crear doc carta`. Cambio 100 %
+  aditivo (`updateNodeParameters`, `replace: true`, releído byte a byte):
+  `columns.value` gana 2 claves, `columns.schema` 2 entradas; `estado`,
+  `generar_cv_ia`, `id_unico` y `matchingColumns: ['id_unico']` intactos. 26
+  nodos, wiring `Escribir carta → Actualizar estado generar_cv_ia → email o
+  enlace` intacto. Salida de `Crear doc cv` confirmada en #750:
+  `json.id` = ID del Doc.
+- **Publicado el 4 sep 2026 por Mar:** `activeVersionId == versionId ==
+  0e59f551-748d-432b-9ca9-6e53e16dbe8c`. El único warning de validación
+  (`Enviar cv y carta por email` sin `operation` explícito) es preexistente y sin
+  impacto (ver «Fallos conocidos» de [jobs-generacion-cv.md](jobs-generacion-cv.md)).
+
+**Patrón:** idéntico a la tarea 12 (`fecha_envio`) — mapeo por cabecera, 100 %
+aditivo, `mantenimiento` no lo toca. Docs
+[jobs-hoja-formato.md](jobs-hoja-formato.md) y
+[jobs-generacion-cv.md](jobs-generacion-cv.md) ya actualizados.
+
+**Verificación (4 sep 2026):** Mar confirma que en la rama `enlace` las columnas
+`enlace_cv`/`enlace_carta` (S/T) quedan rellenas con el enlace de edición correcto
+y funcionan (abren el Doc de CV y de carta).
+
+**Restos menores en observación (no bloquean, se comprueban de forma
+oportunista):** confirmar en una candidatura real de tipo `email` que las mismas
+columnas se rellenan igual (el nodo corre antes del bifurcado, así que debería
+ser automático); que los enlaces sobreviven a una pasada de `mantenimiento`; y
+que al archivarse la oferta viajan a `Archivo` (cols T/U).
+
+**Chequeo (6 sep 2026):** en `Ofertas_activas` hay dos filas `cv_ia_creado` con
+`enlace_cv`/`enlace_carta` (S/T) rellenos y con enlace de edición válido
+(`323dd8ba` Blink Health, `86a496df` IRIUM) — rama `enlace`, consistente con lo ya
+verificado el 4 sep. Los tres restos siguen sin poder comprobarse: no ha entrado
+ninguna candidatura `email`, y `Archivo` no tiene todavía ninguna fila archivada
+con esas columnas rellenas (cols T/U vacías en todo el histórico).
+
+**Criterio de cierre:** publicada y verificada — cumplido en lo esencial. Se
+cierra del todo cuando se confirmen los tres restos menores.
+
+## 23. Archivado / desarchivado instantáneo al cambiar `estado` a mano
+
+**Prioridad: media. Abierta y desarrollada el 8 sep 2026 — pedida por Mar.
+Pendiente de `clasp push` y verificación.** Mar quiere que al seleccionar
+`descartada` (o `rechazada`) en el desplegable de `estado` la oferta pase a
+`Archivo` **en el instante**, sin esperar a la pasada de `Jobs · archivado`
+(09:00/17:00), manteniendo el orden por fecha para poder consultarla o
+recuperarla; y que si en `Archivo` pone `estado: pendiente`, la fila vuelva a
+`Ofertas_activas`.
+
+**Decisiones de Mar (8 sep 2026):** (1) instantáneo para `descartada` **y**
+`rechazada`; (2) orden por `fecha_guardado` desc, sin columna nueva; (3)
+desarchivar poniendo `pendiente` en `Archivo`.
+
+**Implementado (8 sep 2026) en `apps-script/Código.js`:** disparador simple
+`onEdit(e)` → `moverFila_` → `ordenarPorFecha_` / `aplicarDesplegableEstado_`.
+Mapea por cabecera, `appendRow` + `deleteRow` + `sort`, `LockService` de 15 s.
+Solo reacciona a ediciones manuales en la interfaz (no a las escrituras de n8n
+ni del propio script). `Jobs · archivado` queda como **red de seguridad** para
+`descartada`/`rechazada` + las reglas por tiempo. Detalle y límites asumidos
+(cambio en varias filas a la vez, ventana de carrera de ~1 s) en
+[jobs-hoja-formato.md](jobs-hoja-formato.md#archivado--desarchivado-instantáneo--onedit-8-sep-2026-tarea-23).
+`node --check` OK. **`clasp push` lo bloquea el clasificador de auto-mode de
+Claude Code** (igual que `publish_workflow`) → lo hace Mar.
+
+**Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
+en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de
+`Ofertas_activas`; ídem `rechazada`; y poniendo `pendiente` en una fila de
+`Archivo` vuelve a `Ofertas_activas` con su desplegable y `generar_cv_ia` sin
+marcar. Ninguna regresión en la pasada de `Jobs · archivado`.
 
 ## 12. Archivar `cv_enviado` sin respuesta a los 30 días
 
@@ -140,183 +357,19 @@ Mar publicando.
 
 **Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
 
-## 16. Revisión de legalidad frente al AI Act de la UE
+## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 
-**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Escrito el 4 sep
-2026 — pendiente de que Mar lo revise para cerrar.**
-Investigar el estado vigente del Reglamento (UE) 2024/1689 (AI Act) y comprobar
-si Jobs está dentro de la legalidad y qué habría que modificar.
+**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
+proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
+que cambien la arquitectura), redactar el case study estructurado del proyecto
+para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
+del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
+… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
 
-**Contexto y alcance:**
-- Este proyecto se construyó **sin el paso 4 del método** — no existe
-  `docs/03-legal.md`. La tarea crea ese doc con la clasificación y el veredicto.
-- Solo toca documentación. Ningún cambio en workflows previsto (salvo que la
-  investigación encuentre algo ilegal, poco probable).
-- A fecha de hoy (3 sep 2026) **ya aplican las obligaciones de alto riesgo del
-  2 ago 2026**. Hay que mirar además, vía `WebSearch`, el «Digital Omnibus» de
-  simplificación que se movió a finales de 2025 y cualquier retoque posterior
-  (el conocimiento del modelo llega a ene 2026).
-
-**Hipótesis previa (NO conclusión, a validar en la investigación):** Jobs es una
-herramienta **personal y del lado del candidato** — filtra *ofertas* para Mar, no
-*candidaturas* de terceros. El Anexo III.4 (alto riesgo en empleo) apunta a
-sistemas usados por **reclutadores**, no a un asistente de búsqueda propio. Lo
-más probable: categoría de **riesgo mínimo**, con obligaciones ligeras de
-alfabetización en IA (art. 4, vigente desde feb 2025) y transparencia. **El
-cuadro cambia si se comercializa** (M6 / plan de comercialización) → ahí sí
-entraría el Anexo III.4. Es también un gate útil antes de construir M1
-(scoring de encaje con IA).
-
-**Alcance decidido (4 sep 2026):** el análisis se hace **para el uso personal
-actual** de `Jobs` (los workflows n8n que Mar usa para sí misma) **y** con una
-sección aparte, claramente marcada, de **qué cambiaría al comercializar**. Mar
-confirma que quiere comercializar en el futuro y que ya tiene un MVP aparte,
-**Jobs App** (`Jobs App · ingesta`, `Rw4dTNjQa5tR3Eo4`), pero `Jobs` tal cual
-seguirá siendo de uso personal. El doc cubre los dos escenarios sin bloquearse en
-el segundo.
-
-**Criterio de cierre:** `docs/03-legal.md` escrito y revisado por Mar, con la
-clasificación de riesgo del AI Act, el estado RGPD (exención de actividad
-doméstica), las obligaciones que aplican hoy y las que aplicarían al comercializar,
-y la lista de modificaciones necesarias (si las hay).
-
-**Escrito el 4 sep 2026** — [docs/03-legal.md](03-legal.md). Verificado en
-fuente hoy (no de memoria): el "Digital Omnibus" (Parlamento 16 jun 2026,
-Consejo 29 jun 2026) **aplazó** las obligaciones de alto riesgo del Anexo III
-del 2 ago 2026 al **2 dic 2027** — corrige lo que decía la hipótesis previa de
-esta tarea ("ya aplican desde el 2 ago 2026"). **Veredicto: riesgo mínimo** —
-Anexo III.4 (empleo) apunta a herramientas del lado del reclutador
-(publicar/filtrar/evaluar candidatos), y `Jobs` es del lado del candidato
-(Mar filtra ofertas para sí misma). Sin líneas rojas para el uso personal
-actual; sección aparte con lo que cambiaría si Jobs App (`Rw4dTNjQa5tR3Eo4`)
-llega a ofrecerse a candidatos (riesgo mínimo, pero Mar pasa a proveedora) o a
-reclutadores (alto riesgo, Anexo III.4, desde dic 2027). RGPD: exención
-doméstica clara para los datos propios de Mar; matiz conservador para los
-emails de recruiters que procesa `Jobs · seguimiento` vía Anthropic (interés
-legítimo, sin acción adicional requerida). Pendiente de que Mar lo lea para
-cerrar la tarea.
-
-## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
-
-**Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. En recogida de
-ejemplos.** A Mar le entran ofertas para las que obviamente no está cualificada
-(roles técnicos, de ingeniería informática, infraestructura…).
-
-**Método acordado (4 sep 2026):** Mar **no** prepara una lista de golpe. Cada vez
-que entre una oferta mal filtrada la enlazará en la sesión; el agente la registra
-en [mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md) (brief
-permanente de esta tarea) y, cuando haya patrón (≥ 5 ofertas o Mar dice
-«suficientes»), endurece el nodo `Filtro cualificación` siguiendo el protocolo de
-ese documento. La corrección se deja en draft y la publica Mar.
-
-**Toca:** el Code node `Filtro cualificación` de `Jobs · ingesta`
-(`CXCD8BZUQEQKex2a`) — nodo caliente. Posiblemente una columna nueva en la pestaña
-`Metricas` (o reusar `descartes_perfil` / `descartes_encaje`).
-
-**Causa probable (a confirmar leyendo el nodo):** el criterio 5 «encaje» *rescata*
-cualquier oferta cuyo título mencione la familia `IA`. Así entran roles de
-infraestructura que solo mencionan «AI»: en la hoja el 3 sep están *Kubernetes &
-Cloud Integration Engineer* (OpenNebula, `id_unico 4d13f46f`) y *AI Enablement
-Engineer* (LocalStack, `fac88e75`), **ambas con CV ya generado**. La lista «dura»
-del criterio 4 no cubre `kubernetes`, `cloud`, `backend`, `infra`…, y `engineer`
-suelto no descarta a propósito (para no perder *Automation Engineer*).
-
-**Diseño tentativo:** lista de rechazo «ingeniería técnica dura» (`kubernetes`,
-`devops`, `sre`, `backend`, `frontend`, `full-stack`, `software engineer`,
-`data engineer`, `cloud engineer`, `platform engineer`, `firmware`…) que corte
-**antes** del rescate por familia `IA`, salvo enmarcado claro de ops/PM/enablement.
-
-**Riesgo:** medio — un umbral mal puesto deja fuera *AI Engineer* legítimos (el
-bootcamp de Mar es justo eso).
-
-**Necesito de Mar antes de diseñar:** la **lista concreta** de ofertas que
-entraron mal (título + por qué no encajan). Claude puede sacar candidatas de
-`Archivo` y de las últimas pasadas, pero el criterio de Mar manda.
-
-**Avance (6 sep 2026):** Claude registró 4 candidatas más sacadas de la hoja y de
-`Archivo` (IRIUM, Synera, Evaboot, Inetum) → **6 ofertas en el registro**, se
-alcanza el umbral de patrón. Leído el nodo publicado y trazada cada oferta: el
-diagnóstico previo («rescate por IA») solo aplica a 1 de 6; el patrón real es que
-el **criterio 5 es una lista blanca demasiado genérica** (`integration`,
-`procesos`, `agentic`, `ia`, `ops`…) y **5 de 6 llevan “engineer”/“ingeniero”**.
-Análisis completo, palancas posibles y tensiones a resolver en
-[mejora-filtro-cualificacion.md](mejora-filtro-cualificacion.md).
-Decisión de Mar (6 sep): **AI Engineer sí, ML Engineer no** — sacar `ai engineer`
-de `EXCLUSION_DURA`, mantener `ml engineer` / `machine learning engineer`.
-**Bloqueada esperando a Mar:** (1) revisar ella misma los 6 motivos en
-`mejora-filtro-cualificacion.md`, (2) fijar la lista de rescate de la regla nueva
-de «ingeniería técnica».
-
-**Nota (8 sep 2026, tarea 19):** la marca `destacada` (⭐) **ya no depende de
-`SENALES_DESTACADA`** — desde el 8 sep se calcula en `Aplicar scoring` como
-`encaje_ia > 80`. Consecuencia para esta tarea: cualquier título que hoy
-descarta el criterio 4/5 (p. ej. los `ai engineer` que Mar quiere dejar pasar)
-**tampoco recibiría ⭐**, pero si se saca de `EXCLUSION_DURA` llega a
-`Aplicar scoring` y ahí obtiene su nota y, si `> 80`, su estrella. `SENALES_DESTACADA`
-sigue en el `jsCode` de `Filtro cualificación` pero su salida se pisa; se puede
-borrar como limpieza opcional cuando se toque el nodo para el endurecimiento.
-
-**Criterio de cierre:** una pasada real deja fuera las ofertas técnicas del tipo
-que Mar señaló, sin descartar los roles de operaciones/PM/IA legítimos; el
-recuento de descartes cuadra en `Metricas`.
-
-## 18. Columnas `enlace_cv` y `enlace_carta` en `Ofertas_activas`
-
-**Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Implementada y
-publicada por Mar el 4 sep 2026. Verificada en la rama `enlace`; restos menores en
-observación.** Añadir al sheet dos columnas con el enlace del Doc de CV y el del
-Doc de carta generados para cada oferta, para reducir confusiones al enviar.
-
-**Decisiones de Mar (4 sep 2026):**
-- Formato del enlace: **enlace de edición** `https://docs.google.com/document/d/<id>/edit`.
-- Ramas: **ambas** (email y enlace). El nodo que las escribe corre antes del
-  bifurcado, así que cubrir las dos sale gratis (un solo nodo tocado).
-
-**Implementación (4 sep 2026), vía n8n MCP:**
-- **Hoja `n8n_jobs`:** cabeceras nuevas `enlace_cv` / `enlace_carta` en
-  `Ofertas_activas!S1:T1` y `Archivo!T1:U1` (mapeo por cabecera, la posición da
-  igual). Fila 1 intacta por lo demás; el formato lo repone `mantenimiento`
-  (ambas columnas quedan fuera de todo allowlist del Apps Script).
-- **`Jobs · generación CV`** (`morsS0M2folmXWhS`): el nodo
-  `Actualizar estado generar_cv_ia` (Google Sheets `update`, corre **antes** del
-  `email o enlace`) suma a `columns.value` dos claves:
-  `enlace_cv = {{ 'https://docs.google.com/document/d/' + $('Crear doc cv').item.json.id + '/edit' }}`
-  y `enlace_carta` con la misma forma sobre `Crear doc carta`. Cambio 100 %
-  aditivo (`updateNodeParameters`, `replace: true`, releído byte a byte):
-  `columns.value` gana 2 claves, `columns.schema` 2 entradas; `estado`,
-  `generar_cv_ia`, `id_unico` y `matchingColumns: ['id_unico']` intactos. 26
-  nodos, wiring `Escribir carta → Actualizar estado generar_cv_ia → email o
-  enlace` intacto. Salida de `Crear doc cv` confirmada en #750:
-  `json.id` = ID del Doc.
-- **Publicado el 4 sep 2026 por Mar:** `activeVersionId == versionId ==
-  0e59f551-748d-432b-9ca9-6e53e16dbe8c`. El único warning de validación
-  (`Enviar cv y carta por email` sin `operation` explícito) es preexistente y sin
-  impacto (ver «Fallos conocidos» de [jobs-generacion-cv.md](jobs-generacion-cv.md)).
-
-**Patrón:** idéntico a la tarea 12 (`fecha_envio`) — mapeo por cabecera, 100 %
-aditivo, `mantenimiento` no lo toca. Docs
-[jobs-hoja-formato.md](jobs-hoja-formato.md) y
-[jobs-generacion-cv.md](jobs-generacion-cv.md) ya actualizados.
-
-**Verificación (4 sep 2026):** Mar confirma que en la rama `enlace` las columnas
-`enlace_cv`/`enlace_carta` (S/T) quedan rellenas con el enlace de edición correcto
-y funcionan (abren el Doc de CV y de carta).
-
-**Restos menores en observación (no bloquean, se comprueban de forma
-oportunista):** confirmar en una candidatura real de tipo `email` que las mismas
-columnas se rellenan igual (el nodo corre antes del bifurcado, así que debería
-ser automático); que los enlaces sobreviven a una pasada de `mantenimiento`; y
-que al archivarse la oferta viajan a `Archivo` (cols T/U).
-
-**Chequeo (6 sep 2026):** en `Ofertas_activas` hay dos filas `cv_ia_creado` con
-`enlace_cv`/`enlace_carta` (S/T) rellenos y con enlace de edición válido
-(`323dd8ba` Blink Health, `86a496df` IRIUM) — rama `enlace`, consistente con lo ya
-verificado el 4 sep. Los tres restos siguen sin poder comprobarse: no ha entrado
-ninguna candidatura `email`, y `Archivo` no tiene todavía ninguna fila archivada
-con esas columnas rellenas (cols T/U vacías en todo el histórico).
-
-**Criterio de cierre:** publicada y verificada — cumplido en lo esencial. Se
-cierra del todo cuando se confirmen los tres restos menores.
+**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
+problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
+guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
+Google) y los resultados reales del pipeline.
 
 ## 19. Reorganizar/depurar las columnas de `Ofertas_activas` y `Archivo`
 
@@ -407,51 +460,6 @@ alcance (revisar validaciones, banda y el script antes de tocar nada).
 reordenación completa (nueva subtarea con su propio plan).
 
 </details>
-
-## 23. Archivado / desarchivado instantáneo al cambiar `estado` a mano
-
-**Prioridad: media. Abierta y desarrollada el 8 sep 2026 — pedida por Mar.
-Pendiente de `clasp push` y verificación.** Mar quiere que al seleccionar
-`descartada` (o `rechazada`) en el desplegable de `estado` la oferta pase a
-`Archivo` **en el instante**, sin esperar a la pasada de `Jobs · archivado`
-(09:00/17:00), manteniendo el orden por fecha para poder consultarla o
-recuperarla; y que si en `Archivo` pone `estado: pendiente`, la fila vuelva a
-`Ofertas_activas`.
-
-**Decisiones de Mar (8 sep 2026):** (1) instantáneo para `descartada` **y**
-`rechazada`; (2) orden por `fecha_guardado` desc, sin columna nueva; (3)
-desarchivar poniendo `pendiente` en `Archivo`.
-
-**Implementado (8 sep 2026) en `apps-script/Código.js`:** disparador simple
-`onEdit(e)` → `moverFila_` → `ordenarPorFecha_` / `aplicarDesplegableEstado_`.
-Mapea por cabecera, `appendRow` + `deleteRow` + `sort`, `LockService` de 15 s.
-Solo reacciona a ediciones manuales en la interfaz (no a las escrituras de n8n
-ni del propio script). `Jobs · archivado` queda como **red de seguridad** para
-`descartada`/`rechazada` + las reglas por tiempo. Detalle y límites asumidos
-(cambio en varias filas a la vez, ventana de carrera de ~1 s) en
-[jobs-hoja-formato.md](jobs-hoja-formato.md#archivado--desarchivado-instantáneo--onedit-8-sep-2026-tarea-23).
-`node --check` OK. **`clasp push` lo bloquea el clasificador de auto-mode de
-Claude Code** (igual que `publish_workflow`) → lo hace Mar.
-
-**Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
-en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de
-`Ofertas_activas`; ídem `rechazada`; y poniendo `pendiente` en una fila de
-`Archivo` vuelve a `Ofertas_activas` con su desplegable y `generar_cv_ia` sin
-marcar. Ninguna regresión en la pasada de `Jobs · archivado`.
-
-## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
-
-**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
-proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
-que cambien la arquitectura), redactar el case study estructurado del proyecto
-para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
-del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
-… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
-
-**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
-problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
-guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
-Google) y los resultados reales del pipeline.
 
 # Cerradas
 
