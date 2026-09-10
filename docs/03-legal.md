@@ -11,6 +11,11 @@ timestamp: 2026-09-04T00:00:00Z
 > consultadas el 4 sep 2026. Donde la conclusión no sea "riesgo mínimo" claro,
 > el documento termina con las preguntas concretas que llevar a un abogado.
 
+> **Revisado y aprobado por Mar el 10 sep 2026** (tarea 16 cerrada). Veredicto
+> aceptado: riesgo mínimo para el uso personal actual de `Jobs`, sin cambios en
+> los workflows. Lo legal se retoma cuando Mar decida comercializar (`Jobs App`),
+> apoyándose en las secciones de este documento sobre ese escenario (§2 y §8).
+
 # 0. Nota de proceso
 
 Este documento se escribe **fuera de orden**: `Jobs` se construyó sin pasar

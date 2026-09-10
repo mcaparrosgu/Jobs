@@ -8,10 +8,68 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
+## 23. Archivado / desarchivado instantáneo al cambiar `estado` a mano
+
+**Prioridad: media. Abierta y desarrollada el 8 sep 2026 — pedida por Mar.
+`clasp push` HECHO por Claude el 10 sep 2026; pendiente de la verificación
+manual de Mar.** Mar quiere que al seleccionar
+`descartada` (o `rechazada`) en el desplegable de `estado` la oferta pase a
+`Archivo` **en el instante**, sin esperar a la pasada de `Jobs · archivado`
+(09:00/17:00), manteniendo el orden por fecha para poder consultarla o
+recuperarla; y que si en `Archivo` pone `estado: pendiente`, la fila vuelva a
+`Ofertas_activas`.
+
+**Decisiones de Mar (8 sep 2026):** (1) instantáneo para `descartada` **y**
+`rechazada`; (2) orden por `fecha_guardado` desc, sin columna nueva; (3)
+desarchivar poniendo `pendiente` en `Archivo`.
+
+**Implementado (8 sep 2026) en `apps-script/Código.js`:** disparador simple
+`onEdit(e)` → `moverFila_` → `ordenarPorFecha_` / `aplicarDesplegableEstado_`.
+Mapea por cabecera, `appendRow` + `deleteRow` + `sort`, `LockService` de 15 s.
+Solo reacciona a ediciones manuales en la interfaz (no a las escrituras de n8n
+ni del propio script). `Jobs · archivado` queda como **red de seguridad** para
+`descartada`/`rechazada` + las reglas por tiempo. Detalle y límites asumidos
+(cambio en varias filas a la vez, ventana de carrera de ~1 s) en
+[jobs-hoja-formato.md](jobs-hoja-formato.md#archivado--desarchivado-instantáneo--onedit-8-sep-2026-tarea-23).
+`node --check` OK. **`clasp push` lo bloquea el clasificador de auto-mode de
+Claude Code** (igual que `publish_workflow`) → lo hace Mar.
+
+**`clasp push` (10 sep 2026):** con vía libre explícita de Mar («hazlo tú»),
+Claude ejecutó `clasp push -f` desde `apps-script/` → «Pushed 2 files»
+(`appsscript.json`, `Código.js`). El clasificador de auto-mode **no lo bloqueó**
+(igual que `publish_workflow` en la tarea 17). El `onEdit` es un disparador
+**simple** — no hace falta instalar activador, ya está vivo. `Código.js` local ==
+lo empujado (`node --check` OK antes).
+
+**Falta la verificación manual de Mar** (un `onEdit` simple solo se dispara con
+ediciones en la interfaz, no por API — no se puede automatizar la prueba).
+
+**Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
+en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de
+`Ofertas_activas`; ídem `rechazada`; y poniendo `pendiente` en una fila de
+`Archivo` vuelve a `Ofertas_activas` con su desplegable y `generar_cv_ia` sin
+marcar. Ninguna regresión en la pasada de `Jobs · archivado`.
+
+## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
+
+**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
+proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
+que cambien la arquitectura), redactar el case study estructurado del proyecto
+para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
+del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
+… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
+
+**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
+problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
+guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
+Google) y los resultados reales del pipeline.
+
+# Cerradas
+
 ## 16. Revisión de legalidad frente al AI Act de la UE
 
 **Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Escrito el 4 sep
-2026 — pendiente de que Mar lo revise para cerrar.**
+2026. CERRADA el 10 sep 2026 — Mar lo revisó y lo aprobó.**
 Investigar el estado vigente del Reglamento (UE) 2024/1689 (AI Act) y comprobar
 si Jobs está dentro de la legalidad y qué habría que modificar.
 
@@ -64,12 +122,19 @@ emails de recruiters que procesa `Jobs · seguimiento` vía Anthropic (interés
 legítimo, sin acción adicional requerida). Pendiente de que Mar lo lea para
 cerrar la tarea.
 
+**Cierre (10 sep 2026):** Mar leyó `docs/03-legal.md` y lo aprobó. Veredicto:
+riesgo mínimo para el uso personal actual de `Jobs`, sin líneas rojas ni cambios
+en los workflows. Lo legal se retoma cuando Mar decida comercializar (`Jobs App`)
+— el doc ya tiene la sección de qué cambiaría entonces. Es el paso 4 del método,
+retrofitado.
+
 ## 18. Columnas `enlace_cv` y `enlace_carta` en `Ofertas_activas`
 
 **Prioridad: media. Abierta el 3 sep 2026 — pedida por Mar. Implementada y
-publicada por Mar el 4 sep 2026. Verificada en la rama `enlace`; restos menores en
-observación.** Añadir al sheet dos columnas con el enlace del Doc de CV y el del
-Doc de carta generados para cada oferta, para reducir confusiones al enviar.
+publicada por Mar el 4 sep 2026. Verificada en la rama `enlace`. CERRADA el
+10 sep 2026 — Mar confirma que funciona perfectamente.**
+Añadir al sheet dos columnas con el enlace del Doc de CV y el del Doc de carta
+generados para cada oferta, para reducir confusiones al enviar.
 
 **Decisiones de Mar (4 sep 2026):**
 - Formato del enlace: **enlace de edición** `https://docs.google.com/document/d/<id>/edit`.
@@ -122,139 +187,16 @@ con esas columnas rellenas (cols T/U vacías en todo el histórico).
 **Criterio de cierre:** publicada y verificada — cumplido en lo esencial. Se
 cierra del todo cuando se confirmen los tres restos menores.
 
-## 23. Archivado / desarchivado instantáneo al cambiar `estado` a mano
-
-**Prioridad: media. Abierta y desarrollada el 8 sep 2026 — pedida por Mar.
-Pendiente de `clasp push` y verificación.** Mar quiere que al seleccionar
-`descartada` (o `rechazada`) en el desplegable de `estado` la oferta pase a
-`Archivo` **en el instante**, sin esperar a la pasada de `Jobs · archivado`
-(09:00/17:00), manteniendo el orden por fecha para poder consultarla o
-recuperarla; y que si en `Archivo` pone `estado: pendiente`, la fila vuelva a
-`Ofertas_activas`.
-
-**Decisiones de Mar (8 sep 2026):** (1) instantáneo para `descartada` **y**
-`rechazada`; (2) orden por `fecha_guardado` desc, sin columna nueva; (3)
-desarchivar poniendo `pendiente` en `Archivo`.
-
-**Implementado (8 sep 2026) en `apps-script/Código.js`:** disparador simple
-`onEdit(e)` → `moverFila_` → `ordenarPorFecha_` / `aplicarDesplegableEstado_`.
-Mapea por cabecera, `appendRow` + `deleteRow` + `sort`, `LockService` de 15 s.
-Solo reacciona a ediciones manuales en la interfaz (no a las escrituras de n8n
-ni del propio script). `Jobs · archivado` queda como **red de seguridad** para
-`descartada`/`rechazada` + las reglas por tiempo. Detalle y límites asumidos
-(cambio en varias filas a la vez, ventana de carrera de ~1 s) en
-[jobs-hoja-formato.md](jobs-hoja-formato.md#archivado--desarchivado-instantáneo--onedit-8-sep-2026-tarea-23).
-`node --check` OK. **`clasp push` lo bloquea el clasificador de auto-mode de
-Claude Code** (igual que `publish_workflow`) → lo hace Mar.
-
-**Nota (10 sep 2026, `/hola`):** el bloqueo de auto-mode **no fue absoluto** para
-`publish_workflow` — funcionó en la tarea 17 tras dar Mar vía libre explícita en
-la sesión. `clasp push` podría comportarse igual (no probado). Si Mar lo autoriza
-en la sesión, Claude puede intentar el `clasp push` en vez de pedírselo.
-
-**Criterio de cierre:** tras `clasp push`, Mar cambia `estado` a `descartada`
-en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece de
-`Ofertas_activas`; ídem `rechazada`; y poniendo `pendiente` en una fila de
-`Archivo` vuelve a `Ofertas_activas` con su desplegable y `generar_cv_ia` sin
-marcar. Ninguna regresión en la pasada de `Jobs · archivado`.
-
-## 12. Archivar `cv_enviado` sin respuesta a los 30 días
-
-**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar (solo esta mitad de
-M7). Implementada y publicada el 31 ago 2026; en vigilancia hasta ver los dos
-pasos en pasadas reales.** Es la mitad de M7 de
-[jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado` con **≥ 30 días** y sin
-respuesta → se archiva con `estado: sin_respuesta`. Requiere una columna
-`fecha_envio` nueva, que la escribe [Jobs · generación CV](jobs-generacion-cv.md)
-en el mismo nodo que marca `estado: cv_enviado`.
-
-**Decisión del 31 ago 2026 — transición directa a `Archivo` en una pasada** (Mar
-eligió entre esto y una fase intermedia visible en `Ofertas_activas`). La regla
-vive en `Decisión archivar` de [Jobs · archivado](jobs-archivado.md), que ya lee
-toda la hoja dos veces al día: marca la fila `sin_respuesta` **en una copia** y la
-manda a `Archivo` en la misma pasada. `sin_respuesta` **nunca aparece en
-`Ofertas_activas`**, así que **no hay que tocar la validación del desplegable ni
-colorear ningún chip**. En `Archivo` el `estado` no lleva desplegable (allowlist
-del Apps Script), así que queda como texto plano.
-
-**Implementación (31 ago 2026), vía n8n MCP:**
-- **Hoja `n8n_jobs`:** cabecera `fecha_envio` nueva en `Ofertas_activas!R1` y
-  `Archivo!S1` (mapeo por cabecera, la posición da igual). Fila 1 intacta por lo
-  demás; el formato lo repone `mantenimiento`.
-- **`Jobs · generación CV`** (`morsS0M2folmXWhS`, `activeVersionId
-  5c2638d4-16e9-419a-b945-57043cbe1dcb`): el nodo `Actualizar estado cv_enviado`
-  añade `fecha_envio: {{ $now.toFormat('yyyy-MM-dd') }}` junto a
-  `estado: cv_enviado`. Cambio 100 % aditivo (solo en la rama `email`).
-- **`Jobs · archivado`** (`t4jxqH2wJyDF3EYt`, `activeVersionId
-  75d363e2-d475-4a70-a807-e93012aca1a3`): `Decisión archivar` (Code) reescrito con
-  `updateNodeParameters` (releído byte a byte, acentos intactos). **Regla 3 nueva
-  y aditiva** — si `estado === 'cv_enviado'`, `estado_propuesto` está vacío (Jobs ·
-  seguimiento no propuso nada) y `fecha_envio` tiene ≥ 30 días → se empuja
-  `{ ...oferta, estado: 'sin_respuesta' }` (copia, sin mutar el item original).
-  Filas antiguas sin `fecha_envio` → se ignoran. Reglas 1 y 2 y el centinela
-  `_sinArchivar` sin cambios. 8 nodos, wiring intacto.
-
-**No incluye** el email de seguimiento a los 7-10 días de M7 — ver
-[Sugerencias pendientes](#sugerencias-pendientes).
-
-**Filas antiguas:** los `cv_enviado` anteriores a la tarea 12 no tienen
-`fecha_envio` y la Regla 3 los ignora. **Decisión de Mar (31 ago 2026): no se
-rellena `fecha_envio` a mano** — no es un dato útil retroactivo y esas
-candidaturas ya están marcadas como `cv_enviado`; se avanzan o archivan a mano si
-hace falta. La regla solo aplica de aquí en adelante.
-
-**Pendiente de verificación en pasadas reales:**
-1. Un `cv_enviado` marcado por `Jobs · generación CV` (rama `email`) deja
-   `fecha_envio` en formato `yyyy-MM-dd` en `Ofertas_activas`.
-2. Una fila `cv_enviado` + `estado_propuesto` vacío + `fecha_envio` de hace ≥ 30
-   días pasa a `Archivo` con `estado: sin_respuesta` en una pasada de las
-   09:00/17:00, sin arrastrar filas legítimas. (Se puede forzar antes con una
-   fila de prueba y `DIAS_SIN_RESPUESTA` bajado temporalmente, patrón de la
-   tarea 2 con `UMBRAL = -1`.)
-
-**Estado (3 sep 2026):** los dos puntos siguen sin poder verificarse de forma
-natural:
-- Punto 1 — desde el 31 ago **ninguna oferta de aplicación por email** ha pasado
-  por `Jobs · generación CV`; todas las candidaturas recientes (#734–#751) son de
-  `tipo_aplicacion: enlace`, que no tocan la rama `email` ni marcan `cv_enviado`.
-  `Ofertas_activas` no tiene ninguna fila `cv_enviado` con la columna
-  `fecha_envio` (R) rellena.
-- Punto 2 — la `fecha_envio` más antigua posible es del 31 ago 2026, así que
-  ninguna fila llega a los 30 días hasta **~30 sep 2026**. La Regla 3 no puede
-  disparar antes sin forzarla.
-- Decisión pendiente de Mar: esperar al tráfico real (fecha natural ~30 sep) o
-  montar la prueba forzada (fila de prueba `cv_enviado` con `fecha_envio` vieja +
-  `DIAS_SIN_RESPUESTA` bajado temporalmente en `Jobs · archivado`, con Mar
-  publicando el draft y revirtiéndolo después — el `publish_workflow` del MCP lo
-  bloquea el clasificador de auto-mode de Claude Code en esta sesión).
-
-**Estado (6 sep 2026):** sin cambios. `Ofertas_activas` no tiene ni una fila
-`cv_enviado` (todo es `pendiente` / `cv_ia_creado`), `fecha_envio` (col R) vacía en
-toda la hoja; `Archivo` no tiene ninguna fila `sin_respuesta` ni con `fecha_envio`.
-Sigue bloqueada por falta de tráfico `email` o por la prueba forzada que necesita a
-Mar publicando.
-
-**Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
-
-## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
-
-**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
-proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
-que cambien la arquitectura), redactar el case study estructurado del proyecto
-para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
-del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
-… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
-
-**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
-problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
-guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
-Google) y los resultados reales del pipeline.
+**Cierre (10 sep 2026):** Mar confirma que funciona perfectamente. Los tres restos
+menores en observación (candidatura `email`, supervivencia a `mantenimiento`,
+viaje a `Archivo`) se dan por buenos — el nodo corre antes del bifurcado y el
+patrón es idéntico al de la tarea 12, ya probado.
 
 ## 19. Reorganizar/depurar las columnas de `Ofertas_activas` y `Archivo`
 
-**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar. CERRADA el 8 sep
-2026** (parte de hoja hecha y verificada por API; parte de workflow en draft,
-la publica Mar).
+**Prioridad: baja. Abierta el 4 sep 2026 — pedida por Mar. Parte de hoja hecha el
+8 sep 2026; `Aplicar scoring` publicado. CERRADA el 10 sep 2026 — Mar la da por
+buena (cambio menor, ya en producción; sin backfill de `destacada`).**
 
 **Decisiones de Mar (8 sep 2026):** borrar `salario` y `modalidad`; mantener
 `fecha_publicacion` visible; ocultar (no borrar) lo demás que no consulta;
@@ -349,7 +291,100 @@ reordenación completa (nueva subtarea con su propio plan).
 
 </details>
 
-# Cerradas
+**Cierre (10 sep 2026):** Mar la da por cerrada — cambio menor y ya en producción
+(`Aplicar scoring` publicado, `activeVersionId de9ae329-…`). El chequeo pendiente
+de `destacada`/`encaje_ia` no se considera bloqueante; item 3 (backfill de
+`destacada` en filas viejas) **descartado por Mar**. **Restricción de Mar:** las
+filas de `Ofertas_activas` siguen ordenadas cronológicamente — lo mantienen
+`mantenimiento` (orden desc por `fecha_guardado`) y el `onEdit` de la tarea 23;
+nada de la tarea 19 lo toca.
+
+## 12. Archivar `cv_enviado` sin respuesta a los 30 días
+
+**Prioridad: baja. Abierta el 30 ago 2026 — aprobada por Mar (solo esta mitad de
+M7). Implementada y publicada el 31 ago 2026. CERRADA el 10 sep 2026 sin
+verificar — Mar no va a enviar CVs por email a corto plazo; recordatorio movido a
+«Sugerencias pendientes».** Es la mitad de M7 de
+[jobs-evaluacion.md](jobs-evaluacion.md): `cv_enviado` con **≥ 30 días** y sin
+respuesta → se archiva con `estado: sin_respuesta`. Requiere una columna
+`fecha_envio` nueva, que la escribe [Jobs · generación CV](jobs-generacion-cv.md)
+en el mismo nodo que marca `estado: cv_enviado`.
+
+**Decisión del 31 ago 2026 — transición directa a `Archivo` en una pasada** (Mar
+eligió entre esto y una fase intermedia visible en `Ofertas_activas`). La regla
+vive en `Decisión archivar` de [Jobs · archivado](jobs-archivado.md), que ya lee
+toda la hoja dos veces al día: marca la fila `sin_respuesta` **en una copia** y la
+manda a `Archivo` en la misma pasada. `sin_respuesta` **nunca aparece en
+`Ofertas_activas`**, así que **no hay que tocar la validación del desplegable ni
+colorear ningún chip**. En `Archivo` el `estado` no lleva desplegable (allowlist
+del Apps Script), así que queda como texto plano.
+
+**Implementación (31 ago 2026), vía n8n MCP:**
+- **Hoja `n8n_jobs`:** cabecera `fecha_envio` nueva en `Ofertas_activas!R1` y
+  `Archivo!S1` (mapeo por cabecera, la posición da igual). Fila 1 intacta por lo
+  demás; el formato lo repone `mantenimiento`.
+- **`Jobs · generación CV`** (`morsS0M2folmXWhS`, `activeVersionId
+  5c2638d4-16e9-419a-b945-57043cbe1dcb`): el nodo `Actualizar estado cv_enviado`
+  añade `fecha_envio: {{ $now.toFormat('yyyy-MM-dd') }}` junto a
+  `estado: cv_enviado`. Cambio 100 % aditivo (solo en la rama `email`).
+- **`Jobs · archivado`** (`t4jxqH2wJyDF3EYt`, `activeVersionId
+  75d363e2-d475-4a70-a807-e93012aca1a3`): `Decisión archivar` (Code) reescrito con
+  `updateNodeParameters` (releído byte a byte, acentos intactos). **Regla 3 nueva
+  y aditiva** — si `estado === 'cv_enviado'`, `estado_propuesto` está vacío (Jobs ·
+  seguimiento no propuso nada) y `fecha_envio` tiene ≥ 30 días → se empuja
+  `{ ...oferta, estado: 'sin_respuesta' }` (copia, sin mutar el item original).
+  Filas antiguas sin `fecha_envio` → se ignoran. Reglas 1 y 2 y el centinela
+  `_sinArchivar` sin cambios. 8 nodos, wiring intacto.
+
+**No incluye** el email de seguimiento a los 7-10 días de M7 — ver
+[Sugerencias pendientes](#sugerencias-pendientes).
+
+**Filas antiguas:** los `cv_enviado` anteriores a la tarea 12 no tienen
+`fecha_envio` y la Regla 3 los ignora. **Decisión de Mar (31 ago 2026): no se
+rellena `fecha_envio` a mano** — no es un dato útil retroactivo y esas
+candidaturas ya están marcadas como `cv_enviado`; se avanzan o archivan a mano si
+hace falta. La regla solo aplica de aquí en adelante.
+
+**Pendiente de verificación en pasadas reales:**
+1. Un `cv_enviado` marcado por `Jobs · generación CV` (rama `email`) deja
+   `fecha_envio` en formato `yyyy-MM-dd` en `Ofertas_activas`.
+2. Una fila `cv_enviado` + `estado_propuesto` vacío + `fecha_envio` de hace ≥ 30
+   días pasa a `Archivo` con `estado: sin_respuesta` en una pasada de las
+   09:00/17:00, sin arrastrar filas legítimas. (Se puede forzar antes con una
+   fila de prueba y `DIAS_SIN_RESPUESTA` bajado temporalmente, patrón de la
+   tarea 2 con `UMBRAL = -1`.)
+
+**Estado (3 sep 2026):** los dos puntos siguen sin poder verificarse de forma
+natural:
+- Punto 1 — desde el 31 ago **ninguna oferta de aplicación por email** ha pasado
+  por `Jobs · generación CV`; todas las candidaturas recientes (#734–#751) son de
+  `tipo_aplicacion: enlace`, que no tocan la rama `email` ni marcan `cv_enviado`.
+  `Ofertas_activas` no tiene ninguna fila `cv_enviado` con la columna
+  `fecha_envio` (R) rellena.
+- Punto 2 — la `fecha_envio` más antigua posible es del 31 ago 2026, así que
+  ninguna fila llega a los 30 días hasta **~30 sep 2026**. La Regla 3 no puede
+  disparar antes sin forzarla.
+- Decisión pendiente de Mar: esperar al tráfico real (fecha natural ~30 sep) o
+  montar la prueba forzada (fila de prueba `cv_enviado` con `fecha_envio` vieja +
+  `DIAS_SIN_RESPUESTA` bajado temporalmente en `Jobs · archivado`, con Mar
+  publicando el draft y revirtiéndolo después — el `publish_workflow` del MCP lo
+  bloquea el clasificador de auto-mode de Claude Code en esta sesión).
+
+**Estado (6 sep 2026):** sin cambios. `Ofertas_activas` no tiene ni una fila
+`cv_enviado` (todo es `pendiente` / `cv_ia_creado`), `fecha_envio` (col R) vacía en
+toda la hoja; `Archivo` no tiene ninguna fila `sin_respuesta` ni con `fecha_envio`.
+Sigue bloqueada por falta de tráfico `email` o por la prueba forzada que necesita a
+Mar publicando.
+
+**Criterio de cierre:** los dos puntos anteriores verificados en pasadas reales.
+
+**Cierre (10 sep 2026):** el mecanismo está construido y en producción (columna
+`fecha_envio`, Regla 3 de `Decisión archivar`), pero **no verificable a corto
+plazo**: Mar no va a enviar CVs por email, así que no habrá `cv_enviado` con
+`fecha_envio` que llegue a 30 días. Mar decide sacarla de tareas activas y dejar
+un recordatorio en «Sugerencias pendientes». Si en el futuro empieza a enviar CVs
+por email, vigilar el primer archivado a 30 días (o forzarlo: fila `cv_enviado`
+con `fecha_envio` vieja + `DIAS_SIN_RESPUESTA` temporal).
 
 ## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
 
@@ -1289,6 +1324,10 @@ aquí para no perderlas.
   mandar a Mar un email con un borrador de mensaje de seguimiento a la empresa.
   Aprobada solo la mitad de archivado a 30 días (tarea 12); esta parte se pide
   explícitamente más adelante.
+- **Verificar el archivado a 30 días de `cv_enviado` sin respuesta** (Regla 3,
+  tarea 12 — cerrada el 10 sep 2026 sin verificar). El mecanismo está en
+  producción; solo hay que comprobarlo cuando Mar empiece a enviar CVs por email
+  y una candidatura llegue a 30 días sin respuesta.
 - **M6 — sacar n8n del portátil a un servidor.** Interesa cuando llegue el
   momento de monetizar/comercializar Jobs, no antes: mientras sea uso personal,
   perder una pasada por el portátil apagado no tiene coste real.
