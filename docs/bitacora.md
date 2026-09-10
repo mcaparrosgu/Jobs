@@ -846,3 +846,16 @@ decisión cambió, se anota una entrada nueva que lo diga.
   columna no tenía validación). El `onEdit` no las mueve (solo edita-celda-a-
   celda), pero es un campo minado: si Mar tocara esa columna en bloque, esas
   filas volverían a `Ofertas_activas`. Sin decidir si conviene sanearlas.
+
+## 2026-09-10 · Tarea 23 cerrada y filas `pendiente` de `Archivo` saneadas
+
+- QUÉ SE VERIFICÓ — Mar probó el `onEdit` en las dos direcciones («¡funciona!»):
+  `descartada`/`rechazada` → `Archivo` al instante; `pendiente` en el desplegable
+  nuevo de `Archivo` → vuelta a `Ofertas_activas`. Tarea 23 a `# Cerradas`.
+- QUÉ SE DECIDIÓ — Las **248** filas históricas de `Archivo` con
+  `estado: pendiente`: Mar «considéralas descartadas, no me interesan». Un
+  `findReplace` por API (`matchEntireCell`, solo la columna `estado`, filas
+  2–348) las pasó a `descartada`. Por API → no dispara el `onEdit` → ninguna se
+  movió. `Archivo!estado` queda solo con `descartada`/`rechazada`.
+- QUÉ QUEDA — `# Abiertas` se queda con **una** tarea: la 14 (case study, Paso 19
+  del método). Jobs no tiene ya tareas que cambien la arquitectura.

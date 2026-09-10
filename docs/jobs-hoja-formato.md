@@ -188,12 +188,16 @@ a mano en el desplegable:
 
 **Desde el 10 sep 2026, `Archivo` tiene desplegable de `estado`** (ver punto 5 de
 formato): desarchivar es elegir `pendiente` en el desplegable, no teclearlo.
-**Aviso:** `Archivo` arrastra ~250 filas históricas ya con `estado: pendiente`
-(de cuando la columna era texto plano). El `onEdit` **no las mueve** — solo
-reacciona a una edición manual celda a celda. Pero **no toques esa columna en
-bloque** (arrastrar el tirador, pegar una columna): un cambio multi-fila lo
-ignora el `onEdit` (`getNumRows() === 1`), pero si editas esas celdas una a una
-irían saliendo a `Ofertas_activas`.
+Verificado por Mar el 10 sep 2026 en las dos direcciones — tarea 23 cerrada.
+
+> El 10 sep 2026 `Archivo` arrastraba **248 filas históricas con
+> `estado: pendiente`** (de cuando la columna era texto plano). Mar las dio por
+> descartadas: un `findReplace` por API (`matchEntireCell`, solo la columna
+> `estado`) las pasó todas a `descartada`. Es una escritura por API, así que **no
+> disparó el `onEdit`** y ninguna fila se movió. Aun así, **no edites esa columna
+> en bloque** (arrastrar el tirador, pegar una columna): un cambio multi-fila lo
+> ignora el `onEdit` (`getNumRows() === 1`), pero celda a celda irían saliendo a
+> `Ofertas_activas`.
 
 Detalles:
 - **Solo se dispara con ediciones manuales en la interfaz.** No lo activan

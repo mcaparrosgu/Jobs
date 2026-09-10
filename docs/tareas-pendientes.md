@@ -8,11 +8,26 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
+## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
+
+**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
+proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
+que cambien la arquitectura), redactar el case study estructurado del proyecto
+para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
+del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
+… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
+
+**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
+problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
+guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
+Google) y los resultados reales del pipeline.
+
+# Cerradas
+
 ## 23. Archivado / desarchivado instantáneo al cambiar `estado` a mano
 
 **Prioridad: media. Abierta y desarrollada el 8 sep 2026 — pedida por Mar.
-`clasp push` HECHO por Claude el 10 sep 2026; pendiente de la verificación
-manual de Mar.** Mar quiere que al seleccionar
+CERRADA el 10 sep 2026 — verificada por Mar: «funciona».** Mar quiere que al seleccionar
 `descartada` (o `rechazada`) en el desplegable de `estado` la oferta pase a
 `Archivo` **en el instante**, sin esperar a la pasada de `Jobs · archivado`
 (09:00/17:00), manteniendo el orden por fecha para poder consultarla o
@@ -50,10 +65,12 @@ chip) y **el Apps Script lo mantiene** desde ahora: `HOJAS` → `Archivo`
 `estado: true`, y `moverFila_` repone el desplegable en **ambos** destinos (no
 solo al volver a `Ofertas_activas`). `node --check` OK, `clasp push` hecho.
 
-**Ojo para la verificación:** `Archivo` tiene **~250 filas históricas ya con
-`estado: pendiente`** (de cuando la columna no tenía validación). El `onEdit` no
-las mueve (solo reacciona a ediciones manuales celda a celda), pero Mar no debe
-tocar esa columna en bloque.
+**Filas históricas `pendiente` en `Archivo` — resuelto el 10 sep 2026:** eran
+**248** (de cuando la columna era texto plano). Mar: «considéralas descartadas,
+no me interesan» → `findReplace` vía `google-sheets` MCP (`matchEntireCell`,
+solo la columna `estado`, filas 2–348) cambió las 248 a `descartada`. Es una
+escritura por API, no dispara el `onEdit`, así que ninguna fila se movió.
+`Archivo!estado` queda solo con `descartada`/`rechazada`.
 
 **Falta la verificación manual de Mar** (un `onEdit` simple solo se dispara con
 ediciones en la interfaz, no por API — no se puede automatizar la prueba):
@@ -68,21 +85,13 @@ en una oferta real → aparece en `Archivo` al momento, ordenada, y desaparece d
 `Archivo` vuelve a `Ofertas_activas` con su desplegable y `generar_cv_ia` sin
 marcar. Ninguna regresión en la pasada de `Jobs · archivado`.
 
-## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
-
-**Prioridad: baja. Abierta el 31 ago 2026 — la última, se hace cuando el
-proyecto esté acabado.** Cuando Jobs se dé por terminado (sin tareas abiertas
-que cambien la arquitectura), redactar el case study estructurado del proyecto
-para poder enseñarlo a otros (portfolio, cliente, entrevista). Es el Paso 19
-del método: invocar el skill `paso-19-case-study`, que lee `docs/00-problema.md`
-… `docs/09-rutina.md` y `docs/bitacora.md` y genera `docs/case-study.md`.
-
-**Criterio de cierre:** `docs/case-study.md` escrito y revisado por Mar, con el
-problema, la solución, las decisiones clave (aislamiento ingesta/archivado,
-guardarraíl de huecos, humanización con OpenAI, dedup por `id_url`, OAuth de
-Google) y los resultados reales del pipeline.
-
-# Cerradas
+**Cierre (10 sep 2026):** Mar probó las dos direcciones y confirma «¡funciona!».
+`descartada`/`rechazada` en `Ofertas_activas` saltan a `Archivo` al instante;
+elegir `pendiente` en el desplegable nuevo de `Archivo` devuelve la fila a
+`Ofertas_activas`. El `onEdit` simple y el desplegable de `Archivo` los mantiene
+el Apps Script (`clasp push` hecho). `Jobs · archivado` sigue de red de
+seguridad. Aprendizaje de la sesión: `clasp push` (como `publish_workflow`) sí
+funciona con vía libre explícita de Mar — ver `n8n-mcp-quirks` y `docs/bitacora.md`.
 
 ## 16. Revisión de legalidad frente al AI Act de la UE
 
