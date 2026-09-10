@@ -8,68 +8,6 @@ timestamp: 2026-08-29T09:00:00Z
 
 # Abiertas
 
-## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
-
-**Prioridad: alta. Abierta el 30 ago 2026. En vigilancia desde el 31 ago 2026.**
-Es M5 de [jobs-evaluacion.md](jobs-evaluacion.md). En modo *Testing* Google expira
-el refresh token a los 7 días — causa raíz de que `Google Sheets account` (16
-ago) y `Google Drive account` (29 ago #674, y otra vez #709 el 30 ago) se hayan
-desconectado. El arreglo es publicar la app OAuth (Google Cloud Console → Google
-Auth Platform → Público → «Publicar aplicación»), sin cambios en n8n.
-
-**Estado (31 ago 2026):**
-- Mar confirma que la app OAuth **ya estaba «En producción»** desde hacía días
-  (la publicó antes de que se abriera esta tarea). El fallo de `Google Drive
-  account` en #709 (30 ago 10:15Z) fue un token residual de la época *Testing*
-  que caducó; al reconectar Drive ese día ya se emitió un token de producción.
-- Para arrancar una ventana de vigilancia limpia con fecha conocida, **el 31 ago
-  2026 Mar reconectó las 5 credenciales de Google** en n8n (Drive, Docs, Sheets,
-  Sheets Trigger, Gmail), todas con «Account connected». A partir de ahora todos
-  los tokens son de producción y emitidos el mismo día.
-- Comprobado vía n8n MCP (31 ago): ninguna ejecución `error`/`crashed` en ningún
-  workflow después de #709 (30 ago). Línea base sin incidencias.
-
-**Chequeo intermedio (3 sep 2026):** `search_executions` con
-`status: [error, crashed]`, `startedAfter: 2026-08-31` → **0 resultados** en toda
-la instancia. 7+ días desde la reconexión base van limpios; falta llegar al 7 sep
-para cumplir la ventana de cierre.
-
-**Chequeo intermedio (6 sep 2026):** `search_executions` `status: [error, crashed]`
-`startedAfter: 2026-08-31` → **0 resultados**. En el mismo tramo, **47 ejecuciones
-`success`** que ejercitan las 5 credenciales de Google: `Jobs App · ingesta` y
-`Jobs · ingesta` (Sheets, Sheets Trigger) hasta el 5 sep, `Jobs · generación CV`
-(Drive, Docs, Sheets, Gmail) con decenas de pasadas hasta el 4 sep, `Jobs ·
-archivado` (Sheets) hasta el 4 sep. 6 días desde la reconexión base sin un solo
-«needs to be reconnected». Falta el día 7 sep (marca exacta de los 7 días desde el
-31 ago) para cerrar la ventana.
-
-**Chequeo (10 sep 2026, `/hola`):** `search_executions` `status: [error, crashed]`
-`startedAfter: 2026-08-31` → **0 resultados** en toda la instancia. La ventana de
-cierre (7+ días desde la reconexión base del 31 ago) se cumplió el 7 sep; hoy son
-+10 días sin un solo «needs to be reconnected». Última ejecución `success`
-registrada: #774 (`Jobs · generación CV`, 8 sep 11:35Z); sin pasadas el 9–10 sep,
-coherente con el portátil apagado, no con un fallo. **Criterio de cierre cumplido**
-— propuesta de cierre a la espera del OK de Mar.
-
-**Seguimiento pendiente por Claude — supervisión manual el 7 sep 2026 (o
-después).** El **7 sep 2026** (7+ días desde la reconexión base del 31 ago), o en
-la primera sesión posterior, comprobar vía n8n MCP que ninguna ejecución
-`error`/`crashed` desde el 31 ago sea un «needs to be reconnected» de una de las 5
-credenciales de Google (Drive, Docs, Sheets, Sheets Trigger, Gmail):
-`search_executions` con `status: [error, crashed]`, `startedAfter: 2026-08-31`. Si
-está limpio → cerrar esta tarea. Si alguna credencial cayó antes del 7 sep → la
-publicación no bastó (revocación manual, otra app OAuth, scopes) y hay que reabrir
-el diagnóstico.
-
-No se automatiza: un `/loop` local muere al apagar el ordenador y un routine de
-`/schedule` (nube) no alcanza la instancia de n8n del portátil (`127.0.0.1`) ni el
-MCP `n8n-mcp` (local, no es conector de claude.ai). Queda como recordatorio para
-que Claude lo haga a mano.
-
-**Criterio de cierre:** 7+ días (hasta el 7 sep 2026) sin ningún aviso de «needs
-to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail tras la
-reconexión base del 31 ago.
-
 ## 17. Mejorar `Filtro cualificación` — entran ofertas técnicas fuera de perfil
 
 **Prioridad: alta. Abierta el 3 sep 2026 — pedida por Mar. En recogida de
@@ -462,6 +400,77 @@ reordenación completa (nueva subtarea con su propio plan).
 </details>
 
 # Cerradas
+
+## 13. Comprobar que la app OAuth de Google queda publicada sin caducidad de 7 días
+
+**Prioridad: alta. Abierta el 30 ago 2026. En vigilancia desde el 31 ago 2026. CERRADA el 10 sep 2026.**
+Es M5 de [jobs-evaluacion.md](jobs-evaluacion.md). En modo *Testing* Google expira
+el refresh token a los 7 días — causa raíz de que `Google Sheets account` (16
+ago) y `Google Drive account` (29 ago #674, y otra vez #709 el 30 ago) se hayan
+desconectado. El arreglo es publicar la app OAuth (Google Cloud Console → Google
+Auth Platform → Público → «Publicar aplicación»), sin cambios en n8n.
+
+**Estado (31 ago 2026):**
+- Mar confirma que la app OAuth **ya estaba «En producción»** desde hacía días
+  (la publicó antes de que se abriera esta tarea). El fallo de `Google Drive
+  account` en #709 (30 ago 10:15Z) fue un token residual de la época *Testing*
+  que caducó; al reconectar Drive ese día ya se emitió un token de producción.
+- Para arrancar una ventana de vigilancia limpia con fecha conocida, **el 31 ago
+  2026 Mar reconectó las 5 credenciales de Google** en n8n (Drive, Docs, Sheets,
+  Sheets Trigger, Gmail), todas con «Account connected». A partir de ahora todos
+  los tokens son de producción y emitidos el mismo día.
+- Comprobado vía n8n MCP (31 ago): ninguna ejecución `error`/`crashed` en ningún
+  workflow después de #709 (30 ago). Línea base sin incidencias.
+
+**Chequeo intermedio (3 sep 2026):** `search_executions` con
+`status: [error, crashed]`, `startedAfter: 2026-08-31` → **0 resultados** en toda
+la instancia. 7+ días desde la reconexión base van limpios; falta llegar al 7 sep
+para cumplir la ventana de cierre.
+
+**Chequeo intermedio (6 sep 2026):** `search_executions` `status: [error, crashed]`
+`startedAfter: 2026-08-31` → **0 resultados**. En el mismo tramo, **47 ejecuciones
+`success`** que ejercitan las 5 credenciales de Google: `Jobs App · ingesta` y
+`Jobs · ingesta` (Sheets, Sheets Trigger) hasta el 5 sep, `Jobs · generación CV`
+(Drive, Docs, Sheets, Gmail) con decenas de pasadas hasta el 4 sep, `Jobs ·
+archivado` (Sheets) hasta el 4 sep. 6 días desde la reconexión base sin un solo
+«needs to be reconnected». Falta el día 7 sep (marca exacta de los 7 días desde el
+31 ago) para cerrar la ventana.
+
+**Chequeo (10 sep 2026, `/hola`):** `search_executions` `status: [error, crashed]`
+`startedAfter: 2026-08-31` → **0 resultados** en toda la instancia. La ventana de
+cierre (7+ días desde la reconexión base del 31 ago) se cumplió el 7 sep; hoy son
++10 días sin un solo «needs to be reconnected». Última ejecución `success`
+registrada: #774 (`Jobs · generación CV`, 8 sep 11:35Z); sin pasadas el 9–10 sep,
+coherente con el portátil apagado, no con un fallo. **Criterio de cierre cumplido**
+— propuesta de cierre a la espera del OK de Mar.
+
+**Seguimiento pendiente por Claude — supervisión manual el 7 sep 2026 (o
+después).** El **7 sep 2026** (7+ días desde la reconexión base del 31 ago), o en
+la primera sesión posterior, comprobar vía n8n MCP que ninguna ejecución
+`error`/`crashed` desde el 31 ago sea un «needs to be reconnected» de una de las 5
+credenciales de Google (Drive, Docs, Sheets, Sheets Trigger, Gmail):
+`search_executions` con `status: [error, crashed]`, `startedAfter: 2026-08-31`. Si
+está limpio → cerrar esta tarea. Si alguna credencial cayó antes del 7 sep → la
+publicación no bastó (revocación manual, otra app OAuth, scopes) y hay que reabrir
+el diagnóstico.
+
+No se automatiza: un `/loop` local muere al apagar el ordenador y un routine de
+`/schedule` (nube) no alcanza la instancia de n8n del portátil (`127.0.0.1`) ni el
+MCP `n8n-mcp` (local, no es conector de claude.ai). Queda como recordatorio para
+que Claude lo haga a mano.
+
+**Criterio de cierre:** 7+ días (hasta el 7 sep 2026) sin ningún aviso de «needs
+to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail tras la
+reconexión base del 31 ago.
+
+**Cierre (10 sep 2026):** criterio cumplido. Del 31 ago (reconexión base de las 5
+credenciales de Google) al 10 sep — 10 días, marca de 7 días superada el 7 sep —
+`search_executions` `status: [error, crashed]` `startedAfter: 2026-08-31` da **0
+resultados** en toda la instancia en cada chequeo (3, 6 y 10 sep). Ni un solo
+«needs to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail. Mar
+ejecutó `Jobs · ingesta` a mano el 10 sep (#775, `success`). Publicar la app OAuth
+resolvió la caducidad de 7 días del modo *Testing*. M5 de
+[jobs-evaluacion.md](jobs-evaluacion.md) hecho.
 
 ## 21. Unificar el formato de todas las pestañas de `n8n_jobs`
 

@@ -351,6 +351,11 @@ base. Convertido en la tarea 13 de [tareas-pendientes.md](tareas-pendientes.md),
 en vigilancia hasta el 7 sep 2026 sin «needs to be reconnected» para darlo por
 cerrado.
 
+**HECHO (10 sep 2026):** tarea 13 cerrada. Del 31 ago al 10 sep (10 días, marca
+de 7 días superada el 7 sep), 0 ejecuciones `error`/`crashed` en toda la instancia
+y ni un «needs to be reconnected» en Drive, Docs, Sheets, Sheets Trigger o Gmail.
+Publicar la app OAuth resolvió la caducidad del modo *Testing*.
+
 ## M6 — Sacar n8n del portátil
 
 n8n **no recupera disparos perdidos**: si el equipo está apagado o suspendido a
