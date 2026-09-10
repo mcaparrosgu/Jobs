@@ -859,3 +859,31 @@ decisión cambió, se anota una entrada nueva que lo diga.
   movió. `Archivo!estado` queda solo con `descartada`/`rechazada`.
 - QUÉ QUEDA — `# Abiertas` se queda con **una** tarea: la 14 (case study, Paso 19
   del método). Jobs no tiene ya tareas que cambien la arquitectura.
+
+## 2026-09-10 · Hito — borrador del case study (Paso 19) y Jobs aparcado hasta nuevo aviso
+
+- QUÉ SE DECIDIÓ — Se escribió `docs/case-study.md` con el skill
+  `paso-19-case-study` (10 secciones, mira hacia fuera) a partir de `04-spec.md`,
+  `03-legal.md`, `jobs-evaluacion.md`, `bitacora.md` y los docs de los 4
+  workflows. Acto seguido Mar **aparca el proyecto Jobs «hasta nuevo aviso»**:
+  el pipeline personal se da por terminado y estable, y el foco pasa a **Jobs
+  App** (`Rw4dTNjQa5tR3Eo4`), que es el MVP comercial y está avanzando. El case
+  study «bueno», con datos reales de negocio, será el de Jobs App cuando madure.
+- ALTERNATIVAS DESCARTADAS — (a) Invertir ahora en cerrar los huecos del case
+  study de Jobs (instrumentar coste por API, montar evals del Paso 14, correr el
+  red team del Paso 16) — Mar decidió que no compensa para una herramienta
+  personal ya estable. (b) Cerrar la tarea 14 al aparcar: Mar prefiere dejarla
+  **abierta** como «borrador pendiente de revisión», por si reactiva Jobs.
+- POR QUÉ ESTA — Jobs cumple su función y no tiene tareas que cambien la
+  arquitectura; seguir puliéndolo es coste sin retorno frente a Jobs App. El
+  borrador del case study deja el trabajo hecho y marcado (cada sección sin
+  datos dice «pendiente de medición», sin inventar cifras), listo para retomar.
+- QUÉ SE ROMPIÓ — Nada. Solo documentación: `docs/case-study.md` nuevo,
+  enlazado en `docs/index.md`; tarea 14 anotada en `tareas-pendientes.md` con el
+  estado del borrador y las secciones flojas; cabecera de `tareas-pendientes.md`
+  marcada como proyecto aparcado.
+- QUÉ QUEDA PENDIENTE DE ENTENDER — Nada nuevo de esta sesión (Mar lo confirmó).
+  Lo que queda es trabajo identificado y aplazado, no dudas: evals de la parte
+  de IA, medición de coste por candidatura, red team (Paso 16), y las 4
+  sugerencias aparcadas (M4, M6, seguimiento a 7-10 días, verificación del
+  archivado a 30 días). Se retoman si Jobs vuelve a activarse.

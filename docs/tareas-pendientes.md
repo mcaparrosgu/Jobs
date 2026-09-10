@@ -6,6 +6,14 @@ tags: [n8n, empleo, tareas]
 timestamp: 2026-08-29T09:00:00Z
 ---
 
+> **PROYECTO APARCADO — 10 sep 2026.** Mar da Jobs por terminado y estable «hasta
+> nuevo aviso»; el foco pasa a **Jobs App** (`Rw4dTNjQa5tR3Eo4`), el MVP
+> comercial. No hay tareas que cambien la arquitectura. Queda **solo la tarea
+> 14** abierta (borrador del case study, pendiente de revisión de Mar). Las
+> mejoras aplazadas están en [Sugerencias pendientes](#sugerencias-pendientes)
+> (M4, M6, seguimiento a 7-10 días, verificación del archivado a 30 días) y se
+> retoman si Jobs vuelve a activarse. Ver [bitácora](bitacora.md), 10 sep 2026.
+
 # Abiertas
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
