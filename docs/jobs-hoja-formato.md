@@ -623,6 +623,11 @@ MCP (`batch_update`), **sin tocar las columnas A–G** (así el desplegable de
   resto). Ninguna se lee aguas abajo: los filtros de salario/teletrabajo miran
   el dato **en memoria durante la ingesta**, no la hoja. La ingesta
   (`autoMapInputData`) simplemente deja de mapear esas dos claves; sin error.
+  **Corrección (26 sep 2026): las dos cosas eran falsas.** (1) El
+  `autoMapInputData` con `handlingExtraData` por defecto (`insertInNewColumn`)
+  **volvió a crear** `salario` y `modalidad` en U y V en la siguiente pasada.
+  (2) `Prompt para CV` (`Jobs · generación CV`) **sí las leía de la fila**
+  (`Modalidad:`/`Salario:` en `<datos_oferta>`). Ver la sección del 26 sep.
   **`Archivo` no se tocó** — conserva sus columnas `modalidad`/`salario`
   históricas; las filas nuevas archivadas las dejarán vacías.
 - **Reordenadas** las 20 columnas restantes (9 `moveDimension`, todos con
@@ -639,6 +644,25 @@ MCP (`batch_update`), **sin tocar las columnas A–G** (así el desplegable de
 - Verificado por API tras el cambio: validación `ONE_OF_LIST` de `estado` (E) y
   casilla `BOOLEAN` de `generar_cv_ia` (G) intactas; cada valor bajo su
   cabecera; anchos de columna viajaron con cada columna.
+
+## `salario`/`modalidad` reaparecidas y borradas de nuevo (26 sep 2026, tarea 24)
+
+Tras el borrado del 8 sep, `Jobs · ingesta` las volvió a crear al final (U y V)
+en la siguiente pasada y las siguió rellenando. Arreglo, con OK de Mar:
+
+- **`Jobs · ingesta` → `Append row in sheet`:** `options.handlingExtraData:
+  ignoreIt` (antes, por defecto, `insertInNewColumn`). Publicado
+  (`activeVersionId 51f18ee7-…`).
+- **`Jobs · generación CV` → `Prompt para CV`:** fuera las líneas `Modalidad:`
+  y `Salario:` del bloque `<datos_oferta>` (si no, el modelo recibiría
+  «(sin información)»). Resto del prompt idéntico, sha256 verificado.
+  Publicado (`activeVersionId 623ab57a-…`).
+- **Hoja:** `deleteDimension` de U–V (índices 20–22) tras publicar. Vuelve a 20
+  columnas A–T, verificado por API.
+
+**Regla nueva:** con `ignoreIt`, una columna que se quiera añadir a
+`Ofertas_activas` hay que **crearla a mano en la cabecera** antes de que la
+ingesta la rellene.
 
 ## Orden y función de las columnas (20 col., A–T)
 

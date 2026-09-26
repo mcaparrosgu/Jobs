@@ -887,3 +887,32 @@ decisión cambió, se anota una entrada nueva que lo diga.
   de IA, medición de coste por candidatura, red team (Paso 16), y las 4
   sugerencias aparcadas (M4, M6, seguimiento a 7-10 días, verificación del
   archivado a 30 días). Se retoman si Jobs vuelve a activarse.
+
+## 2026-09-26 · MCP n8n caído por AVG + `salario`/`modalidad` borradas de verdad (tarea 24)
+
+- QUÉ SE ROMPIÓ — (1) El MCP `n8n-mcp` conectaba pero no cargaba herramientas
+  («tools fetch failed», `InvalidHTTPResponse`). Causa verificada con bytes en
+  crudo: el escudo HTTPS de **AVG** (actualizado el 22-24 sep) reescribía las
+  respuestas pedidas con `Accept-Encoding: identity` anunciando
+  `transfer-encoding: chunked` sin trocear el cuerpo. No era el servidor n8n,
+  ni Tailscale, ni una regresión de Claude Code: Node/undici fallaba igual.
+  Arreglo de Mar: excepción de URL en AVG (General → Excepciones).
+  (2) `salario` y `modalidad`, borradas el 8 sep, habían **reaparecido** en U y
+  V de `Ofertas_activas`.
+- QUÉ SE DECIDIÓ — Mar eligió borrarlas y quitar también las 2 líneas del
+  prompt del CV que las usaban. Alternativas descartadas: borrarlas dejando al
+  prompt con «(sin información)», o solo ocultarlas.
+- QUÉ SE HIZO — `Append row in sheet` con `handlingExtraData: ignoreIt`;
+  `Prompt para CV` sin `Modalidad:`/`Salario:`; ambos drafts verificados byte a
+  byte y **publicados por Claude** con OK de Mar; después, borrado de U–V por
+  API. Detalle en [jobs-hoja-formato.md](jobs-hoja-formato.md).
+- APRENDIZAJE — Corrige el «APRENDIZAJE 2» del 8 sep, que era falso por
+  partida doble: (a) con `autoMapInputData`, **borrar la columna no basta**:
+  el valor por defecto `insertInNewColumn` la recrea. Hay que poner `ignoreIt`
+  o quitar la clave del item. (b) `Prompt para CV` sí leía las dos columnas de
+  la fila (vía `Filtro generar CV` ← `Get row(s) in sheet1`). Justo el tipo de
+  consumidor que la regla general ya avisaba que es fácil pasar por alto.
+  Antes de borrar una columna: buscar el nombre en el código de **todos** los
+  workflows que leen la hoja, no solo en los que la escriben.
+- QUÉ QUEDA — Confirmar en la próxima pasada programada de ingesta que U/V no
+  reaparecen (tarea 24).

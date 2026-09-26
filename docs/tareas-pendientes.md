@@ -13,8 +13,28 @@ timestamp: 2026-08-29T09:00:00Z
 > mejoras aplazadas están en [Sugerencias pendientes](#sugerencias-pendientes)
 > (M4, M6, seguimiento a 7-10 días, verificación del archivado a 30 días) y se
 > retoman si Jobs vuelve a activarse. Ver [bitácora](bitacora.md), 10 sep 2026.
+> **26 sep 2026:** Mar pidió un arreglo puntual → tarea 24 (hecha, pendiente
+> solo de verificar en la próxima pasada de ingesta).
 
 # Abiertas
+
+## 24. Que `salario`/`modalidad` no vuelvan a aparecer en `Ofertas_activas`
+
+**Prioridad: baja. Abierta y hecha el 26 sep 2026 — pedida por Mar; solo falta
+verificar.** Las columnas borradas el 8 sep (tarea 19) reaparecieron en U y V:
+`Append row in sheet` (`autoMapInputData`) crea columna para cada clave que no
+la tiene. Además `Prompt para CV` las leía de la fila.
+
+**Hecho (26 sep 2026):** `Append row in sheet` → `handlingExtraData: ignoreIt`
+(`Jobs · ingesta`, `activeVersionId 51f18ee7-…`); `Prompt para CV` sin las
+líneas `Modalidad:`/`Salario:` (`Jobs · generación CV`, `activeVersionId
+623ab57a-…`); columnas U–V borradas por API. Detalle en
+[jobs-hoja-formato.md](jobs-hoja-formato.md) y [bitácora](bitacora.md).
+
+**Criterio de cierre:** la primera pasada programada de `Jobs · ingesta`
+posterior al 26 sep 2026 (tarde) termina en `success`, escribe ofertas nuevas y
+la cabecera de `Ofertas_activas` sigue en 20 columnas (A–T), sin `salario` ni
+`modalidad`.
 
 ## 14. Redactar el case study estructurado de Jobs (al terminar el proyecto)
 

@@ -243,7 +243,14 @@ en la 10, Jobicy en la 11 y Jooble en la 12, nueva). Despues, en cadena:
    Ver Fallos conocidos. Desde el 31 ago 2026 la salida de `Filtro duplicados`
    abre en abanico también a **`Registrar métricas`** (rama aislada de métricas,
    sección E); `Append row in sheet` sigue siendo el primer consumidor y su
-   comportamiento no cambia.
+   comportamiento no cambia. **Desde el 26 sep 2026 con `handlingExtraData:
+   ignoreIt`**: el `autoMapInputData` solo escribe las claves que ya tienen
+   columna en la cabecera. Antes (`insertInNewColumn`, el valor por defecto)
+   cada clave sin columna creaba una columna nueva — así reaparecieron
+   `salario`/`modalidad` tras borrarlas el 8 sep. Las dos claves siguen
+   viajando por el flujo (los filtros y `Formato email`, que pinta la columna
+   «Modalidad» del correo, las leen en memoria). Consecuencia: **una columna
+   nueva en la hoja hay que crearla a mano** antes de que la ingesta la rellene.
 7. **`If`** (¿hubo filas nuevas?) → **`Formato email`** → **`Notificación
    nuevas ofertas`** (Gmail, tabla HTML) → **`Ping Healthchecks`**
    (ping a `$env.HEALTHCHECKS_PING_URL`). Si no hubo ofertas, va directo al
