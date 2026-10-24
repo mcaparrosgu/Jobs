@@ -1,0 +1,577 @@
+{
+  "name": "Jobs · seguimiento",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour",
+              "minute": 30
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "<ID_ETIQUETA_GMAIL>"
+          ]
+        },
+        "options": {}
+      },
+      "id": "642207c9-c63f-46c0-bdee-1e2f0b516525",
+      "name": "Email recibido",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1040,
+        992
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "<ID_CREDENCIAL>",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ea9c598-73c2-4812-978f-bcd6da7962f2",
+              "leftValue": "={{ $json.from.value[0].address }}",
+              "rightValue": "<TU_EMAIL>",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "43e7d4ab-62df-4a08-b821-3ed3b8fedf27",
+      "name": "Email no interno",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -768,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analiza este email recibido:\n\nDe: {{ $json.from.value[0].address }}\nAsunto: {{ $json.subject }}\nFecha: {{ $json.date }}\n\nContenido:\n{{ $json.text || $json.html }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Eres un asistente que analiza emails relacionados con candidaturas de empleo de Mar.\n\nTU TAREA:\n1. Lee el email recibido.\n2. Usa la herramienta de consulta para ver las candidaturas guardadas.\n3. Identifica si el email corresponde a alguna de ellas, comparando empresa y puesto.\n4. Propón un cambio de estado y resume el contenido.\n\nESTADOS POSIBLES (usa exactamente uno de estos):\n- respuesta_recibida: la empresa contesta algo que no es ni rechazo ni entrevista\n- entrevista: te citan a una entrevista o proponen fecha\n- rechazada: descartan la candidatura\n- oferta_recibida: te ofrecen el puesto\n\nREGLAS IMPORTANTES:\nPRIMERO DE TODO, decide si el email es una respuesta de una empresa a una candidatura de Mar.\n\nNO lo es si: lo envía la propia Mar, es publicidad, es una alerta de empleo, \nes una newsletter, o es una notificación automática de una plataforma.\n\nSI NO LO ES → responde exactamente así y no hagas nada más:\nid_unico: (vacío)\nestado_propuesto: (vacío)\nresumen_respuesta: No es una respuesta de empresa a una candidatura.\n\nSOLO SI SÍ LO ES, continúa: busca la candidatura en el Sheet y propón uno \nde los cuatro estados de la lista.\n\nNunca uses un estado que no esté en la lista de cuatro. \nNunca rellenes id_unico si no has encontrado una coincidencia clara.\n"
+        }
+      },
+      "id": "c2400be6-4136-441b-b6ac-134ed55e128a",
+      "name": "Analizar respuesta empresa",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -544,
+        976
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "id": "a471c5a4-7810-4623-a4d0-ce25e1fa5938",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        -544,
+        1168
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "<ID_CREDENCIAL>",
+          "name": "Anthropic account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "id": "5157c122-655e-4fe2-8707-e32319053a17",
+      "name": "Anthropic Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        -480,
+        1472
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "<ID_CREDENCIAL>",
+          "name": "Anthropic account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Devuelve todas las candidaturas de empleo guardadas, con sus columnas: \nid_unico, titulo_puesto, empresa, estado, fecha_guardado y enlace_o_email. \nÚsala para identificar a qué oferta corresponde un email recibido, \ncomparando el nombre de la empresa y el puesto.",
+        "documentId": {
+          "__rl": true,
+          "value": "<ID_HOJA_N8N_JOBS>",
+          "mode": "list",
+          "cachedResultName": "n8n_jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<ID_HOJA_N8N_JOBS>/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ofertas_activas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<ID_HOJA_N8N_JOBS>/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "c8f00d54-f5e2-48d3-b741-d16e1807b92a",
+      "name": "Consultar tabla ofertas",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -448,
+        1152
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<ID_CREDENCIAL>",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"id_unico\": \"ccf0332b\",\n  \"estado_propuesto\": \"entrevista\",\n  \"resumen_respuesta\": \"La empresa propone una videollamada para el martes 4 de agosto.\"\n}",
+        "autoFix": true
+      },
+      "id": "abe6fdfe-d0c5-4113-9a19-f3fd8f8e20b8",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "<ID_HOJA_N8N_JOBS>",
+          "mode": "list",
+          "cachedResultName": "n8n_jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<ID_HOJA_N8N_JOBS>/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ofertas_activas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<ID_HOJA_N8N_JOBS>/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id_unico": "={{ $('Analizar respuesta empresa').item.json.output.id_unico }}",
+            "estado_propuesto": "={{ $('Analizar respuesta empresa').item.json.output.estado_propuesto }}",
+            "resumen_respuesta": "={{ $('Analizar respuesta empresa').item.json.output.resumen_respuesta }}"
+          },
+          "matchingColumns": [
+            "id_unico"
+          ],
+          "schema": [
+            {
+              "id": "fecha_guardado",
+              "displayName": "fecha_guardado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titulo_puesto",
+              "displayName": "titulo_puesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "empresa",
+              "displayName": "empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fecha_publicacion",
+              "displayName": "fecha_publicacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "generar_cv_ia",
+              "displayName": "generar_cv_ia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "resumen",
+              "displayName": "resumen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "modalidad",
+              "displayName": "modalidad",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "salario",
+              "displayName": "salario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tipo_aplicacion",
+              "displayName": "tipo_aplicacion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "enlace_o_email",
+              "displayName": "enlace_o_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "plataforma",
+              "displayName": "plataforma",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id_unico",
+              "displayName": "id_unico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estado_propuesto",
+              "displayName": "estado_propuesto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "resumen_respuesta",
+              "displayName": "resumen_respuesta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "963e9e31-62aa-469b-b928-9419847a2b8f",
+      "name": "Guardar propuesta de la IA",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        960
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "<ID_CREDENCIAL>",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f8c31bf9-6ab0-4a14-806f-690ea7856115",
+              "leftValue": "={{ $json.output.id_unico }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3b3e9e09-396f-45bf-93ad-4dfbbc342629",
+      "name": "Hay candidatura",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        976
+      ]
+    },
+    {
+      "id": "b8bc7cd4-ce9e-4042-b496-b6c65b0ae5ab",
+      "name": "Ping Healthchecks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        280,
+        1200
+      ],
+      "parameters": {
+        "url": "={{ $env.HEALTHCHECKS_PING_URL_SEGUIMIENTO }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    }
+  ],
+  "connections": {
+    "Email recibido": {
+      "main": [
+        [
+          {
+            "node": "Email no interno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email no interno": {
+      "main": [
+        [
+          {
+            "node": "Analizar respuesta empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analizar respuesta empresa",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar tabla ofertas": {
+      "ai_tool": [
+        [
+          {
+            "node": "Analizar respuesta empresa",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Analizar respuesta empresa",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar respuesta empresa": {
+      "main": [
+        [
+          {
+            "node": "Hay candidatura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay candidatura": {
+      "main": [
+        [
+          {
+            "node": "Guardar propuesta de la IA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ping Healthchecks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar propuesta de la IA": {
+      "main": [
+        [
+          {
+            "node": "Ping Healthchecks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

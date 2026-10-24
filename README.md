@@ -51,10 +51,14 @@ Empieza por el **[case study](docs/case-study.md)** y el [índice de docs](docs/
 ## Estructura
 
 ```
+workflows/       los 4 workflows de n8n, exportados y saneados
 docs/            documentación y case study
 apps-script/     Apps Script de mantenimiento de la hoja (clasp)
 data/examples/   datos de ejemplo ficticios (el perfil real no se publica)
+.env.example     variables de entorno que leen los workflows
 ```
+
+Los workflows se importan en n8n desde [`workflows/`](workflows/); las credenciales, los IDs de Google y el perfil de la candidata van como marcadores (ver el [README de workflows](workflows/README.md)).
 
 ## Licencia
 
