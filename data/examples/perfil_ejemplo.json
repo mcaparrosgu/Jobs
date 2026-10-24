@@ -1,0 +1,58 @@
+{
+  "perfil": {
+    "nombre": "Ana Ejemplo",
+    "titular_general": "Operations Specialist en transición a AI Engineering",
+    "contacto": {
+      "email": "ana.ejemplo@example.com",
+      "telefono": "+34 600 000 000",
+      "linkedin": "linkedin.com/in/ana-ejemplo",
+      "ubicacion": "España"
+    },
+    "resumen_general": "Perfil ficticio de ejemplo. Seis años en operaciones y ahora automatizando procesos con n8n y LLMs.",
+    "idiomas": ["Español (nativo)", "Catalán (nativo)", "Inglés (C1)"],
+    "disponibilidad": "Inmediata, remoto"
+  },
+  "experiencia": [
+    {
+      "puesto": "Operations Specialist",
+      "empresa": "Empresa Ficticia S.L.",
+      "modalidad": "Híbrido",
+      "fechas": "2019 - 2024",
+      "tareas": [
+        "Coordinación de procesos operativos entre tres equipos.",
+        "Automatización de informes semanales con hojas de cálculo."
+      ],
+      "enfoques_alternativos": {
+        "automatizacion": "Destacar la automatización de informes y la reducción de trabajo manual.",
+        "operaciones": "Destacar la coordinación entre equipos y la gestión de incidencias."
+      }
+    }
+  ],
+  "formacion": [
+    {
+      "titulo": "Bootcamp de AI Engineering",
+      "institucion": "Centro Ficticio",
+      "fechas": "2026",
+      "detalle": "Agentes, RAG, APIs y despliegue."
+    }
+  ],
+  "proyectos": [
+    {
+      "nombre": "Pipeline de búsqueda de empleo",
+      "fechas": "2026",
+      "estado": "en producción personal",
+      "etiquetas": ["n8n", "LLM", "Google Sheets"],
+      "descripcion": "Rastrea ofertas, las puntúa y adapta el CV a cada una.",
+      "detalles_tecnicos": ["13 fuentes", "Filtros deterministas", "Scoring con IA"],
+      "enfoques_alternativos": {
+        "automatizacion": "Contar el diseño de los workflows.",
+        "ia": "Contar el scoring y la generación de CV sin inventar."
+      }
+    }
+  ],
+  "habilidades": ["n8n", "Python", "SQL", "Prompt engineering", "Google Sheets"],
+  "notas_para_la_ia": [
+    "No inventar experiencia ni cifras que no estén en este perfil.",
+    "Escribir en el idioma de la oferta."
+  ]
+}

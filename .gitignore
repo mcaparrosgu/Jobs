@@ -1,0 +1,9 @@
+# Datos personales y secretos: nunca se suben
+CVs json/
+data/private/
+*.env
+.env*
+!.env.example
+.clasprc.json
+apps-script/.clasp.json
+backups/
